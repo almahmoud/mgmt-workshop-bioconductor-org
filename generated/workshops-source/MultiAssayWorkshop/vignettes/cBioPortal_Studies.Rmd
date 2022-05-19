@@ -1,0 +1,40 @@
+---
+title: "cBioPortalData Studies"
+author:
+  - name: Marcel Ramos
+    affiliation: CUNY School of Public Health, New York, NY
+vignette: >
+  %\VignetteIndexEntry{cBioPortal Studies}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    mathjax: null
+---
+
+# Available Studies
+
+## cBioPortalData() && cBioDataPack()
+
+These are the studies available through the cBio Genomics Portal website.
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+library(cBioPortalData)
+library(knitr)
+cbio <- cBioPortal()
+gst <- getStudies(cbio, buildReport = TRUE)
+knitr::kable(gst, align = "l", escape = FALSE, format = "html",
+    caption = "List of available studies from the cBio Genomics PortalData") |>
+    kableExtra::kable_styling(
+        bootstrap_options = c("hover", "striped", "responsive"),
+        full_width = FALSE
+    )
+```
+
+### NOTES
+
+The last two columns indicate the build status of the studyIds in the table.
+`pack_build` is a logical vector that indicates which studies are currently
+building as `MultiAssayExperiment` representations with the `cBioDataPack`
+function. The corresponding column for the `cBioPortalData` function is
+`api_build`.
