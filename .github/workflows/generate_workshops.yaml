@@ -1,14 +1,21 @@
 name: Generate workshops from list
-on: push
+on: workflow_dispatch
 jobs:
   generatevalues:
     name: Generate values
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Login to docker hub
         uses: actions-hub/docker/login@master
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - run: "bash generate_workshops_yaml.sh"
+      - run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Adding generated $(echo $(date +'%m-%d-%H-%M-%S'))"
+          git push
