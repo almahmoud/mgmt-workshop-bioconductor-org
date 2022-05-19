@@ -1,0 +1,18 @@
+url: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop
+
+template:
+  params:
+    bootswatch: flatly
+    #ganalytics: UA-99999999-9
+
+home:
+  title: "metabolomeanalysisworkshop"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop
+     
+

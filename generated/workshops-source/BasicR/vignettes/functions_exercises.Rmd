@@ -1,0 +1,56 @@
+---
+title: "Functions, exercises"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Functions, exercises}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+1. Write a function that divides two numbers. If the divider is zero, it shouldn't try the division, but give a message about it. 
+
+```{r}
+
+
+```
+
+
+2. Write a function that changes all vowels of a string to e-s.
+
+```{r}
+
+```
+
+
+3. Add a checking part, that checks if the input is indeed one character and it has vowels in it. If not, it should give a message. 
+
+```{r}
+
+```
+
+4.  Write a function that calculates the variance of a vector.
+
+$$Var(x)=\frac 1{n-1}\sum_{i=1}^{n} (x_{i}-\overline{x})^2$$
+where 
+$$\overline{x}=\frac{\sum_{i=1}^{n}x_{i}}n$$
+```{r}
+
+
+```
+
+
+5. Add code to check if the input data is in the correct format. 
+
+```{r}
+
+```
+
+6. Add a warning, if the class of the input vector is not numeric, and try to coerce as one.
+
+```{r}
+
+
+```
+
+
+

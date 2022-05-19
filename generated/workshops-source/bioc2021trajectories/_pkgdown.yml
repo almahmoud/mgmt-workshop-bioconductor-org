@@ -1,0 +1,17 @@
+url: https://hectorrdb.github.io/bioc2021trajectories
+
+template:
+  params:
+    bootswatch: flatly
+
+home:
+  title: "bioctrajectories2020"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/HectorRDB/bioc2021trajectories
+     
+

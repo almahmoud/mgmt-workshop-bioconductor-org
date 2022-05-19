@@ -1,0 +1,4 @@
+*.html
+*.utf8.md
+vignettes/alevin2bioc_cache
+docs

@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile
+renv
+renv.lock
+iSEEWorkshopEuroBioc2020.Rproj
+.DS_Store
+docs
+check
+doc
+Meta
+man/dot-*
+*knit.md

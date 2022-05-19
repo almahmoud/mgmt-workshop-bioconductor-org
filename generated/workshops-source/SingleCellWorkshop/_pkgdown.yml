@@ -1,0 +1,18 @@
+url: https://yunshun.github.io/SingleCellWorkshop
+
+template:
+  params:
+    bootswatch: flatly
+    #ganalytics: UA-99999999-9
+
+home:
+  title: "SingleCellWorkshop"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/yunshun/SingleCellWorkshop
+     
+

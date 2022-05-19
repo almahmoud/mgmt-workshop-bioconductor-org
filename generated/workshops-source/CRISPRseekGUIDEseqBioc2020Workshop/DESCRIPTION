@@ -1,0 +1,32 @@
+Package: RISPRseekGUIDEseqBioc2020Workshop
+Title: CRISPRseek and GUIDEseq for designing target-specific gRNAs for the CRISPR genome editing system; Motif analysis with motifStack and dagLogo
+Version: 1.0.4
+Authors@R: 
+    c(person(given = "Lihua Julie",
+           family = "Zhu",
+           role = c("aut", "cre"),
+           email = "julie.zhu@umassmed.edu",
+           comment = c(ORCID = "0000-0001-7416-0590")),
+    person(given="Jianhong", family="Ou", email="jianhong.ou@duke.edu", 
+           role=c("aut"), comment=c(ORCID="0000-0002-8652-2488")))
+Description: Design gRNAs with high efficacy and specificity using CRISPRseek for various variants of CRISPR genome editing system, and GUIDEseq for genome-wide offtarget anaysis of GUIDE-seq data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: 
+    Biobase,
+    CRISPRseek,
+    GUIDEseq,
+    TxDb.Hsapiens.UCSC.hg19.knownGene,
+    org.Hs.eg.db,
+    BSgenome.Hsapiens.UCSC.hg19
+Suggests: 
+    knitr,
+    rmarkdown,
+    pkgdown
+URL: https://LihuaJulieZhu.github.io/CRISPRseekGUIDEseqBioc2020Workshop/
+BugReports: https://github.com/LihuaJulieZhu/CRISPRseekGUIDEseqBioc2020Workshop/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: lihuajuliezhu/crisprseekguideseqbioc2020workshop:latest

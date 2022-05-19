@@ -271,3 +271,71 @@ extraFileMappings:
           </tests>
           <help></help>
       </tool>
+  /galaxy/server/tools/interactive/biocworkshop_MultiAssayWorkshop.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_MultiAssayWorkshop" tool_type="interactive" name="Multi-omic Integration and Analysis of cBioPortal and TCGA data with MultiAssayExperiment" version="0.1">
+          <requirements>
+              <container type="docker">waldronlab/multiassayworkshop:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - MultiAssayWorkshop" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_CompGenomicsBioc2022.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_CompGenomicsBioc2022" tool_type="interactive" name="Comparative Genomics Analyses with SynExtend and DECIPHER" version="0.1">
+          <requirements>
+              <container type="docker">ahl27/compgenomicsbioc2022:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - CompGenomicsBioc2022" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>

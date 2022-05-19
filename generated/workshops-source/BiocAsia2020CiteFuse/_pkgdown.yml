@@ -1,0 +1,17 @@
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-93043521-1
+
+home:
+  title: "BiocAsia2020CiteFuse"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/SydneyBioX/BiocAsia2020CiteFuse
+     
+

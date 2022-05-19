@@ -1,0 +1,54 @@
+Package: BuildACarpentriesWorkshop
+Title: Development Of Bioconductor-focused Carpentries Lessons
+Version: 0.0.1
+Authors@R: 
+    c(person(given = "Jenny",
+             family = "Drnevich",
+             role = c("aut", "cre"),
+             email = "drnevich@illinois.edu",
+             comment = c(ORCID = "")),
+      person(given = "Charlotte",
+             family = "Soneson",
+             role = c("aut"),
+             email = "charlotte.soneson@fmi.ch",
+             comment = c(ORCID = "")),
+      person(given = "Toby",
+             family = "Hodges",
+             role = c("aut"),
+             email = "tobyhodges@carpentries.org",
+             comment = c(ORCID = "")),
+      person(given = "Laurent",
+             family = "Gatto",
+             role = c("aut"),
+             email = "laurent.gatto@uclouvain.be",
+             comment = c(ORCID = "")),
+      person(given = "Kevin",
+             family = "Rue-Albrecht",
+             role = c("aut"),
+             email = "kevin.rue-albrecht@kennedy.ox.ac.uk",
+             comment = c(ORCID = "")),
+      person(given = "Robert",
+             family = "Castelo",
+             role = c("aut"),
+             email = "robert.castelo@upf.edu",
+             comment = c(ORCID = "")))
+Description: This workshop contains a brief overview of the guiding 
+  principles for lesson development from the Carpentries, and 
+  encourages participants to contribute to the existing Bioconductor
+  lesson material as well as starting to develop new material. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: 
+    Biobase
+Suggests: 
+    knitr,
+    rmarkdown,
+    pkgdown,
+    xaringan
+URL: https://jdrnevich.github.io/BuildACarpentriesWorkshop/
+BugReports: https://github.com/jdrnevich/BuildACarpentriesWorkshop/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: jdrnevich/buildacarpentriesworkshop:latest

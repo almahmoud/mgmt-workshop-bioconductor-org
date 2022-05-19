@@ -1,0 +1,31 @@
+---
+title: "Carpentries Guiding Principles"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GuidingPriniples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+Authors:
+    Toby Hodges^[tobyhodges@carpentries.org],
+    Jenny Drnevich^[drnevich@illinois.edu],
+    <br/>
+Last modified: `r Sys.Date()`.
+
+## Carpentries guiding principles
+
+Background reading: [Overall guiding principles](https://cdh.carpentries.org/guiding-principles.html)
+
+Focus topic: [Designing and Writing Exercises](https://jdrnevich.github.io/BuildACarpentriesWorkshop/slides/DesigningWritingExercises.html)
+
+

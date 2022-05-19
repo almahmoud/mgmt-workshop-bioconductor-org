@@ -1,0 +1,18 @@
+url: https://chloemirzayi.com/epiforbioworkshop2021
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-93043521-1
+
+home:
+  title: "epiforbioworkshop2021"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://cmirzayi.github.io/epiforbioworkshop2021
+     
+

@@ -1,0 +1,45 @@
+Package: PublicDataResources
+Type: Package
+Title: Public Data Resources in Bioconductor
+Version: 0.2.2
+Authors@R: c(person("Sean", "Davis", email = "seandavi@gmail.com",
+    role = c("aut")),
+    person("Benjamin", "Haibe-Kains", email = "bhaibeka@gmail.com",
+    role = "aut"),
+    person("Levi", "Waldron", email = "lwaldron.research@gmail.com",
+    role = c("aut", "cre")))
+Description: The goal of this workshop is to introduce Bioconductor 
+    packages for finding, accessing, and using large-scale public data 
+    resources including the Gene Expression Omnibus GEO, the Genomic Data Commons GDC, and Bioconductor-hosted 
+    curated data resources for metagenomics, pharmacogenomics PharmacoDB, 
+    and The Cancer Genome Atlas.
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+VignetteBuilder:
+    knitr,
+    rmarkdown
+Suggests: 
+    knitr,
+    pkgdown,
+    rmarkdown
+Imports:
+    BiocStyle,
+    igraph,
+    ggplot2,
+    magrittr,
+    MultiAssayExperiment,
+    GEOquery, 
+    GenomicDataCommons,
+    curatedTCGAData,
+    TCGAutils,
+    cBioPortalData,
+    recount,
+    curatedMetagenomicData,
+    phyloseq,
+    HMP16SData,
+    TCGAbiolinks,
+    PharmacoGx
+DockerImage: waldronlab/publicdataresources:latest
+URL: https://waldronlab.io/PublicDataResources/

@@ -12,4 +12,6 @@ configs:
           <tool file="interactive/biocworkshop_BioC2021_DelayedArray_workshop.xml" />
           <tool file="interactive/biocworkshop_preciseTADworkshop.xml" />
           <tool file="interactive/biocworkshop_ggmsaBioWorkshop2021.xml" />
+          <tool file="interactive/biocworkshop_MultiAssayWorkshop.xml" />
+          <tool file="interactive/biocworkshop_CompGenomicsBioc2022.xml" />
       </toolbox>

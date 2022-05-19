@@ -1,0 +1,70 @@
+Package: GenesetAnalysisWorkflow
+Title: Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb
+Version: 0.9.2
+Authors@R: 
+    c(
+      person(
+        "Dharmesh",
+        "Bhuva",
+        "D.",
+        email = "bhuva.d@wehi.edu.au",
+        role = c("aut", "cre"),
+        comment = c(ORCID = '0000-0002-6398-9157')
+      ),
+      person(
+        "Chin Wee",
+        "Tan",
+        email = "cwtan@wehi.edu.au",
+        role = c("aut"),
+        comment = c(ORCID = '0000-0001-9695-7218')
+      ),
+      person(
+        "Melissa",
+        "Davis",
+        "J.",
+        email = "davis.m@wehi.edu.au",
+        role = c("aut"),
+        comment = c(ORCID = '0000-0003-4864-7033')
+      )
+    )
+Description: This workflow package shows how transcriptomic signatures can be used
+  to infer phenotypes. 
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: false
+Workflow: True
+biocViews: GeneExpressionWorkflow, Workflow
+VignetteBuilder: knitr
+Depends: 
+    R (>= 4.1.1)
+Imports: 
+    Biobase,
+    emtdata,
+    edgeR,
+    ggplot2,
+    GSEABase,
+    msigdb,
+    singscore,
+    SummarizedExperiment,
+    vissE,
+    ExperimentHub,
+    hexbin,
+    igraph,
+    graphics,
+    KernSmooth,
+    patchwork,
+    statmod
+Suggests: 
+    pkgdown,
+    BiocStyle,
+    BiocWorkflowTools,
+    knitr,
+    prettydoc,
+    rmarkdown,
+    spelling
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Language: en-US
+URL: https://davislaboratory.github.io/GenesetAnalysisWorkflow/
+BugReports: https://github.com/DavisLaboratory/GenesetAnalysisWorkflow/issues
+DockerImage: bhuvad/genesetanalysisworkflow:latest

@@ -1,0 +1,100 @@
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# Workshop of microbiome dataset analysis using MicrobiotaProcess
+
+# Instructors name and contact information
+
+  - Shuangbin Xu: <xshuangbin@163.com>
+      - Department of Bioinformatics, School of Basic Medical Sciences,
+        Southern Medical University, Guangzhou, China
+  - Supervisor: Guangchuang Yu
+
+# Workshop description
+
+This workshop focuses on the bioinformatics analysis of `microbiome`.
+Specifically, we will demonstrate how to perform downstream analysis
+(after OTU picking) using `MicrobiotaProcess` and `phyloseq`.
+
+## Pre-requisites
+
+  - Basic knowledge of R syntax.
+  - General understanding of `Amplicon` analysis or have strong
+    interests.
+  - Familiarity with some `bioconductor` objects or `S4` class.
+  - A computer that runs on Unix-like system.
+
+## How to run Docker
+
+  - Install Docker (<https://www.docker.com/>)
+  - Pull the Docker image from Docker hub: `docker pull
+    xushuangbin/microbiotaprocessworkshop`
+  - Run the image: `docker run -e PASSWORD=yourpassword -p 8787:8787
+    xushuangbin/microbiotaprocessworkshop`
+  - Log in to RStudio at <http://localhost:8787> using username
+    `rstudio` and password `yourpassword`. For Windows users, you also
+    need to provide your IP address, you can find it using
+    `docker-machine ip default`.
+  - Inside the RStudio, run: `browseVignettes(package =
+    "xushuangbin/microbiotaprocessworkshop")`
+  - You can click one of the links: “HTML”, “source”, “R code”
+  - In case of `The requested page was not found` error, try add ‘help/’
+    in front of the hostname in the URL (this is a known bug):
+    <http://localhost:8787/help/library/microbiotaprocessworkshop/doc/MicrobiotaProcessWorkshop.html>
+
+## *R* / *Bioconductor* packages used
+
+  - [MicrobiotaProcess](https://www.bioconductor.org/packages/devel/bioc/html/MicrobiotaProcess.html)
+  - [phyloseq](https://www.bioconductor.org/packages/release/bioc/html/phyloseq.html)
+  - [ggplot2](https://cran.r-project.org/web/packages/ggplot2/index.html)
+  - [ggtree](https://www.bioconductor.org/packages/release/bioc/html/ggtree.html)
+  - [vegan](https://cran.r-project.org/web/packages/vegan/index.html)
+
+## Time outline
+
+| Activity                          | Time |
+| --------------------------------- | ---- |
+| overview of Amplicon-Seq          | 3m   |
+| pipeline of Amplicon-Seq analysis | 4m   |
+| Downstream analysis               | 10m  |
+| \+ rarefraction curve             |      |
+| \+ Alpha and beta analysis        |      |
+| \+ Biomarker discovery            |      |
+| \+ etc.                           |      |
+| Hands-on demonstration            | 20m  |
+| Q/A section                       | 5m   |
+
+# Workshop goals and objectives
+
+## Learning goals
+
+  - Understand the basic idea of microbiome.
+  - Identify the commonly practiced tools used in downstream analysis of
+    microbiome.
+  - Understand the common analysis of microbiome.
+
+## Learning objectives
+
+  - Get familiar with the package `MicrobiotaProcess` and `phyloseq`.
+  - Perform different analysis of microbiome.
+  - Get familiar with the visualization of microbiome.
+
+## Useful links
+
+  - pkgdown website that contains all workshop materials:
+    <https://yulab-smu.top/MicrobiotaProcessWorkshop>
+  - some vignettes of online:
+    <https://yulab-smu.top/treedata-book/chapter11.html#MicrobiotaProcess>
+    <https://yulab-smu.top/treedata-book/related-tools.html>
+  - GitHub Action build status badge:
+    ![.github/workflows/basic\_checks.yaml](https://github.com/YuLab-SMU/MicrobiotaProcessWorkshop/workflows/.github/workflows/basic_checks.yaml/badge.svg)
+  - rstudio cloud instance
+      - <http://workshop.bioc.cancerdatasci.org>
+    
+      - 选择：Analysis and visualization of microbiome datasets using
+        MicrobiotaProcess(Chinese)
+    
+      - 邮箱：输入你的邮箱
+    
+      - 账号:rstudio
+    
+      - 密码:welcome-to-bioc2020

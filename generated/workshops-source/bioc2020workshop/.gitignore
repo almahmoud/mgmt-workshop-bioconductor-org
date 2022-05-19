@@ -1,0 +1,8 @@
+.idea
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.rds
+*_cache/
+*/*_files
