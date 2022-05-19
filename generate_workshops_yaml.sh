@@ -116,8 +116,9 @@ head -n 1 | awk -F'repo-name: ' '{print $2}')
     echo "$FULL_CONTAINER" > "generated/errors/$SHORT_NAME.wrongname"
   fi
 
+  AUTO_CONTAINER="bioconductor/workshops-auto-$(echo $url | awk -F'github.com/' '{print tolower($NF)}'):latest)"
   # Check if container exists
-  bash -c "docker manifest inspect \"$FULL_CONTAINER\" || docker manifest inspect \"bioconductor/workshops-auto-$SHORT_NAME:latest\"" || bash -c "echo \"$FULL_CONTAINER\" > \"generated/errors/$SHORT_NAME.missing\" && docker build \"generated/workshops-source/$SHORT_NAME\" -t \"bioconductor/workshops-auto-$SHORT_NAME:latest\" && docker push \"bioconductor/workshops-auto-$SHORT_NAME:latest\"" && create_manifest
+  bash -c "docker manifest inspect \"$FULL_CONTAINER\" || docker manifest inspect \"$AUTO_CONTAINER\"" || bash -c "echo \"$FULL_CONTAINER\" > \"generated/errors/$SHORT_NAME.missing\" && docker build \"generated/workshops-source/$SHORT_NAME\" -t \"$AUTO_CONTAINER\" && docker push \"$AUTO_CONTAINER\"" && create_manifest
 
 done < workshoplist
 
