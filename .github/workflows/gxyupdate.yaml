@@ -1,0 +1,23 @@
+name: Update Galaxy
+
+on: push
+
+jobs:
+  gxyupdate:
+    name: Helm update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Kubectl
+        run: curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl && kubectl version
+      - name: Install Helm
+        run: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+      - name: save kubeconfig
+        shell: bash
+        run: mkdir -p ~/.kube && echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+      - name: Add gxy helm repo
+        run: |
+          helm repo add gxy https://github.com/CloudVE/helm-charts/raw/master
+          helm repo update
+      - name: helm upgrade
+        run: helm upgrade --install --create-namespace -n gxy-bioc gxy gxy/galaxy -f galaxy-values.yaml -f 
