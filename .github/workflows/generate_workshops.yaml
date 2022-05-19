@@ -1,0 +1,14 @@
+name: Generate workshops from list
+on: push
+jobs:
+  generatevalues:
+    name: Generate values
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to docker hub
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - run: "bash generate_workshops_yaml.sh"
