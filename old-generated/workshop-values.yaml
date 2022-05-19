@@ -1,0 +1,273 @@
+extraFileMappings:
+  /galaxy/server/tools/interactive/biocworkshop_SPEAQeasyWorkshop2020.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_SPEAQeasyWorkshop2020" tool_type="interactive" name="EuroBioc2020 SPEAQeasy workshop" version="0.1">
+          <requirements>
+              <container type="docker">lcollado/speaqeasyworkshop2020:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - SPEAQeasyWorkshop2020" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_IMMU6110_introduction_to_bioinformatics.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_IMMU6110_introduction_to_bioinformatics" tool_type="interactive" name="" version="0.1">
+          <requirements>
+              <container type="docker">tbrunetti/immu6110_introduction_to_bioinformatics:v02.2022</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - " requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_GeneTonicWorkshop.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_GeneTonicWorkshop" tool_type="interactive" name="GeneTonic workshop" version="0.1">
+          <requirements>
+              <container type="docker">federicomarini/genetonicworkshop:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - GeneTonicWorkshop" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_subtypeHeterogeneity.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_subtypeHeterogeneity" tool_type="interactive" name="Tumor subclonality of expression-based cancer subtypes " version="0.1">
+          <requirements>
+              <container type="docker">ludwigg/subtypeheterogeneity:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - subtypeHeterogeneity" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_QFeaturesWorkshop2020.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_QFeaturesWorkshop2020" tool_type="interactive" name="QFeatures EuroBioc2020 Workshop" version="0.1">
+          <requirements>
+              <container type="docker">lgatto/qfeaturesworkshop2020:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - QFeaturesWorkshop2020" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_BioC2021_DelayedArray_workshop.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_BioC2021_DelayedArray_workshop" tool_type="interactive" name="Effectively Using the DelayedArray Framework to Support the Analysis of Large Datasets" version="0.1">
+          <requirements>
+              <container type="docker">petehaitch/bioc2021_delayedarray_workshop:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - DelayedArrayWorkshop" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_preciseTADworkshop.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_preciseTADworkshop" tool_type="interactive" name="A workshop describing preciseTAD: A machine learning framework for " version="0.1">
+          <requirements>
+              <container type="docker">stilianoudakis/precisetadworkshop:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - preciseTADworkshop" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>
+  /galaxy/server/tools/interactive/biocworkshop_ggmsaBioWorkshop2021.xml:
+    useSecret: false
+    applyToJob: true
+    applyToWeb: true
+    applyToWorkflow: true
+    applyToNginx: true
+    tpl: false
+    content: |
+        <tool id="interactivetool_biocworkshop_ggmsaBioWorkshop2021" tool_type="interactive" name="ggmsa workshop" version="0.1">
+          <requirements>
+              <container type="docker">nyzhoulang/ggmsabioworkshop2021:latest</container>
+          </requirements>
+          <entry_points>
+              <entry_point name="RStudio - ggmsaABiocWorkshop2021" requires_domain="True">
+                  <port>8787</port>
+              </entry_point>
+          </entry_points>
+          <environment_variables>
+              <environment_variable name="DISABLE_AUTH">true</environment_variable>
+              <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+              <environment_variable name="REMOTE_HOST">$__galaxy_url__</environment_variable>
+              <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+              <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+              <environment_variable name="API_KEY" inject="api_key" />
+          </environment_variables>
+          <command detect_errors="aggressive">/init</command>
+          <inputs>
+          </inputs>
+          <outputs>
+          </outputs>
+          <tests>
+          </tests>
+          <help></help>
+      </tool>

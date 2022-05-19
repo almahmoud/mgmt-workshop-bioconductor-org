@@ -1,0 +1,15 @@
+configs:
+  tool_conf_bioc.xml: |
+    <?xml version='1.0' encoding='utf-8'?>
+      <toolbox monitor="true">
+          <tool file="interactive/bioconductor_rstudio.xml" />
+          <tool file="interactive/bioconductor_jupyter.xml" />
+          <tool file="interactive/biocworkshop_SPEAQeasyWorkshop2020.xml" />
+          <tool file="interactive/biocworkshop_IMMU6110_introduction_to_bioinformatics.xml" />
+          <tool file="interactive/biocworkshop_GeneTonicWorkshop.xml" />
+          <tool file="interactive/biocworkshop_subtypeHeterogeneity.xml" />
+          <tool file="interactive/biocworkshop_QFeaturesWorkshop2020.xml" />
+          <tool file="interactive/biocworkshop_BioC2021_DelayedArray_workshop.xml" />
+          <tool file="interactive/biocworkshop_preciseTADworkshop.xml" />
+          <tool file="interactive/biocworkshop_ggmsaBioWorkshop2021.xml" />
+      </toolbox>
