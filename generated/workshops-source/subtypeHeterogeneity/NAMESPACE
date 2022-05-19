@@ -1,0 +1,80 @@
+import("SingleCellExperiment")
+
+importMethodsFrom("IRanges", extractList, subsetByOverlaps)
+importMethodsFrom("GenomeInfoDb", seqlevels, "seqlevels<-", seqnames)
+importFrom("GenomeInfoDb", orderSeqlevels)
+
+importFrom("grDevices", "col2rgb", "dev.off", "grey", "gray", "png", "rgb")
+importFrom("graphics", "abline", "axis", "barplot", "boxplot", "legend", "mtext", 
+    "par", "plot", "rect", "segments", "symbols", "text")
+importFrom("methods", "as", "is")
+importFrom("stats", "chisq.test", "cor", "cor.test", "formula", "lm", "mad", "median", 
+    "model.matrix", "p.adjust", "pchisq", "phyper", "pnorm", "qnorm","quantile", 
+    "rnorm", "runif", "var")
+importFrom("utils", "available.packages", "browseURL", "capture.output", 
+    "download.file", "data", "head", "memory.limit", "read.csv", "read.delim", 
+    "tail", "untar", "unzip", "write.table")
+
+export( 
+    analyzeCancerType,
+    analyzeCooccurence,
+    analyzeStrata,
+    annoCellType,
+    annotateCytoBands,
+    bpCrossType,
+    bpCyclins,
+    bpSubtypeStrata,
+    bpType,
+    circosSubtypeAssociation,
+    compileMarkers,
+    corPermTest,
+    extendObservations,
+    facetTumors,
+    generateInferCNVInput,
+    getBroadSubtypes,
+    getCelltypeSubtypeMatrix,
+    getCellAnnotation,
+    getClassifierGenes,
+    getClassProbs,
+    getCnvGenesFromTCGA,
+    getCommonMarkers, 
+    getExtendedVerhaakSignature,
+    getMatchedAbsoluteCalls,
+    getPerc,
+    getRecurrentDriverGenes,
+    ggplotSubtypeStrata,
+    gistic2RSE,
+    mapOVSubtypes,
+    margin,
+    markerHeatmap,
+    markerHeatmapList,
+    matrixPlot,
+    plotCommonSCNAs,
+    plotCorrelation,
+    plotMainCellTypes,
+    plotNrCNAsPerSubtype,
+    plotNrSamples,
+    plotNrSubtypesVsNrGisticRegions,
+    plotPurityStrata,
+    plotSubclonalityDistributions,
+    plotSubtypePurityPloidy,
+    plotType,
+    plotlyPie,
+    populationRanges,
+    populationRangesRO,
+    preprocessSCE,
+    pseudotimeHeatmap,
+    querySubclonality,
+    readObservations,
+    scHeatmap,
+    scHeatmap2,
+    stratifyByPurity,
+    stratifySubclonality,
+    subsetByCellType,
+    subsetObservations,
+    symbols2ranges,
+    testSubtypes,
+    tissueScore,
+    transferCellType,
+    volcanoCorrelation     
+)

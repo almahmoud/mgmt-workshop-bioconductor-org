@@ -1,0 +1,21 @@
+title: "subtypeHeterogeneity"
+
+url: https://waldronlab.io/subtypeHeterogeneity
+
+template:
+  params:
+    bootswatch: flatly
+
+navbar:
+  title: ~
+  type: default
+  left:
+    - text: Absolute SCNA analysis
+      href: articles/subtypeHeterogeneity.html
+    - text: Single cell analysis
+      href: articles/singlecell.html
+  right:
+    - icon: fa-github
+      href: https://github.com/waldronlab/subtypeHeterogeneity
+     
+

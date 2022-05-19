@@ -1,0 +1,78 @@
+---
+title: "Gene Calling and Annotation with DECIPHER"
+author: Aidan Lakshman^[ahl27@pitt.edu]
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GeneCallingAnnotation}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Coming Soon!
+This tutorial will be coming soon! It will begin with data from the previous step, and will cover the following topics:
+
+* Finding protein coding regions in a genome with `FindGenes()`
+* Finding non-coding RNAs in a genome with `FindNonCoding()`
+* Classifying sequences using `IdTaxa()`
+
+At the conclusion of this section, we will have identifying coding and non-coding regions in our input genomes along with predicted annotations of coding regions.
+
+```{r eval=FALSE}
+library(DECIPHER)
+data("NonCodingRNA_Bacteria")
+data("TrainingSet_16S")
+dna
+ncRNA <- NonCodingRNA_Bacteria
+
+FindGenes(dna)
+FindNonCoding(ncRNA, dna)
+
+nogap <- RemoveGaps(dna)
+ids <- IdTaxa(nogap, TrainingSet_16S)
+```
+
+```{css, echo=FALSE}
+.pagination {
+    display: flex;
+    display: -webkit-flex;
+    padding-left: 0;
+    list-style: none;
+    justify-content: center
+}
+```
+
+<div class="center">
+  <ul class="pagination pagination-lg">
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/LoadingGenomeData.html">&laquo;</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/Setup.html">1</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/LoadingGenomeData.html">2</a>
+    </li>
+    <li class="page-item active">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/GeneCallingAnnotation.html">3</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/FindingCOGs.html">4</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/ConstructingPhylogenies.html">5</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/CoevolutionNetworks.html">6</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="https://www.ahl27.com/CompGenomicsBioc2022/articles/FindingCOGs.html">&raquo;</a>
+    </li>
+  </ul>
+</div>
