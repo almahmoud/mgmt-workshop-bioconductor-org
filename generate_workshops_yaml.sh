@@ -22,9 +22,9 @@ EOF
 
 function create_manifest {
 
-  LONG_NAME=$(ggrep -m 1 "Title:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | gawk -F 'Title: ' '{print $2}')
+  LONG_NAME=$(grep -m 1 "Title:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | awk -F 'Title: ' '{print $2}')
 
-  PACKAGE_NAME=$(ggrep -m 1 "Package:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | gawk -F 'Package: ' '{print $2}')
+  PACKAGE_NAME=$(grep -m 1 "Package:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | awk -F 'Package: ' '{print $2}')
 
   MEDIUM_NAME=$(echo "RStudio - $PACKAGE_NAME")
 
@@ -37,7 +37,7 @@ function create_manifest {
     applyToNginx: true
     tpl: false
     content: |
-  $(gsed """s@##PLACEHOLDERNAME##@${SHORT_NAME}@g
+  $(sed """s@##PLACEHOLDERNAME##@${SHORT_NAME}@g
             s@##PLACEHOLDERLONGNAME##@${LONG_NAME}@g
             s@##PLACEHOLDERCONTAINER##@${FULL_CONTAINER}@g
             s@##PLACEHOLDERMEDIUMNAME##@${MEDIUM_NAME}@g
@@ -52,24 +52,24 @@ EOF
 
 while IFS="" read -r url
 do
-  SHORT_NAME=$(echo "$url" | gawk -F'/' '{print $5}')
+  SHORT_NAME=$(echo "$url" | awk -F'/' '{print $5}')
 
   ( cd generated/workshops-source/ && git clone "$url" --depth 1 && rm -rf $SHORT_NAME/.git/ )
 
-  CONTAINER_IMAGE=$(ggrep -rh "repository:" "generated/workshops-source/$SHORT_NAME/.github/workflows" | 
-head -n 1 | gawk -F'repository: ' '{print $2}')
+  CONTAINER_IMAGE=$(grep -rh "repository:" "generated/workshops-source/$SHORT_NAME/.github/workflows" | 
+head -n 1 | awk -F'repository: ' '{print $2}')
 
   # handle ${{ env.repo-name }}
-  if [[ -n $(echo "$CONTAINER_IMAGE" | ggrep "env.repo-name") ]];
+  if [[ -n $(echo "$CONTAINER_IMAGE" | grep "env.repo-name") ]];
   then 
-    CONTAINER_IMAGE=$(ggrep -rh "repo-name:" "generated/workshops-source/$SHORT_NAME/.github/workflows" | 
-head -n 1 | gawk -F'repo-name: ' '{print $2}')
+    CONTAINER_IMAGE=$(grep -rh "repo-name:" "generated/workshops-source/$SHORT_NAME/.github/workflows" | 
+head -n 1 | awk -F'repo-name: ' '{print $2}')
   fi
 
   # handle others by looking in readme
-  if [[ -n $(echo "$CONTAINER_IMAGE" | ggrep '${{') || -z "$CONTAINER_IMAGE" ]];
+  if [[ -n $(echo "$CONTAINER_IMAGE" | grep '${{') || -z "$CONTAINER_IMAGE" ]];
   then 
-    CONTAINER_IMAGE=$(gawk '/docker run/{x=1}x&&/\//{print;exit}' "generated/workshops-source/$SHORT_NAME/README.md" | ggrep -oh "\w*/\w*" | tail -n 1 | gawk -F' ' '{print $NF}')
+    CONTAINER_IMAGE=$(awk '/docker run/{x=1}x&&/\//{print;exit}' "generated/workshops-source/$SHORT_NAME/README.md" | grep -oh "\w*/\w*" | tail -n 1 | awk -F' ' '{print $NF}')
   fi
 
   # Check if container repo name complies
@@ -78,20 +78,20 @@ head -n 1 | gawk -F'repo-name: ' '{print $2}')
   then
     echo "$CONTAINER_IMAGE" > "generated/errors/$SHORT_NAME.reponame-pattern"
     # default to repo name if not
-    CONTAINER_IMAGE=$(echo $url | gawk -F'github.com/' '{print tolower($2)}')
+    CONTAINER_IMAGE=$(echo $url | awk -F'github.com/' '{print tolower($2)}')
   fi
 
 
-  TAG=$(ggrep -rh "tags:" "generated/workshops-source/$SHORT_NAME/.github/workflows" | head -n 1 | gawk -F 'tags: ' '{print $2}')
+  TAG=$(grep -rh "tags:" "generated/workshops-source/$SHORT_NAME/.github/workflows" | head -n 1 | awk -F 'tags: ' '{print $2}')
 
   # Check if container tag name is correct
   TAG_PATTERN="[a-z0-9_\-]+"
   if ! [[ $TAG =~ $TAG_PATTERN ]];
   then
-    README_CONTAINER_IMAGE=$(gawk '/docker run/{x=1}x&&/\//{print;exit}' "generated/workshops-source/$SHORT_NAME/README.md" | ggrep -Eoh "\w*/\w*(:[^\s]+)?" | tail -n 1 | gawk -F' ' '{print $NF}')
-    if [[ -n $(echo "$README_CONTAINER_IMAGE" | ggrep ':') ]];
+    README_CONTAINER_IMAGE=$(awk '/docker run/{x=1}x&&/\//{print;exit}' "generated/workshops-source/$SHORT_NAME/README.md" | grep -Eoh "\w*/\w*(:[^\s]+)?" | tail -n 1 | awk -F' ' '{print $NF}')
+    if [[ -n $(echo "$README_CONTAINER_IMAGE" | grep ':') ]];
     then
-      TAG=$(echo "$README_CONTAINER_IMAGE" | gawk -F':' '{print $2}')
+      TAG=$(echo "$README_CONTAINER_IMAGE" | awk -F':' '{print $2}')
     else
       TAG=""
     fi
