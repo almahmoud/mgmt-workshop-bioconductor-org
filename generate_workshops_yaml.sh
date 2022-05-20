@@ -37,11 +37,11 @@ function create_manifest {
     applyToNginx: true
     tpl: false
     content: |
-  $(sed """s@##PLACEHOLDERNAME##@${SHORT_NAME}@g
-            s@##PLACEHOLDERLONGNAME##@${LONG_NAME}@g
-            s@##PLACEHOLDERCONTAINER##@${FULL_CONTAINER}@g
-            s@##PLACEHOLDERMEDIUMNAME##@${MEDIUM_NAME}@g
-            s@^@      @g""" workshop-wrapper-template.yaml)
+$(sed """s@##PLACEHOLDERNAME##@${SHORT_NAME}@g
+         s@##PLACEHOLDERLONGNAME##@${LONG_NAME}@g
+         s@##PLACEHOLDERCONTAINER##@${FULL_CONTAINER}@g
+         s@##PLACEHOLDERMEDIUMNAME##@${MEDIUM_NAME}@g
+         s@^@      @g""" workshop-wrapper-template.yaml)
 EOF
 
   cat << EOF >> generated/workshop-toolconf-values.yaml
