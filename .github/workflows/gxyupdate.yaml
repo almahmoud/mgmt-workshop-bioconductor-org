@@ -20,4 +20,4 @@ jobs:
           helm repo add gxy https://github.com/CloudVE/helm-charts/raw/master
           helm repo update
       - name: helm upgrade
-        run: helm upgrade --install --create-namespace -n gxy-bioc gxy gxy/galaxy -f galaxy-values.yaml -f 
+        run: helm upgrade --install --create-namespace -n gxy-bioc gxy gxy/galaxy --version 4.10.2 --reuse-values -f generated/workshop-toolconf-values.yaml -f generated/workshop-values.yaml
