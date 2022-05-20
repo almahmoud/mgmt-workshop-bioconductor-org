@@ -32,6 +32,7 @@ function create_manifest {
   /galaxy/server/tools/interactive/biocworkshop_${SHORT_NAME}.xml:
     useSecret: false
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
