@@ -22,9 +22,9 @@ EOF
 
 function create_manifest {
 
-  LONG_NAME=$(grep -m 1 "Title:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | awk -F 'Title: ' '{print $2}')
+  LONG_NAME=$(grep -m 1 "Title:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | awk -F 'Title: ' '{print $2}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
-  PACKAGE_NAME=$(grep -m 1 "Package:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | awk -F 'Package: ' '{print $2}')
+  PACKAGE_NAME=$(grep -m 1 "Package:" "generated/workshops-source/$SHORT_NAME/DESCRIPTION" | awk -F 'Package: ' '{print $2}' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
   MEDIUM_NAME=$(echo "RStudio - $PACKAGE_NAME")
 
