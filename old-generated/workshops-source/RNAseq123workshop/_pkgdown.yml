@@ -1,0 +1,18 @@
+url: https://xueyidong.github.io/RNAseq123workshop/
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-93043521-1
+
+home:
+  title: "RNA-seq analysis is easy as 1-2-3 with limma, Glimma and edgeR"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/XueyiDong/RNAseq123workshop
+     
+

@@ -1,17 +1,22 @@
 Package: pgxBioc2022Workshop
 Title: PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology
-Version: 1.0.4
+Version: 1.0.8
 Authors@R: c(
     person(
         given="Christopher",
         family="Eeles",
         email="christopher.eeles@uhnresearch.ca",
         role = c("aut"),
-        comment = c(ORCID = "0000-0002-9962-7385")),
+        comment = c(ORCID="0000-0002-9962-7385")),
     person(
         given="Petr",
         family="Smirnov",
         email="petr.smirnov@utoronto.ca",
+        role=c("aut")),
+    person(
+        given="Feifei",
+        family="Li",
+        email="ff.li@mail.utoronto.ca",
         role=c("aut")),
     person(
         given="Benjamin",
@@ -35,7 +40,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.2.0
 Imports:
     CoreGx,
     PharmacoGx,
@@ -46,6 +51,9 @@ Suggests:
     rmarkdown,
     BiocStyle,
     pkgdown
+Remotes:
+    bhklab/CoreGx@development,
+    bhklab/PharmacoGx@development
 URL: https://bhklab.github.io/bioc2022workshop
 VignetteBuilder: knitr
 DockerImage: ghcr.io/bhklab/pgxBioc2022Workshop:latest

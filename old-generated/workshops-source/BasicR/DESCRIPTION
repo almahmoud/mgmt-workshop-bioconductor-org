@@ -1,0 +1,58 @@
+Package: BasicR
+Title: Introductory course for R
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Reka",
+           family = "Toth",
+           role = c("aut", "cre"),
+           email = "reka.n.toth@gmail.com",
+           comment = c(ORCID = "https://orcid.org/0000-0002-6096-1052")),
+    person(given = "Rajbir Nath",
+           family = "Batra",
+           role = c("aut"),
+           email = "rajbir.batra@dkfz.de",
+           comment = c(ORCID = "https://orcid.org/0000-0001-7010-8189"))
+           )
+Description: The package provides a very basic introduction into R, mostly designed for non bioinformatician researchers.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends:
+    pkgdown,
+    R (>= 3.5.0)
+Suggests: 
+    knitr,
+    Hmisc,
+    rmarkdown,
+    tidyverse,
+    workflowr,
+    ggplot2,
+    devtools,
+    DESeq2, 
+    pasilla,
+    GenomicRanges,
+    dslabs,
+    ggthemes,
+    ggrepel,
+    ggpubr,
+    broom,
+    openintro,
+    TCGAbiolinks, 
+    Glimma, 
+    DOSE, 
+    org.Hs.eg.db, 
+    RnBeads,
+    RnBeads.hg19, 
+    data.table,
+    rtracklayer,
+    ChIPseeker, 
+    TxDb.Hsapiens.UCSC.hg19.knownGene,
+    clusterProfiler,
+    methrix,
+    annotatr
+VignetteBuilder: knitr
+URL: https://github.com/CompEpigen/BasicR
+BugReports: https://github.com/CompEpigen/BasicR/issues
+DockerImage: tothreka/basicr:latest

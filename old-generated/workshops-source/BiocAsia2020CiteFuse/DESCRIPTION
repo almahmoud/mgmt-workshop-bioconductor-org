@@ -1,0 +1,36 @@
+Package: BiocAsia2020CiteFuse
+Title: Multimodal analysis of CITE-seq data with CiteFuse
+Version: 0.1.1
+Authors@R: 
+    c(person(given = "Hani",
+           family = "Kim",
+           role = c("aut", "cre"),
+           email = "hani.kim@sydney.edu.au"),
+       person(given = "Yingxin",
+           family = "Lin",
+           role = c("aut"),
+           email = "yingxin.lin@sydney.edu.au"))    
+Description: This is a Bioconductor Workshop package for CiteFuse workshop 
+    for BiocAsia 2020.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: 
+    Biobase
+Suggests: 
+    knitr,
+    rmarkdown,
+    pkgdown,
+    CiteFuse,
+    SingleCellExperiment,
+    scater,
+    DT,
+    gridExtra,
+    mclust,
+    igraph
+URL: https://SydneyBioX.github.io/BiocAsia2020CiteFuse/
+BugReports: https://github.com/SydneyBioX/BiocAsia2020CiteFuse/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: yingxinlin/biocasia2020citefuse:latest

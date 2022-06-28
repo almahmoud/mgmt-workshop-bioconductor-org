@@ -1,0 +1,9 @@
+^dev$
+^\.github$
+^codecov\.yml$
+^.*\.Rproj$
+^\.Rproj\.user$
+Dockerfile
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

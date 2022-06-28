@@ -15,16 +15,16 @@ home:
 navbar:
   structure:
     left: [intro, articles, reference, news]
-    right: [github, home]
+    right: [home, github]
   components:
     github:
       icon: fa-github
       href: https://github.com/ahl27/CompGenomicsBioc2022
       aria-label: GitHub
     home:
-      icon: fa-potato
-      href: https://www.ahl27.com
-      aria-label: My Website
+      icon: fa-user
+      href: https://www.ahl27.com/tutorials
+      aria-label: Homepage
     intro:
       text: Overview
       href: https://www.ahl27.com/CompGenomicsBioc2022/articles/CompGenomicsBioc2022.html
@@ -51,56 +51,56 @@ reference:
     desc: >
       Functions for loading and visualizing genomic data
     contents:
-      - BrowseSeqs
-      - FindSynteny
-      - Synteny-class
-      - AlignSeqs
-      - AlignTranslation
-      - AlignSynteny
-      - BrowseDB
-      - SearchDB
-      - Seqs2DB
-      - DB2Seqs
+      - DECIPHER::BrowseSeqs
+      - DECIPHER::FindSynteny
+      - DECIPHER::Synteny-class
+      - DECIPHER::AlignSeqs
+      - DECIPHER::AlignTranslation
+      - DECIPHER::AlignSynteny
+      - DECIPHER::BrowseDB
+      - DECIPHER::SearchDB
+      - DECIPHER::Seqs2DB
+      - DECIPHER::DB2Seqs
 
   - title: "Gene Calling and Annotation"
     desc: >
       Functions for calling and annotating genetic regions
     contents:
-      - FindGenes
-      - FindNonCoding
-      - LearnNonCoding
-      - IdTaxa
-      - Taxa-class
-      - LearnTaxa
+      - DECIPHER::FindGenes
+      - DECIPHER::FindNonCoding
+      - DECIPHER::LearnNonCoding
+      - DECIPHER::IdTaxa
+      - DECIPHER::Taxa-class
+      - DECIPHER::LearnTaxa
 
   - title: "Constructing COGs"
     desc: >
       Functions to construct COGs from annotated genetic regions
     contents:
-      - DisjointSet
-      - ExtractBy
-      - FindSets
-      - LinkedPairs-class
-      - NucleotideOverlap
-      - PairSummaries
-      - BlockExpansion
+      - SynExtend::DisjointSet
+      - SynExtend::ExtractBy
+      - SynExtend::FindSets
+      - SynExtend::LinkedPairs-class
+      - SynExtend::NucleotideOverlap
+      - SynExtend::PairSummaries
+      - SynExtend::BlockExpansion
 
   - title: "Constructing Phylogenies"
     desc: >
       Functions for phylogenetic reconstruction of genomes or COGs
     contents:
-      - Cophenetic
-      - DistanceMatrix
-      - IdClusters
-      - TreeLine
-      - WriteDendrogram
+      - DECIPHER::Cophenetic
+      - DECIPHER::DistanceMatrix
+      - DECIPHER::IdClusters
+      - DECIPHER::TreeLine
+      - DECIPHER::WriteDendrogram
 
   - title: "Finding Co-evolving Gene Collectives"
     desc: >
       Functions for finding co-evolutionary signal between COGs
     contents:
-      - ProtWeaver
-      - predict.ProtWeaver
-      - plot.ProtWeb
-      - GetProtWebData.ProtWeb
+      - SynExtend::ProtWeaver
+      - SynExtend::predict.ProtWeaver
+      - SynExtend::plot.ProtWeb
+      - SynExtend::GetProtWebData.ProtWeb
 

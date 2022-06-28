@@ -1,0 +1,1546 @@
+---
+title: "Interactive visualization of SummarizedExperiment objects with iSEE"
+author: "Kevin Rue-Albrecht, Charlotte Soneson, Federico Marini, and Aaron Lun"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    fig_width: 5
+    number_sections: true
+bibliography: "`r file.path(system.file(package='iSEEWorkshop2020', 'vignettes/bib'), 'iSEE-lab.bib')`"
+vignette: >
+  %\VignetteIndexEntry{Demonstration of iSEE functionality}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  cache = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  crop = NA
+)
+suppressPackageStartupMessages({
+    require(BiocStyle)
+})
+htmltools::tagList(rmarkdown::html_dependency_font_awesome())
+```
+
+```{r, eval=!exists("SCREENSHOT"), include=FALSE}
+SCREENSHOT <- function(x, ...) knitr::include_graphics(x)
+```
+
+<!-- Fix until BiocStyle is updated with this style. -->
+<style>
+td > img {
+  padding: 0px;
+  max-width: 100%;
+  display: inline;
+}
+</style>
+
+# Instructor and contributor names and contact information
+
+* Kevin Rue-Albrecht^[University of Oxford, Oxford, UK] (<kevin.rue-albrecht@ndcls.ox.ac.uk>)
+* Charlotte Soneson^[Friedrich Miescher Institute for Biomedical Research and SIB Swiss Institute of Bioinformatics] (<charlotte.soneson@fmi.ch>)
+* Federico Marini^[Institute of Medical Biostatistics, Epidemiology and Informatics (IMBEI), Mainz and Center for Thrombosis and Hemostasis (CTH), Mainz] (<marinif@uni-mainz.de>)
+* Aaron Lun^[Genentech, Bioinformatics and Computational Biology] (<infinite.monkeys.with.keyboards@gmail.com>)
+
+
+# Workshop description {#workshop-description}
+
+This workshop demonstrates how to use the `r Biocpkg("iSEE")` package to create and configure interactive applications for the exploration of various types of genomics data sets (e.g., bulk and single-cell RNA-seq, CyTOF, gene expression microarray).
+
+This workshop will be presented as a lab session that combines an instructor-led live demo, followed by hands-on experimentation guided by completely worked examples and stand-alone notes that participants may continue to use after the workshop.
+
+The instructor-led live demo comprises three parts:
+
+1. Brief lecture on the package concept and functionality
+2. Overview of the graphical user interface
+3. Instructions to preconfigure `r Biocpkg("iSEE")` apps
+
+The hands-on lab comprises three parts:
+
+1. Inspection of single-cell RNA-seq data at various steps of a typical computational workflow, including quality control and dimensionality reduction
+2. Addition of custom panels to the user interface for advanced visualization.
+3. Additional questions from the participants, including individual use cases and suggestions for future developments
+
+Participants are encouraged to ask questions at any time during the workshop.
+
+## Pre-requisites {#prerequisites}
+
+* Basic knowledge of _R_ (https://www.r-project.org/about.html) syntax and the use of data frames
+* Familiarity with the `r Biocpkg("SummarizedExperiment")` and `r Biocpkg("SingleCellExperiment")` classes
+* Familiarity with the `r CRANpkg("shiny")` CRAN package
+* Familiarity with the `r Biocpkg("TENxPBMCData")` package and vignette
+
+Additional background reading about the programming environment, relevant packages, and example use cases:
+
+* Shiny from RStudio (https://shiny.rstudio.com)
+* SummarizedExperiment paper: [@Huber2015-orchestrating] (Figure 2)
+* iSEE paper: [@Rue-Albrecht2018-isee]
+
+## Workshop Participation {#participation}
+
+Students will participate by following along an _R markdown_ (https://rmarkdown.rstudio.com/) document, and asking questions throughout the workshop.
+There is also scope for participants to apply `r Biocpkg("iSEE")` to their own data sets, and fuel the discussion with more questions about specific use cases.
+
+## R/Bioconductor packages used {#packages}
+
+1. `r Biocpkg("iSEE")`
+2. `r Biocpkg("SummarizedExperiment")`
+3. `r Biocpkg("SingleCellExperiment")`
+4. `r Biocpkg("TENxPBMCData")`
+5. `r Biocpkg("scater")`
+6. `r Biocpkg("scran")`
+7. `r Biocpkg("BiocSingular")`
+
+## Time outline {#outline}
+
+| Activity                                      | Time |
+|-----------------------------------------------|------|
+| **Lecture**: Overview of package and concepts | 15m  |
+| **Live demo**: the user interface             | 15m  |
+| **Lab**: A single-cell RNA-seq workflow       | 20m  |
+| **Lab**: Configuring the app interface        | 20m  |
+| **Lab**: Custom panels                        | 20m  |
+| Additional questions                          | 15m  |
+
+**Total:** 1h45
+
+# Workshop goals and objectives {#goals-objectives}
+
+## Learning goals {#goals}
+
+* Recognize the benefits of integrative data containers such as `r Biocpkg("SummarizedExperiment")` and `r Biocpkg("SingleCellExperiment")` for downstream analyses and visualization
+* Outline the unique features of `r Biocpkg("iSEE")` built upon the RStudio Shiny framework (https://shiny.rstudio.com)
+* Identify aspects of biological data that may be combined into insightful graphical outputs
+* Utilize interactive GUI components and layouts to efficiently extract information from biological data sets
+* Describe how to construct interactive apps and custom panels
+
+## Learning objectives {#objectives}
+
+* Memorize the key information available in `r Biocpkg("SummarizedExperiment")` 
+and `r Biocpkg("SingleCellExperiment")` objects
+* Set up a local environment for running `r Biocpkg("iSEE")` apps
+* Interact with components of the `r Biocpkg("iSEE")` user interface to visually inspect and discuss various data sets
+* Identify and locate configurable aspects of `r Biocpkg("iSEE")` apps
+* Practice interactive visualization over a single-cell RNA-sequencing workflow
+* Design custom `r Biocpkg("iSEE")` panels for advanced use cases
+* Imagine use cases and future developments for interactive visualization as part of computational workflows
+
+# Preparation of example scRNAseq data {#prepare-scrnaseq-data}
+
+In this workshop, we use example data from the `r Biocpkg("TENxPBMCData")` package.
+This package provides an _R / Bioconductor_ resource for representing and manipulating different single-cell RNA-seq data sets profiling peripheral blood mononuclear cells (PBMC) generated by 10x Genomics (https://support.10xgenomics.com/single-cell-gene-expression/datasets).
+
+```{r, message=FALSE}
+library(TENxPBMCData)
+```
+
+The man page for the `TENxPBMCData()` function gives an idea of the datasets that are available from this package.
+It can be opened with the following command.
+
+```{r, eval=FALSE}
+help(TENxPBMCData)
+```
+
+Here, we use the `pbmc3k` dataset, which contains gene expression profiles for 2,700 single peripheral blood mononuclear cells.
+The first time this dataset is loaded, this command downloads the dataset to a local cache, which takes some time, depending on the speed of your internet connection.
+Subsequent times, the same command loads the dataset directly from the local cache.
+
+```{r, message=FALSE, warning=FALSE}
+sce <- TENxPBMCData(dataset = "pbmc3k")
+```
+
+At this point we can inspect the dataset in the console.
+
+```{r}
+sce
+```
+
+The dataset is provided as an object of the `SingleCellExperiment` class.
+In particular, this summary view indicates that the following pieces of information are available:
+
+- An assay matrix named `counts`
+- Row (i.e., gene) names are Ensembl gene IDs
+- Row metadata include for each gene the official gene symbol, and the gene symbol used by the
+10x CellRanger quantification pipeline
+- Column (i.e., cell) IDs are not initialized and left to `NULL`
+- Column metadata include diverse information for each cell, including the cell barcode (`Barcode`) and the donor identifier (`Individual`).
+
+Note that a `SingleCellExperiment` object (or, more generally, any `SummarizedExperiment` object) like this one already contains sufficient information to launch an interactive application instance to visualize the available data and metadata, using the `iSEE()` function.
+
+For the purpose of this workshop, we first apply some preprocessing to the `SingleCellExperiment` object, in order to populate it with more information that can be visualized with `iSEE`.
+
+We start by adding column names to the object, and use gene symbols instead of Ensembl IDs as row names.
+In the case where multiple Ensembl identifiers correspond to the same gene symbol, the `scater::uniquifyFeatureNames` function concatenates the Ensembl ID and the gene symbol in order to generate unique feature names.
+
+```{r, message=FALSE}
+library(scater)
+colnames(sce) <- paste0("Cell", seq_len(ncol(sce)))
+rownames(sce) <- scater::uniquifyFeatureNames(
+    ID = rowData(sce)$ENSEMBL_ID,
+    names = rowData(sce)$Symbol_TENx
+)
+head(rownames(sce))
+```
+
+Next, we use the `r Biocpkg("scater")` package to calculate gene- and cell-level quality metrics.
+These metrics are added as columns to the `rowData` and `colData` slots of the `SingleCellExperiment` object, respectively.
+We also add some additional metrics that are not automatically computed by the `r Biocpkg("scater")` package.
+
+```{r, message = FALSE}
+MT <- rownames(sce)[grep("^MT-", rownames(sce))]
+sce <- scater::addPerCellQC(sce, subsets = list(MT = MT))
+sce <- scater::addPerFeatureQC(sce)
+sce$log10_total <- log10(sce$total)
+rowData(sce)$n_cells <- as.integer(rowData(sce)$detected * ncol(sce))
+rowData(sce)$log10_total <- log10(rowSums(assay(sce, "counts")) + 1)
+sce
+```
+
+We filter out a few cells with a large fraction of the counts coming from mitochondrial genes, since these may be damaged cells.
+Notice the reduced number of columns in the dataset below.
+
+```{r}
+(sce <- sce[, sce$subsets_MT_percent < 5])
+```
+
+Next, we calculate size factors and normalized and log-transformed expression values, using the `r Biocpkg("scran")` and `r Biocpkg("scater")` packages.
+Note that it is typically recommended to pre-cluster the cells before computing the size factors, as follows:
+
+```{r}
+# set.seed(1000)
+# clusters <- scran::quickCluster(sce, BSPARAM = IrlbaParam())
+# sce <- scran::computeSumFactors(sce, cluster = clusters, min.mean = 0.1)
+```
+
+However, for time reasons, we will skip the pre-clustering step in this workshop.
+
+```{r, message=FALSE}
+library(scran)
+sce <- scran::computeSumFactors(sce, min.mean = 0.1)
+summary(sizeFactors(sce))
+sce <- scater::logNormCounts(sce)
+```
+
+In order to extract the most informative genes, we first model the mean-variance trend and decompose the variance into biological and technical components.
+
+```{r}
+dec <- scran::modelGeneVar(sce)
+top.dec <- dec[order(dec$bio, decreasing = TRUE), ] 
+head(top.dec)
+```
+
+Next, we apply Principal Components Analysis (PCA) and t-distributed Stochastic Neighbor Embedding (t-SNE) to generate low-dimensional representations of the cells in our data set.
+These low-dimensional representations are added to the `reducedDim` slot of the `SingleCellExperiment` object.
+
+```{r, message=FALSE}
+library(BiocSingular)
+set.seed(1000)
+sce <- scran::denoisePCA(sce, technical = dec)
+ncol(reducedDim(sce, "PCA"))
+set.seed(1000)
+sce <- scater::runTSNE(sce, dimred = "PCA", perplexity = 30)
+sce <- scater::runUMAP(sce, dimred = "PCA")
+sce
+```
+
+Finally, we cluster the cells using a graph-based algorithm, and find 'marker genes' for each cluster as the genes that are significantly upregulated in the cluster compared to each of the other inferred clusters.
+The adjusted p-values from this test, for each cluster, are added to the `rowData` slot of the object.
+
+```{r}
+snn.gr <- scran::buildSNNGraph(sce, use.dimred = "PCA")
+clusters <- igraph::cluster_walktrap(snn.gr)
+sce$Cluster <- factor(clusters$membership)
+table(sce$Cluster)
+
+markers <- scran::findMarkers(sce, groups = sce$Cluster,
+                              test.type = "t",
+                              direction = "up", pval.type = "all")
+for (i in names(markers)) {
+    rowData(sce)[, paste0("FDR_cluster", i)] <- 
+        markers[[i]]$FDR[match(rownames(sce), 
+                               rownames(markers[[i]]))]
+}
+sce
+```
+
+This concludes the preparation of the data.
+We have now a `SingleCellExperiment` object that contains different types of abundance values, representations in reduced dimensions, as well as a range of row (feature) and column (cell) metadata.
+
+We can launch an `r Biocpkg("iSEE")` instance for exploring this data set using the `iSEE()` function:
+
+```{r, message=FALSE}
+library(iSEE)
+
+app <- iSEE(sce)
+```
+
+```{r runApp, eval=FALSE}
+shiny::runApp(app)
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-initial.png", delay=20)
+```
+
+The main argument to the `iSEE()` function is a `SummarizedExperiment` object, or an object of any class extending `SummarizedExperiment` (such as `SingleCellExperiment`, in this case).
+No other restrictions are made on the type of data stored in the object, and `r Biocpkg("iSEE")` can be used for interactive visualization of many different types of data.
+It is also worth noting that for various types of data, Bioconductor packages provides functionality for directly importing quantifications generated by external software packages into a `SummarizedExperiment` object.
+For example, the `r Biocpkg("DropletUtils")` package can read quantifications from the 10x Genomics CellRanger pipeline for single-cell RNA-seq data, and the `r Biocpkg("tximeta")` package can be used to read data from transcript quantification pipelines into a `SummarizedExperiment` object.
+
+While we will not make explicit use of it in this workshop, we note that it is also possible to call `iSEE()` without providing a `SummarizedExperiment` object. 
+In that case, the user will be prompted to upload such an object, serialized into a `.rds` file. 
+It is also possible to import a specification of the initial panel setup. 
+
+```{r}
+app <- iSEE()
+```
+
+```{r, eval=FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-no-se.png", delay=10)
+```
+
+
+# Overview of the _iSEE_ package {#isee-overview}
+
+This section provides an overview of the graphical interface of `r Biocpkg("iSEE")` applications.
+To follow along, make sure that you have launched an `r Biocpkg("iSEE")` instance as described in the code block at the end of the previous section.
+Note that in the default configuration, the panels do not look exactly like the ones shown in the screenshots below.
+For example, data points are not immediately colored, and the default annotation variables displayed by each panel may differ.
+Later sections of this workshop demonstrate how to modify the content of the panels and how they are displayed. 
+
+Note that for simplicity, we typically refer to a `SummarizedExperiment` in this workshop; however, `r Biocpkg("iSEE")` works seamlessly for objects of any class extending `SummarizedExperiment` as well (e.g., `SingleCellExperiment`, `DESeqDataSet`).
+That said, some types of panels -- such as the `Reduced dimension plot` -- are only available for objects that contain a `reducedDim` slot (in particular, `SingleCellExperiment` objects); the basic `SummarizedExperiment` class does not contain this slot.
+In this workshop, we refer to the rows of the `SummarizedExperiment` object as 'features' (these can be genes, transcripts, genomic regions, etc) and to the columns as 'samples' (which, in our example data set, are single cells).
+
+## The built-in panel types {#user-interface}
+
+The `r Biocpkg("iSEE")` user interface consists of a number of panels, each displaying the data provided in the `SummarizedExperiment` from a specific perspective.
+There are 8 standard panel types; 6 plot panels and 2 table panels, all showcased in the figure shown at the end of section [Preparation of example scRNAseq data](#prepare-scrnaseq-data).
+In the default configuration, one panel of each type is included when launching the `r Biocpkg("iSEE")` user interface.
+However, users are free to rearrange, resize, remove or add panels freely, as described in the later section [Configuration of the app interface](#configuration-ui).
+We provide a brief overview of each panel type in the following subsections.
+
+In addition to the 8 standard panel types included in `r Biocpkg("iSEE")`, users can create custom panels (both plots and tables).
+Moreover, the `r Biocpkg("iSEEu")` (iSEE universe) package contains additional panel types. 
+The creation and configuration of custom panels is discussed later, in the dedicated section [Custom panels](#custom-panels).
+
+<!-- This is perhaps not very pedagogical - the app will not look like the one below if it is just opened with the object created above.
+But it's nice to show the capabilities of the panels too, not just the default settings.
+I added a few sentences to the introduction of this section to try to address this. --> 
+
+<!-- ![](img/iSEEinterface.png) -->
+
+### Reduced dimension plot {#reddimplot}
+
+The reduced dimension plot can display any reduced dimension representation that is present in the `reducedDim` slot of the `SingleCellExperiment` object.
+
+Note that this slot is not defined for the base `SummarizedExperiment` class, in which case the user interface does not allow the inclusion of panels of this type.
+ 
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ReducedDimensionPlot(
+  PanelWidth = 12L, 
+  Type = "TSNE", ColorBy = "Column data", 
+  ColorByColumnData = "Cluster"
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-reduceddimensionplot.png", delay=10)
+```
+
+<!-- ![](img/redDimPlot.png) -->
+
+### Column data plot {#coldataplot}
+
+The column data plot can display one or two of the provided column annotations (from the `colData` slot).
+Depending on the class of the selected annotations, the panel shows either a scatter plot, a violin plot, or a Hinton diagram [@Hinton1991-hintondiagram; @Bremner1994-hintonplots].
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ColumnDataPlot(
+  PanelWidth = 12L, 
+  XAxis = "Column data", XAxisColumnData = "Cluster",
+  YAxis = "log10_total"
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-columndataplot.png", delay=10)
+```
+
+<!-- ![](img/colDataPlot.png) -->
+
+### Row data plot {#rowdataplot}
+
+Analogous to the [column data plot](#coldataplot) above, the row data plot displays one or two of the provided row annotations (from the `rowData` slot).
+Depending on the class of the selected annotations, the panel displays either a scatter plot, a violin plot, or a Hinton plot.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(RowDataPlot(
+  PanelWidth = 12L, XAxis = "Row data",
+  YAxis = "detected", XAxisRowData = "log10_total"
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-rowdataplot.png", delay=10)
+```
+
+<!-- ![](img/rowDataPlot.png) -->
+
+### Complex heatmap {#heatmap}
+
+The complex heatmap panel displays, for any assay, the observed values for a subset of the features across the samples.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ComplexHeatmapPlot(
+  PanelWidth = 12L, Assay = "logcounts", CustomRows = TRUE,
+  CustomRowsText = c("CD14", "CD27", "CD52", "CD68", "CD19", "CD4"),
+  ColumnData = "Cluster", AssayCenterRows = TRUE
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-complexheatmapplot.png", delay=10)
+```
+
+<!-- ![](img/heatMap.png) -->
+
+### Feature assay plot {#featassayplot}
+
+The feature assay plot displays the observed values for one feature across the samples.
+It is also possible to plot the observed values for two features, in a scatter plot.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(FeatureAssayPlot(
+  PanelWidth = 12L, XAxis = "Column data",
+  XAxisColumnData = "Cluster", YAxisFeatureName = "CD27",
+  Assay = "logcounts", ColorBy = "Column data",
+  ColorByColumnData = "Cluster"
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-featureassayplot.png", delay=10)
+```
+
+<!-- ![](img/featAssayPlot.png) -->
+
+### Sample assay plot {#sampassayplot}
+
+Analogous to the [feature assay plot](#featassayplot) above, the sample assay plot shows the observed values for all features, for one of the samples.
+It is also possible to plot the observed values for two samples, in a scatter plot.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(SampleAssayPlot(
+  PanelWidth = 12L, XAxis = "Sample name",
+  XAxisSampleName = "Cell1", YAxisSampleName = "Cell2",
+  PointSize = 2
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-sampleassayplot.png", delay=10)
+```
+
+<!-- ![](img/sampAssayPlot.png) -->
+
+### Row data table {#rowdatatable}
+
+The row data table displays all information provided in the `rowData` slot of the `SummarizedExperiment` object, leveraging the interactivity provided by the `r CRANpkg("DT")` package.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(RowDataTable(PanelWidth = 12L)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-rowdatatable.png", delay=10)
+```
+
+<!-- ![](img/rowStatTable.png) -->
+
+### Column data table {#coldatatable}
+
+Analogous to the [row data table](#rowdatatable) above, the column data table displays all information provided in the `colData` slot of the `SummarizedExperiment` object.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ColumnDataTable(PanelWidth = 12L)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-columndatatable.png", delay=10)
+```
+
+<!-- ![](img/colStatTable.png) -->
+
+## Collapsible boxes with display controls {#collapsible-boxes}
+
+### 'Data parameters' collapsible box {#data-parameters-box}
+
+Each plot panel type has a `Data parameters` collapsible box.
+This box has different content for each panel type, but in all cases it lets the user control the data that is displayed in the plot.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ColumnDataPlot(
+  PanelWidth = 12L, DataBoxOpen = TRUE,
+  XAxis = "Column data", XAxisColumnData = "Cluster",
+  YAxis = "log10_total"
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-columndataplot-dataparameters.png", delay=10)
+```
+
+<!-- ![](img/colDataPlotDataParams.png) -->
+
+### 'Visual parameters' collapsible box {#visual-parameters-box}
+
+In contrast to the `Data parameters` collapsible box that lets users control _what_ is displayed in the plot, the `Visual parameters` box lets users control _how_ the information is displayed.
+
+This collapsible box contains the controls to change the size, shape, opacity, and color of the points, to facet the plot by any available categorical annotation, to subsample points for increased speed of plot rendering, and to control how legends are displayed.
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ColumnDataPlot(
+  PanelWidth = 12L, VisualBoxOpen = TRUE,
+  XAxis = "Column data", XAxisColumnData = "Cluster",
+  YAxis = "log10_total", 
+  VisualChoices = c("Color", "Point", "Facet", "Shape", "Size", "Text")
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-columndataplot-visualparameters.png", delay=10)
+```
+
+<!-- ![](img/colDataPlotVisualParams.png) -->
+
+### 'Selection parameters' collapsible box {#selection-parameter-box}
+
+The `Selection parameters` collapsible box provides controls to transfer selections of points (features or samples) between panels.
+
+We discuss point transmission in more detail [later in this workshop](#transmit-point-selections).
+
+```{r, message=FALSE, echo = FALSE}
+app <- iSEE(sce, initial = list(ReducedDimensionPlot(
+  PanelWidth = 12L, SelectionBoxOpen = TRUE,
+  Type = "TSNE", ColorBy = "Column data", 
+  ColorByColumnData = "Cluster"
+)))
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-reduceddimensionplot-selectionparameters.png", delay=10)
+```
+
+<!-- ![](img/redDimPlotSelectionParams.png) -->
+
+## Additional controls {#additional-controls}
+
+At the top-right corner of the iSEE application, users can find additional controls for reproducibility, configuration, and help.
+Each of these is discussed in more detail later in this workshop.
+Links are provided in the last column of the table below.
+
+
+<!-- |                    |                                                                     |                                        |
+|--------------------|:-------------------------------------------------------------------:|----------------------------------------|
+| Panel organization | <img width="175" src="img/PanelOrganization.png"/> | [Organize panels](#configuration-ui) |
+| Diagnostics        | <img width="175" src="img/Diagnostics.png"/>       | [Examine panel chart](#transmit-point-selections), [Extract R code](#reproducibility), [Display panel settings](#configuration-ui) |
+| Documentation      | <img width="175" src="img/Documentation.png"/>     | [Quick tour](#sharing-tours), [Open the vignette](#more-resources) |
+| Additional info    | <img width="175" src="img/AdditionalInfo.png"/>    | [About this session](#reproducibility), [About iSEE](#more-resources) | -->
+
+```{r, echo = FALSE, eval = TRUE}
+panel_organization_fig <- "controls/PanelOrganization.png"
+export_fig <- "controls/Export.png"
+documentation_fig <- "controls/Documentation.png"
+additional_info_fig <- "controls/AdditionalInfo.png"
+```
+
+
+|                    |                                                                     |                                        |
+|--------------------|:-------------------------------------------------------------------:|----------------------------------------|
+| Organization | `r knitr::include_graphics(panel_organization_fig, dpi = 180)` | [Organize panels](#configuration-ui) <br> [Examine panel chart](#transmit-point-selections) |
+| Export        | `r knitr::include_graphics(export_fig, dpi = 180)`       | [Download panel output](#download-output) <br> [Extract R code](#reproducibility) <br> [Display panel settings](#configuration-ui) |
+| Documentation      | `r knitr::include_graphics(documentation_fig, dpi = 180)`     | [Quick tour](#sharing-tours) <br> [Open the vignette](#more-resources) |
+| Additional info    | `r knitr::include_graphics(additional_info_fig, dpi = 180)`    | [About this session](#reproducibility) <br> [About iSEE](#more-resources) |
+
+
+<!-- Show how to change what is plotted, faceting, changing appearance/color -->
+<!-- Transmit selections -->
+<!-- Subsampling --> 
+
+## Configuration of the app interface {#configuration-ui}
+
+As mentioned above, the default behaviour of the `iSEE()` function is to launch an instance of the user interface that displays one panel of each of the standard types (provided the underlying data is available, e.g. for reduced dimension plots the `reducedDim` slot is required).
+However, in some cases it is desirable to have multiple panels of the same type, and/or exclude some panel types.
+
+In order to accommodate such situations, users can add, remove, change the order of and resize all panels via the `Organization` menu in the top-right corner.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Using your open `r Biocpkg("iSEE")` instance, open the `Organization` menu (<i class="fa fa-object-group"></i>) and click on the `Organize panels` (<i class="fa fa-object-ungroup"></i>) button.
+Try to add and remove panels, and resize the existing ones.
+Remember to click on `Apply settings` (<i class="fa fa-object-ungroup"></i>) to apply the changes you have made to the interface. 
+
+Clicking in the selectize box listing all current panels will present you with a drop-down menu from which you can choose additional panels to add. 
+Similarly, panels can be removed by clicking on the <i class="fa fa-times"></i> icon associated with the panel name.
+
+Each panel can be individually resized by changing the width and height.
+Note that the total width of a row in the interface is 12 units.
+When the width of a panel is greater than the space available, the panel is moved to a new row.
+
+It can take a great amount of time to achieve a satisfactory panel configuration.
+To avoid the need to manually organize the panels each time the app is opened, `r Biocpkg("iSEE")` offers the possibility to specify how the app is initialized, as well as to inspect and export the current panel settings for future use.
+
+
+As a first example, let's assume that we would like to start `iSEE` with the default set of eight panels, but we want each panel to have width equal to 3 units rather than the default 4, so that we can fit all the panels in two rows.
+To achieve this, we define a list that we name `initial`, which contains the specifications for all the panels that should be included at startup.
+
+```{r}
+initial <- list(
+  ReducedDimensionPlot(PanelWidth = 3L), 
+  ColumnDataPlot(PanelWidth = 3L),
+  RowDataPlot(PanelWidth = 3L), 
+  ComplexHeatmapPlot(PanelWidth = 3L),
+  FeatureAssayPlot(PanelWidth = 3L),
+  SampleAssayPlot(PanelWidth = 3L),
+  RowDataTable(PanelWidth = 3L),
+  ColumnDataTable(PanelWidth = 3L)
+)
+```
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the application, run the code above in your _R_ session, and relaunch the application, now with the additional argument `initial` set:
+
+```{r}
+app <- iSEE(sce, initial = initial)
+```
+```{r, eval=FALSE}
+shiny::runApp(app)
+```
+
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-initial-2rows.png", delay=20)
+```
+
+Notice how the panel configuration at startup is now different from the default one. 
+The setup is fully customizable - it is possible to include multiple panels of each types, and the size specifications of a given panel are independent of those for the other panels. 
+It is even possible to start an app without any panels at all, by simply providing an empty list to `initial` (see also `iSEEu::modeEmpty()`). 
+Regardless of the initialization choice, once the app is launched, the user by default retains full flexibility to reorganize the interface interactively (it is possible to limit the types of panels that can be added via the `extra` argument to `iSEE`). 
+
+Now that we have an application consisting of a suitable collection of panels for our data set, we'll explore the collapsible boxes below each plot, which lets us control their appearance. 
+
+### Displaying a different reduced dimension representation {#choose-reduced-dimension}
+
+By default, each _Reduced dimension plot_ displays the first reduced dimension representation provided (contained in the `reducedDim` slot of the `SingleCellExperiment` object). 
+If additional reduced dimension representations are included, the one chosen for the display can be changed in the `Data parameters` collapsible box in the _Reduced dimension plot_ panel.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Use this control to show the t-SNE representation instead of the PCA.
+
+Notably, the instance can be preconfigured to immediately display the t-SNE representation when the application is launched.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the application and run the following block of code to show two _Reduced dimension plot_ panels; one showing the PCA representation, one showing the t-SNE representation.
+
+```{r}
+initial <- list(
+  ReducedDimensionPlot(Type = "PCA", PanelWidth = 6L),
+  ReducedDimensionPlot(Type = "TSNE", PanelWidth = 6L)
+)
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-reduceddimensiontype.png", delay=10)
+```
+
+<!-- ![](img/ReducedDimensionType.png) -->
+
+### Coloring points by row/column annotation {#color-by-annotation}
+
+With default settings, all points are colored black.
+However, any provided row (for features) or column (for samples) annotation can be used to color the points.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** To demonstrate this, open the `Visual parameters` collapsible box in one of the _Reduced dimension plot_ panels, and set `Color by:` to `Column data`.
+Scroll through the dropdown menu that appears in order to see all the sample annotations that can be used to color the points.
+All these values are taken from the `colData` slot of the provided object.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** First, color the cells by `Cluster`, which contains the cluster labels that were assigned to the cells in the preprocessing step [in a previous section](#prepare-scrnaseq-data).
+Note how a discrete color scheme is selected, since the variable is categorical.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Next, color the cells by the log10-transformed number of detected genes (`log10_total`).
+Notice how the color scale is now continuous.
+
+The instance can be preconfigured to control the coloring of data points, to display the same result on startup.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the application and run the following block of code to edit the configuration of the two _Reduced dimension plot_ panels prepared in the [previous section](#choose-reduced-dimension).
+
+
+```{r}
+initial <- list(
+  ReducedDimensionPlot(Type = "PCA", ColorBy = "Column data", 
+                       ColorByColumnData = "log10_total", PanelWidth = 6L),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster", PanelWidth = 6L)
+)
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-colorbycoldata.png", delay=10)
+```
+
+<!-- ![](img/ColorByColData.png) -->
+
+`r Biocpkg("iSEE")` allows precise control over the color schemes used.
+More information about this can be found in the `r Biocpkg("iSEE", "ecm.html", "ExperimentColorMap")` vignette.
+
+### Coloring points by feature value {#color-by-feature}
+
+In addition to coloring cells by the provided annotations as above, we can also color them by the observed values for a given feature (as provided in one of the `assays`).
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Set `Color by:` to `Feature name` in one of the _Reduced dimension plot_ panels, and select one of the genes from the dropdown menu.
+You can search for a gene of interest by typing in the dropdown box.
+You can also choose which assay should be used to extract the values to color according to.
+
+Again, the same result can be achieved by preconfiguring the application as follows.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the application and run the following block of code to set up 3 panels, all displaying the t-SNE representation.
+In the first panel, we color cells by their `Cluster` label.
+In the second and third panel, we display _CD79A_ and _CD74_, a combination of gene markers typically observed in B cells.
+
+```{r}
+## The displayed features IDs must be row names of the object
+c("CD79A", "CD74") %in% rownames(sce)
+initial <- list(
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster"),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Feature name", 
+                       ColorByFeatureName = "CD79A",
+                       ColorByFeatureNameAssay = "logcounts"),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Feature name", 
+                       ColorByFeatureName = "CD74",
+                       ColorByFeatureNameAssay = "logcounts")
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-colorbyfeature.png", delay=10)
+```
+
+<!-- ![](img/ColorByFeature.png) -->
+
+<!-- > <i class="fa fa-wrench fa-2x"></i> **Action:** click on the export icon (<i class="fa fa-download fa-1g"></i>) in the top-right corner, and select 'Display panel settings'.
+This opens a pop-up window with the code required to generate all the currently visible panels. -->
+
+### Highlighting a single point {#highlight}
+
+The `Color by: Sample name` option in the _Reduced dimension plot_ can also be used to highlight a single sample.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Set `Color by:` to `Sample name` in one of the Reduced dimension plots, and use the dropdown menu underneath to change the highlighted cell.
+
+Again, the same result can be achieved by preconfiguring the application.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to continue editing the configuration of the _Reduced dimension plot_ panels prepared in the [previous section](#color-by-feature).
+We also open the _Visual parameters_ collapsible box to highlight the preconfigured options.
+
+```{r}
+initial <- list(
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster",
+                       VisualBoxOpen = TRUE),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Sample name", 
+                       ColorBySampleName = "Cell2439",
+                       VisualBoxOpen = TRUE),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Sample name", 
+                       ColorBySampleName = "Cell673",
+                       VisualBoxOpen = TRUE)
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-colorbysample.png", delay=10)
+```
+
+<!-- ![](img/ColorBySample.png) -->
+
+### Changing the size, shape and opacity of points {#change-shape-opacity}
+
+By default, only the `Color` options are displayed in the `Visual parameters` box.
+Additional controls can be shown by clicking the check boxes for `Shape`, `Size`, `Point`, `Facet` and `Text`.
+The `Size`, `Shape` and `Point` panels let you set the shape and size of points according to provided annotations (or to resize all points), and to set the point opacity.
+
+Here, you can also downsample points to increase the speed of rendering, which can be useful for data sets with large numbers of points.
+Crucially, downsampling is purely a visual effect; data points hidden by the downsampling process are still included in selections captured by Shiny brushes and lasso selections.
+We illustrate this point by applying the same Shiny brush to select a visually well defined cluster visually downsampled to a resolution of 100 and 50 bins, respectively; note how the information message for both selection declares the same number of data points selected, despite the clearly different number of data points displayed in the corresponding area of each plot.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to continue editing the configuration of the _Reduced dimension plot_ panels prepared in the [previous section](#color-by-feature).
+Here, we reduce the point size and increase the transparency (i.e. reduce the value for the alpha attribute).
+We also apply a downsampling grid of 100 horizontal and vertical bins to the plot, where only a single data point is plotted (if any) for each bin.
+Finally, we display the `Shape` and `Point` options.
+
+```{r}
+brushData <- list(xmin = -16.44, xmax = 5.6976316150235, ymin = -41.147401279341, ymax = -15.99494636763, 
+        coords_css = list(xmin = 231.34375, xmax = 383.34375, ymin = 306L, ymax = 417L), 
+        coords_img = list(xmin = 231.34375, xmax = 383.34375, ymin = 306L, ymax = 417L), 
+        img_css_ratio = list(x = 1L, y = 1L), mapping = list(x = "X", y = "Y", colour = "ColorBy"), 
+        domain = list(left = -44.5050628659896, right = 38.791275779239, bottom = -43.4753804355979, 
+            top = 47.8385432957266), range = list(left = 38.7190443065069, right = 610.520547945205, 
+            bottom = 427.273577161815, top = 24.2971850062453), log = list(x = NULL, 
+            y = NULL), direction = "xy", brushId = "ReducedDimensionPlot2_Brush", outputId = "ReducedDimensionPlot2")
+initial <- list(
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster",
+                       VisualBoxOpen = TRUE, Downsample = TRUE, 
+                       DownsampleResolution = 200),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Sample name", 
+                       ColorBySampleName = "Cell2439",
+                       VisualBoxOpen = TRUE, PointSize = 0.4,
+                       PointAlpha = 0.4, Downsample = TRUE, 
+                       DownsampleResolution = 100,
+                       VisualChoices = c("Shape", "Point"),
+                       BrushData = brushData),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Sample name", 
+                       ColorBySampleName = "Cell673",
+                       VisualBoxOpen = TRUE, PointSize = 0.4,
+                       PointAlpha = 0.4, Downsample = TRUE, 
+                       DownsampleResolution = 50,
+                       VisualChoices = c("Shape", "Point"),
+                       BrushData = brushData)
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-configurevisualparameters.png", delay=10)
+```
+
+<!-- ![](img/ConfigureVisualParameters.png) -->
+
+### Changing the displayed metadata {#change-metadata-displayed}
+
+The _Column data plot_ and _Row data plot_ panels are used to display the information in the `colData` and `rowData` slots of the `SummarizedExperiment` object.
+These panels can display either one or two annotations.
+By default, the first annotation in the respective metadata table is selected.
+
+The plot layout adapts automatically to the type of annotation(s) displayed.
+
+* When all chosen annotations are categorical, `r Biocpkg("iSEE")` displays a Hinton plot, consisting of rectangles with an area proportional to the number of observations they represent.
+* For a single continuous variable, or one continuous and one categorical variable, `r Biocpkg("iSEE")` uses violin plot(s).
+* If two continuous variables are chosen, `r Biocpkg("iSEE")` displays a scatter plot.
+
+As a side note, categorical variables with "too many" unique values (which is typically the case for sample IDs, for instance) are represented as numeric variables, by replacing each value by an index.
+The limit for what is considered "too many" unique values can be set using `options(iSEE.maxlevels = 30)`.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Start an instance with the default set of panels and explore the different types of plots provided in the Column data or Row data plot panels by selecting different annotations as the `Column of interest (Y-axis)` and/or setting `X-axis:` to `Column data` and selecting an additional annotation.
+
+In the following code chunk we demonstrate the preconfiguration of an app instance that immediately displays two panels.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to set up one _Column data plot_ and one _Row data plot_ panel.
+We set up the _Column data plot_ panel to immediately examine the proportion of counts assigned to mitochondrial features in each cluster.
+We set up the _Row data plot_ panel to examine the proportion of cells with detectable expression against the log-transformed total counts for each gene.
+
+```{r}
+initial <- list(
+  ColumnDataPlot(YAxis = "subsets_MT_percent", XAxis = "Column data",
+                 XAxisColumnData = "Cluster", PanelWidth = 6L),
+  RowDataPlot(YAxis = "n_cells", XAxis = "Row data",
+              XAxisRowData = "log10_total", PanelWidth = 6L)
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-configuredataplotpanels.png", delay=10)
+```
+
+<!-- ![](img/ConfigureDataPlotPanels.png) -->
+
+### Displaying gene expression {#display-gene-expression}
+
+The _Feature assay plot_ is used to display the observed values for one feature across the samples on the Y-axis.
+By default, the first feature in the `rownames` of the dataset is selected, displaying its distribution across the entire dataset.
+
+While continuous measurements are more common (e.g., gene expression),  discrete assays are also supported (e.g., single nucleotide polymorphisms), and displayed as a Hinton plot, consisting of rectangles with an area proportional to the number of samples they represent.
+
+It is also possible to plot the observed values of a second feature on the X-axis.
+This will result in a scatter plot or Hinton plot, depending on the continuous or discrete nature of the data, respectively.
+
+Alternatively, the X-axis can also be used to stratify gene expression according to a discrete sample metadata in the form of a violin plot, while a continuous metadata will generate a scatter plot.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Start an instance with the default set of panels and explore the different types of plots generated by the Feature assay plot panel using the choices available for the two axes.
+
+Similarly to all other panels, the _Feature assay plot_ can be preconfigured to immediately display specific information when the app is launched.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to set up three _Feature assay plot_ panels demonstrating different configurations.
+All three panels display the same gene on the Y-axis and color data points according to their cluster label.
+On the X-axis, the first panel displays a discrete sample metadata variable, the cluster label; the second panel display a continuous sample metadata variable, the log-transformed library size; the third panel displays the expression of a second gene.
+
+```{r}
+initial <- list(
+  FeatureAssayPlot(ColorBy = "Column data", ColorByColumnData = "Cluster", 
+                   YAxisFeatureName = "CD3D", XAxis = "Column data",
+                   XAxisColumnData = "Cluster", DataBoxOpen = TRUE, 
+                   Assay = "logcounts"),
+  FeatureAssayPlot(ColorBy = "Column data", ColorByColumnData = "Cluster", 
+                   YAxisFeatureName = "CD3D", XAxis = "Column data",
+                   XAxisColumnData = "log10_total", DataBoxOpen = TRUE, 
+                   Assay = "logcounts"),
+  FeatureAssayPlot(ColorBy = "Column data", ColorByColumnData = "Cluster", 
+                   YAxisFeatureName = "CD3D", XAxis = "Feature name",
+                   XAxisFeatureName = "CD40LG", DataBoxOpen = TRUE, 
+                   Assay = "logcounts")
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-featassayplotdataparams.png", delay=10)
+```
+
+<!-- ![](img/featAssayPlotDataParams.png) -->
+
+### Linking panels and transmitting point selections {#transmit-point-selections}
+
+When exploring data, it is often useful to be able to select a subset of points and investigate different aspects of their characteristic features. 
+In `r Biocpkg("iSEE")`, this can be achieved by _selecting_ points in one panel, and _transmitting_ this selection to one or more other panels. 
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Select a set of points in one of the _Feature assay plot_ panels, by drawing a rectangle around them. 
+Then open the _Selection parameters_ collapsible box of one of the other _Feature assay plot_ panels, and select the _Feature assay plot_ panel where you made the point selection from the dropdown menu under **Receive column selection from**. 
+Note how the points corresponding to the cells that you selected in the first panel are highlighted in the receiving panel. 
+You can highlight the points in different ways by changing the **Selection effect**.
+
+Also the brushing and point selection can be preconfigured. 
+In the example below, we configure three types of panels: a _Feature assay plot_, a _Reduced dimension plot_, and a _Column data plot_.
+For visual convenience, we color data points in all three panels by the cluster label.
+
+To demonstrate the feature, we define a Shiny brush in the _Feature assay plot_ panel to select cells with detectable levels of the _CD3D_ gene.
+For the other two panels, pay particular attention to the `"ColumnSelectionSource"` instruction which declares that they should both receive the data points selected in the _Feature assay plot_ panel.
+In addition, we specify that the _Reduced dimension plot_ should highlight the selection by applying a transparency effect to _unselected_ data points.
+Alternatively, we use the _Column data plot_ to demonstrate how the selection can also be highlighted by applying a given color (here, red) to the selected data points.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to launch the example application described above.
+
+```{r}
+initial <- list(
+  FeatureAssayPlot(YAxisFeatureName = "CD3D", BrushData = list(
+    xmin = 0.5, xmax = 14.5, ymin = 0.5, ymax = 5.7,
+    mapping = list(x = "X", y = "Y", group = "GroupBy"),
+    direction = "xy", 
+    brushId = "featAssayPlot1_Brush", outputId = "featAssayPlot1"),
+    XAxis = "Column data", XAxisColumnData = "Cluster",
+    ColorBy = "Column data", ColorByColumnData = "Cluster"),
+  ReducedDimensionPlot(ColumnSelectionSource = "FeatureAssayPlot1",
+                       Type = "TSNE", ColorBy = "Column data",
+                       ColorByColumnData = "Cluster", SelectionBoxOpen = TRUE),
+  ColumnDataPlot(ColumnSelectionSource = "FeatureAssayPlot1", SelectionEffect = "Color",
+                 YAxis = "log10_total", XAxis = "Column data",
+                 XAxisColumnData = "subsets_MT_percent", ColorBy = "Column data",
+                 ColorByColumnData = "Cluster", SelectionBoxOpen = TRUE)
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-linkingpanelsexample.png", delay=10)
+```
+
+Notably, iSEE can display active links transmitting point selections between panel using the "[Examine panel chart](#additional-controls)" menu.
+
+<!-- ![](img/GraphSelectionLinks.png) -->
+
+### Zooming into a plot subregion {#zoom-subregion}
+
+iSEE allows you to zoom into a subregion of a plot, by simply drawing a rectangular selection around the area of interest and double-clicking inside the rectangle.
+To zoom back out to the full plot, double-click anywhere in the plot.
+
+To demonstrate the feature, we set up two _Reduced dimension plot_ panels.
+In the first panel, we draw a Shiny brush to indicate an area of interest in the reduced dimension plot.
+We preconfigure the second panel to display only that area.
+In both panels, we color data points by cluster label using the same color map, to help visualize the zoom relationship between the two panels.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to launch the example application described above.
+Double-click on the area selected in the first panel to zoom and display the same view as the second panel.
+Double click again anywhere in the panel to zoom out.
+
+```{r}
+initial <- list(
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster", PointSize = 1,
+                       BrushData = list(
+    xmin = 3.4, xmax = 27.3, ymin = 0.8, ymax = 30.0, 
+    log = list(x = NULL, y = NULL), mapping = list(x = "X", y = "Y", colour = "ColorBy"),
+    direction = "xy", brushId = "redDimPlot1_Brush", outputId = "redDimPlot1")),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster", PointSize = 2,
+                       ZoomData = c(xmin = 3.4, xmax = 27.3, ymin = 0.8, ymax = 30.0))
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-zoom.png", delay=10)
+```
+
+<!-- ![](img/Zoom.png) -->
+
+### Lasso selections {#lasso-selection}
+
+Sometimes, rectangular selections may not offer enough flexibility to include or exclude certain data points.
+While RStudio Shiny [does not offer freehand/lasso selections yet](https://github.com/rstudio/shiny/issues/2072), `r Biocpkg("iSEE")` implements this feature through a server-side click-based functionality to draw lasso selections in plot panels.
+
+To start a lasso selection, click once on the plot at the location where you wish to create the first lasso waypoint, and let the plot refresh to show the point.
+To draw subsequent waypoints, click once at the desired locations, each time allowing the plot to refresh.
+To close the lasso and activate the selection, click on the starting waypoint of the lasso (a tolerance of 1% of the axis range is applied).
+
+To demonstrate the feature, we define one open (i.e. incomplete) and one closed (i.e., active) lasso selection in two separate _Row data plot_ panels, to select features (i.e., genes) that show a higher total UMI count across all cells than the general trend for other features detected in the same number of cells.
+In addition, we specify that the the _Row data table_ should display the features captured by the closed lasso selection, along with their associated metadata.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to launch the example application described above.
+Close the incomplete lasso selection in the first panel by clicking on the initial waypoint.
+
+```{r}
+initial <- list(
+  RowDataPlot(XAxis = "Row data", YAxis = "log10_total", XAxisRowData = "detected", 
+              BrushData = list(lasso = NULL, closed = FALSE, panelvar1 = NULL, panelvar2 = NULL,
+                               mapping = list(x = "X", y = "Y"),
+                               coord = structure(c(
+                                 -0.12, 11.03, 20.69, 39.08,
+                                 60.5, 85.53, 93.68, 95.79,
+                                 60.8, 34.26, -0.12,
+                                 2.29, 2.77, 3.03, 3.32,
+                                 3.54, 3.98, 4.24, 4.72,
+                                 4.69, 4.43, 3.41), .Dim = c(11L, 2L)))),
+  RowDataPlot(XAxis = "Row data", YAxis = "log10_total", XAxisRowData = "detected", 
+              BrushData = list(lasso = NULL, closed = TRUE, panelvar1 = NULL, panelvar2 = NULL,
+                               mapping = list(x = "X", y = "Y"),
+                               coord = structure(c(
+                                 -0.12, 11.03, 20.69, 39.08,
+                                 60.5, 85.53, 93.68, 95.79,
+                                 60.8, 34.26, -0.12, -0.12,
+                                 2.29, 2.77, 3.03, 3.32,
+                                 3.54, 3.98, 4.24, 4.72,
+                                 4.69, 4.43, 3.41, 2.29), .Dim = c(12L, 2L)))),
+  RowDataTable(RowSelectionSource = "RowDataPlot2")
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-lassoselection.png", delay=10)
+```
+
+### Filtering tables {#filter-table}
+
+Tables may also be preconfigured to immediately display a subset of rows according to their filters or select a row different from the first one when the app is launched.
+
+For simplicity, we demonstrate this feature using a subset of 3 column metadata--namely "Cluster", "total", and "subsets_MT_percent"--out of the set of `r ncol(colData(sce))` column metadata computed by the [workflow above](#prepare-scrnaseq-data).
+
+In the example below, we preconfigure a _Column statistics table_ to display only cells with cluster labels "3" and "5", and a library size between 5,000 and 15,844 (the maximum library size in the dataset).
+In addition, we also preselect the cell named "Cell943".
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to launch the example application described above.
+
+```{r}
+sce1 <- sce
+colData(sce1) <- colData(sce1)[, c("Cluster", "total", "subsets_MT_percent")]
+initial <- list(
+  ColumnDataTable(SearchColumns = c('["3", "5"]", "5000 ... 15844"', ""),
+                  Selected = "Cell943", PanelWidth = 12L)
+)
+
+app <- iSEE(sce1, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-filteredtable.png", delay=10)
+```
+
+<!-- ![](img/FilteredTable.png) -->
+
+Notably the preselected cell can be used to immediately establish a relationship with another panel and highlighted the selection in a different panel [as demonstrated earlier](#transmit-point-selections).
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the app and run the following block of code to launch an application that includes a _Reduced dimension plot_ panel dynamically higlighting the cell selected in the _Column statistics table_.
+Select different rows of the cell to see the _Reduced dimension plot_ panel update accordingly.
+
+```{r}
+initial <- list(
+  ColumnDataTable(SearchColumns = c('["3", "5"]', "5000 ... 15844", ""),
+                  Selected = "Cell943", PanelId = 1L, PanelWidth = 8L),
+  ReducedDimensionPlot(Type = "TSNE", VisualBoxOpen = TRUE,
+                       ColorBy = "Sample name", 
+                       ColorBySampleSource = "ColumnDataTable1")
+)
+
+app <- iSEE(sce1, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-linktabletoplot.png", delay=10)
+```
+
+<!-- ![](img/LinkTableToPlot.png) -->
+
+## Saving and restoring the state of the application {#save-and-restore-user-interface}
+
+In the previous sections we have seen how we can specify the initial state of each panel.
+Often, the initial exploration of a data set, including reorganization and configuration of panels, is done interactively.
+Once a satisfactory panel setup has been achieved, the corresponding settings can be exported and used to restore the state of the app at startup.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Click on the export icon (<i class="fa fa-download fa-1g"></i>) in the top-right corner, and select 'Display panel settings'.
+Copy all the code shown in the pop-up window. 
+Close the app and paste this code in your R session.
+This defines the 'initial' list that we have composed manually in the examples above.
+Then launch a new instance using the following code. 
+Note how the app starts in the same configuration as it was before closing.
+Of course, it is still possible to continue exploring the data interactively - we have only changed the starting configuration.
+
+```{r, eval=FALSE}
+iSEE(sce1, initial = initial)
+```
+
+## Custom panels {#custom-panels}
+
+In addition to the standard panel types, `r Biocpkg("iSEE")` allows the user to create _custom_ panels, displaying any type of plot or table. 
+The custom panels can receive row and column selections from the standard panels. 
+In order to create a custom panel, we need to define a function that generates the desired output. 
+This function must receive a `SummarizedExperiment` object as it first input. 
+In addition, it should take a list of character vectors containing row names as the second argument (can be `NULL` if no selection is made), and similarly a list of character vectors containing column names as the third argument. 
+
+### Example: Custom reduced dimension plot
+
+We will first show how to create a custom panel that performs dimension reduction on a subset of the rows and columns, selected in and transmitted from other panels in the interface.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Copy the code below in your R session in order to define the custom function.
+
+```{r}
+library(scater)
+CUSTOM_DIMRED <- function(se, rows, columns, ntop=500, scale=TRUE,
+    mode=c("PCA", "TSNE", "UMAP")) {
+    if (is.null(columns)) {
+        return(
+            ggplot() + theme_void() + geom_text(
+                aes(x, y, label=label),
+                data.frame(x=0, y=0, label="No column data selected."),
+                size=5)
+            )
+    }
+
+    mode <- match.arg(mode)
+    if (mode=="PCA") {
+        calcFUN <- runPCA
+    } else if (mode=="TSNE") {
+        calcFUN <- runTSNE
+    } else if (mode=="UMAP") {
+        calcFUN <- runUMAP
+    }
+
+    set.seed(1000)
+    kept <- se[, unique(unlist(columns))]
+    kept <- calcFUN(kept, ncomponents=2, ntop=ntop,
+        scale=scale, subset_row=unique(unlist(rows)))
+    plotReducedDim(kept, mode)
+}
+```
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Next, launch an iSEE session with the custom reduced dimension plot panel, as well as a _Row data plot_ panel and a _Column data plot_ panel, from which the row and column selections for the custom reduced dimension representation are obtained. 
+Select subsets of the points in each of these two panels and note how the plot in the custom panel is updated. 
+
+```{r}
+GENERATOR <- createCustomPlot(CUSTOM_DIMRED)
+
+initial=list(
+  ReducedDimensionPlot(
+    ColorBy = "Column data",
+    ColorByColumnData = "Cluster",
+    PanelId=1L
+  ), 
+  RowDataPlot(
+    XAxis="Row data",
+    YAxis="detected",
+    XAxisRowData="log10_total",
+    PanelId=1L),
+  GENERATOR(mode="TSNE", ntop=1000,
+            ColumnSelectionSource="ReducedDimensionPlot1",
+            RowSelectionSource="RowDataPlot1")
+)
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, echo = FALSE}
+initial[[1]]@BrushData <- list(xmin = -18.082421106587, xmax = -2.8890335760524, 
+        ymin = -6.1230947847308, ymax = 7.8417899641782, coords_css = list(
+            xmin = 46L, xmax = 201L, ymin = 79L, ymax = 253L), 
+        coords_img = list(xmin = 92L, xmax = 402L, ymin = 158L, 
+            ymax = 506L), img_css_ratio = list(x = 2L, y = 2L), 
+        mapping = list(x = "X", y = "Y", colour = "ColorBy"), 
+        domain = list(left = -18.7961138900958, right = 10.689007494099, 
+            bottom = -17.3362212383086, top = 12.23212621032), 
+        range = list(left = 77.4380886130137, right = 679.041095890411, 
+            bottom = 785.42715432363, top = 48.5943700124905), 
+        log = list(x = NULL, y = NULL), direction = "xy", brushId = "ReducedDimensionPlot1_Brush", 
+        outputId = "ReducedDimensionPlot1")
+initial[[2]]@BrushData <- list(
+        xmin = 3.0746815063617, xmax = 5.3163433742535, ymin = 76.714067354647, 
+        ymax = 103.08376506681, coords_css = list(xmin = 215L, 
+            xmax = 332L, ymin = 32L, ymax = 138L), coords_img = list(
+            xmin = 430L, xmax = 664L, ymin = 64L, ymax = 276L), 
+        img_css_ratio = list(x = 2L, y = 2L), mapping = list(
+            x = "X", y = "Y"), domain = list(left = -0.260020635059862, 
+            right = 5.46043333625711, bottom = -5L, top = 105L), 
+        range = list(left = 81.9009792380137, right = 679.041095890411, 
+            bottom = 932.942770761986, top = 48.5943700124905), 
+        log = list(x = NULL, y = NULL), direction = "xy", brushId = "RowDataPlot1_Brush", 
+        outputId = "RowDataPlot1")
+initial[[3]]@DataBoxOpen <- TRUE  ## This is FALSE when opening explicitly in the app?
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-custompca.png", delay=20)
+```
+
+<!-- ![](img/customPCA.png) -->
+
+<!-- Here we could mention the custom coverage plot, and link to bulk RNA-seq data -->
+
+### Example: Multiple selections and differential expression
+
+<!-- Multiple selections -> DE -->
+
+In the example below, we demonstrate how to transmit multiple selections (active and saved).
+This information is used to compute the log-fold change for each gene between the active selection and each of the other saved selections.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Copy the code below in your R session in order to define the custom functions.
+
+```{r}
+CUSTOM_DIFFEXP <- function(se, ri, ci, assay="logcounts") {
+    ri <- ri$active
+    if (is.null(ri)) {
+        ri <- rownames(se)
+    }
+    assayMatrix <- assay(se, assay)[ri, , drop=FALSE]
+
+    if (is.null(ci$active) || length(ci)<2L) {
+        return(data.frame(row.names=character(0), LogFC=integer(0))) # dummy value.
+    }
+    active <- rowMeans(assayMatrix[,ci$active,drop=FALSE])
+
+    all_saved <- ci[grep("saved", names(ci))]
+    lfcs <- vector("list", length(all_saved))
+    for (i in seq_along(lfcs)) {
+        saved <- rowMeans(assayMatrix[,all_saved[[i]],drop=FALSE])
+        lfcs[[i]] <- active - saved
+    }
+
+    names(lfcs) <- sprintf("LogFC/%i", seq_along(lfcs))
+    do.call(data.frame, lfcs)
+}
+
+CUSTOM_HEAT <- function(se, ri, ci, assay="logcounts") {
+    everything <- CUSTOM_DIFFEXP(se, ri, ci, assay=assay)
+    if (nrow(everything) == 0L) {
+        return(ggplot()) # empty ggplot if no genes reported.
+    }
+
+    everything <- as.matrix(everything)
+    top <- head(order(rowMeans(abs(everything)), decreasing=TRUE), 50)
+    topFC <- everything[top, , drop=FALSE]
+    dfFC <- data.frame(
+        gene=rep(rownames(topFC), ncol(topFC)),
+        contrast=rep(colnames(topFC), each=nrow(topFC)),
+        value=as.vector(topFC)
+    )
+    ggplot(dfFC, aes(contrast, gene)) + geom_raster(aes(fill = value))
+}
+```
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Next, launch an iSEE session with the custom table and plot panels, as well as a Reduced dimension plot from which the column selections for the custom panels are obtained.
+Select and save multiple subsets of the points in the reduced dimension plot (e.g., clusters) and note how the DE table in the custom panel is updated. 
+
+```{r}
+TAB_GEN <- createCustomTable(CUSTOM_DIFFEXP)
+HEAT_GEN <- createCustomPlot(CUSTOM_HEAT)
+
+rdp <- ReducedDimensionPlot(
+    PanelId=1L)
+
+initial <- list(rdp,
+                TAB_GEN(ColumnSelectionSource="ReducedDimensionPlot1"),
+                HEAT_GEN(ColumnSelectionSource="ReducedDimensionPlot1"))
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, echo = FALSE}
+initial[[1]]@BrushData <- list(
+        xmin = -17.738213573372, xmax = -10.456406945586, ymin = -2.8607020193978, 
+        ymax = 3.4251117115153, coords_css = list(xmin = 47L, 
+            xmax = 104L, ymin = 156L, ymax = 250L), coords_img = list(
+            xmin = 94L, xmax = 208L, ymin = 312L, ymax = 500L), 
+        img_css_ratio = list(x = 2L, y = 2L), mapping = list(
+            x = "X", y = "Y"), domain = list(left = -18.7961138900958, 
+            right = 10.689007494099, bottom = -17.3362212383086, 
+            top = 12.23212621032), range = list(left = 77.4380886130137, 
+            right = 539.041095890411, bottom = 932.942770761986, 
+            top = 48.5943700124905), log = list(x = NULL, y = NULL), 
+        direction = "xy", brushId = "ReducedDimensionPlot1_Brush", 
+        outputId = "ReducedDimensionPlot1")
+initial[[1]]@SelectionHistory <- list(list(xmin = -2.5358453504514, xmax = 8.0674871075519, 
+        ymin = 4.6287781706263, ymax = 11.182073336897, coords_css = list(
+            xmin = 166L, xmax = 249L, ymin = 40L, ymax = 138L), 
+        coords_img = list(xmin = 332L, xmax = 498L, ymin = 80L, 
+            ymax = 276L), img_css_ratio = list(x = 2L, y = 2L), 
+        mapping = list(x = "X", y = "Y"), domain = list(left = -18.7961138900958, 
+            right = 10.689007494099, bottom = -17.3362212383086, 
+            top = 12.23212621032), range = list(left = 77.4380886130137, 
+            right = 539.041095890411, bottom = 932.942770761986, 
+            top = 48.5943700124905), log = list(x = NULL, y = NULL), 
+        direction = "xy", brushId = "ReducedDimensionPlot1_Brush", 
+        outputId = "ReducedDimensionPlot1"))
+initial[[1]]@SelectionBoxOpen <- TRUE
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-custommultipledifferentialexpression.png", delay=20)
+```
+
+<!-- ![](img/customMultipleDifferentialExpression.png) -->
+
+<!-- If time is enough: Kev's comparison of reduced dimensionality could be also nice - just to show, maybe, and then link to the iSEE_custom repo -->
+
+More examples of custom panels can be found at https://github.com/iSEE/iSEE_custom and in the `r Biocpkg("iSEE", "custom.html", "Custom panels")` vignette.
+
+## Reproducibility {#reproducibility}
+
+The fact that data exploration is done interactively is no reason to forego reproducibility! 
+To this end, `r Biocpkg("iSEE")` lets you export the exact R code used to create each of the currently visible plots.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Close the application and run the following block of code to set up 3 panels, all displaying the t-SNE representation.
+
+```{r}
+initial <- list(
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Column data", 
+                       ColorByColumnData = "Cluster"),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Feature name", 
+                       ColorByFeatureName = "CD79A", ColorByFeatureNameAssay = "logcounts"),
+  ReducedDimensionPlot(Type = "TSNE", ColorBy = "Feature name", 
+                       ColorByFeatureName = "CD74", ColorByFeatureNameAssay = "logcounts")
+)
+
+app <- iSEE(sce, initial = initial)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-reproducibility.png", delay=10)
+```
+
+> Then click on the export icon (<i class="fa fa-download fa-1g"></i>) in the top-right corner, and select 'Extract the R code'.
+Copy the preamble and the code for the first _Reduced dimension plot_ from the pop-up window. 
+Close the app and paste the code in your R session.
+Note how this recreates the first reduced dimension plot from the app. 
+
+```{r}
+## The following list of commands will generate the plots created in iSEE
+## Copy them into a script or an R session containing your SingleCellExperiment.
+## All commands below refer to your SingleCellExperiment object as `se`.
+
+se <- sce
+colormap <- ExperimentColorMap()
+colormap <- synchronizeAssays(colormap, se)
+all_contents <- list()
+
+################################################################################
+# Defining brushes
+################################################################################
+
+all_active <- list()
+all_active[['ReducedDimensionPlot1']] <- list()
+all_active[['ReducedDimensionPlot2']] <- list()
+all_active[['ReducedDimensionPlot3']] <- list()
+
+################################################################################
+## Reduced dimension plot 1
+################################################################################
+
+
+red.dim <- reducedDim(se, "TSNE");
+plot.data <- data.frame(X=red.dim[, 1], Y=red.dim[, 2], row.names=colnames(se));
+
+plot.data$ColorBy <- colData(se)[, "Cluster"];
+
+# Avoid visual biases from default ordering by shuffling the points
+set.seed(2643);
+plot.data <- plot.data[sample(nrow(plot.data)),,drop=FALSE];
+
+dot.plot <- ggplot() +
+    geom_point(aes(x=X, y=Y, color=ColorBy), alpha=1, plot.data, size=1) +
+    labs(x="Dimension 1", y="Dimension 2", color="Cluster", title="TSNE") +
+    coord_cartesian(xlim=range(plot.data$X, na.rm=TRUE),
+        ylim=range(plot.data$Y, na.rm=TRUE), expand=TRUE) +
+    scale_color_manual(values=colDataColorMap(colormap, "Cluster", discrete=TRUE)(14), na.value='grey50', drop=FALSE) +
+    scale_fill_manual(values=colDataColorMap(colormap, "Cluster", discrete=TRUE)(14), na.value='grey50', drop=FALSE) +
+    theme_bw() +
+    theme(legend.position='bottom', legend.box='vertical', legend.text=element_text(size=9), legend.title=element_text(size=11),
+            axis.text=element_text(size=10), axis.title=element_text(size=12), title=element_text(size=12))
+
+# Saving data for transmission
+all_contents[['ReducedDimensionPlot1']] <- plot.data
+```
+
+```{r}
+dot.plot
+```
+
+## Sharing and communication {#sharing-tours}
+
+One important aspect of visualization is the ability to share your insights with others. 
+A powerful way of easily getting people unfamiliar with your data up to speed is to provide a walk-through of the interface and the different types of plots that are displayed. 
+With `r Biocpkg("iSEE")`, this can be achieved using _tours_. 
+To configure a tour, you need to create a text file with two columns; named `element` and `intro`, with the former describing the UI element to highlight in each step, and the latter providing the descriptive text that will be displayed.
+
+> <i class="fa fa-wrench fa-2x"></i> **Action:** Run the code below to generate a data frame configuring a tour for the app generated in the previous step.
+Then launch a new instance, providing the data frame to the `tour` argument.
+
+```{r}
+tour <- data.frame(
+    element = c(
+        "#Welcome",
+        "#ReducedDimensionPlot1",
+        "#ReducedDimensionPlot2",
+        "#Conclusion"),
+    intro = c(
+        "Welcome to this tour!",
+        "This is the first reduced dimension plot",
+        "And here is the second one",
+        "Thank you for taking this tour!"),
+    stringsAsFactors = FALSE)
+
+app <- iSEE(sce, initial = initial, tour = tour)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-tour.png", delay=10)
+```
+
+To see an example of a more complex tour in action, visit https://marionilab.cruk.cam.ac.uk/iSEE_pbmc4k/.
+The code used to create this app and the associated tour is available from https://github.com/iSEE/iSEE2018/tree/master/tours/pbmc4k.
+
+<!-- If there is enough time: draft a mini tour live (challenging: anchors might be tricky - rewarding: once it works, it is surely a OOOH thing) -->
+
+# Modes and additional panels
+
+The `r Biocpkg("iSEEu")` ("iSEE universe") Bioconductor package defines additional custom panels and predefined 'modes' (startup configurations) that may be useful for specific applications. 
+Here we illustrate the use of the _reduced dimension_ mode, which will start an application with one reduced dimension panel for each reduced dimension representation in the input object.
+
+```{r}
+library(iSEEu)
+app <- modeReducedDim(sce)
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-iseeu-modereduceddim.png", delay=10)
+```
+
+Furthermore, since `r Biocpkg("iSEE")` version 2.0.0, users can leverage the implementation of panels as a hierarchy of S4 classes to rapidly extend the framework and develop new types of panels with virtually unlimited freedom of functionality.
+In this framework, new panel types can be readily integrated in apps alongside built-in panel types and immediately benefit of most panel functionality with minimal effort, including the capacity to transmit selections to and from other panels.
+New panels may be implemented by extending the core virtual class `Panel` directly for full control over the user interface and reactive observers;
+alternatively, it is often desirable for developers to inherit from one of the concrete panel classes to get most of the essential functionality from the parent class "for free".
+
+Use cases demonstrating the implementation of new panels with various levels of complexity are available in the [Extending iSEE](https://isee.github.io/iSEE-book/) bookdown.
+For example, the _Hexagonal reduced dimension plot_ - implemented in the `r Biocpkg("iSEEu")` package - demonstrates an alternative to the downsampling strategy, by summarizing data points into hexagonal bins.
+
+```{r}
+app <- iSEE(sce, initial = list(
+  ReducedDimensionPlot(PanelWidth = 6L),
+  ReducedDimensionHexPlot(PanelWidth = 6L)
+))
+```
+
+```{r, eval = FALSE}
+shiny::runApp(app)
+```
+```{r, echo=FALSE, out.width = '100%'}
+SCREENSHOT("screenshots/isee-iseeu-modereduceddimhex.png", delay=10)
+```
+
+New panels and modes may be defined in independent _R_ packages that declare `Imports: iSEE` in their DESCRIPTION file, and distributed online to create an "iSEE-verse" of interoperable packages for interactive visualization, akin to the `r CRANpkg('tidyverse')` collection of R packages for data science.
+If you have ideas about additional panels and/or modes that might be useful, we welcome issues and pull requests at https://github.com/iSEE/iSEEu.
+
+# Additional resources {#more-resources}
+
+* The `iSEE` bookdown book: https://isee.github.io/iSEE-book/
+* Bioconductor landing page: https://bioconductor.org/packages/iSEE/
+* Publication (F1000Research, 2018): https://f1000research.com/articles/7-741/v1
+* Deployed examples: https://marionilab.cruk.cam.ac.uk/, code at https://github.com/iSEE/iSEE2018
+  * Further deployments in the https://github.com/iSEE/iSEE_instances repo
+  * `r Biocpkg("iSEE")` in production: http://www.teichlab.org/singlecell-treg
+* Custom panel examples: https://github.com/iSEE/iSEE_custom
+* Development version (bug reports etc): https://github.com/iSEE/iSEE
+
+# Session info {-}
+
+```{r}
+sessionInfo()
+```
+
+# References

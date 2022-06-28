@@ -1,0 +1,43 @@
+url: https://waldronlab.io/AnVILWorkshop
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-93043521-1
+
+home:
+  title: "Terra/AnVIL Workshop 2021"
+  type: inverse
+
+
+navbar:
+  title: ~
+  type: default
+  left:
+    - text: Workshop
+      menu:
+      - text: Overview
+        href: articles/overview.html
+      - text: Use Cases
+        href: articles/usecase.html
+      - text: Live demo
+        href: articles/live-demo.html
+      - text: Hands-on
+        href: articles/hands-on.html
+    - text: Reference
+      menu:
+      - text: AnVIL vignettes
+        href: https://bioconductor.org/packages/release/bioc/vignettes/AnVIL/inst/doc/Introduction.html
+      - text: AnVILPublish vignettes
+        href: https://bioconductor.org/packages/release/bioc/vignettes/AnVILPublish/inst/doc/AnVILPublishIntro.html
+      - text: Terra User Guide
+        href: https://support.terra.bio/hc/en-us
+      - text: Use RStudio in Terra (video)
+        href: https://www.youtube.com/watch?v=JAcCtTkkvJw&t=125s
+      - text: Pop-up Workshop
+        href: https://anvilproject.org/learn/data-analysts#bioconductor-popup-workshops
+  right:
+   - icon: fa-github
+     href: https://github.com/waldronlab/AnVILWorkshop
+
+

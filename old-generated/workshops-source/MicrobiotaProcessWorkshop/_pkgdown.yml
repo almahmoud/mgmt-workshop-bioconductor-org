@@ -1,0 +1,16 @@
+url: https://xiangpin.github.io/MicrobiotaProcessWorkshop
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-93043521-1
+
+home:
+  title: "Workshop of microbiome dataset analysis using MicrobiotaProcess"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/xiangpin/MicrobiotaProcessWorkshop

@@ -1,0 +1,34 @@
+Package: DelayedArrayWorkshop
+Type: Package
+Title: Effectively Using the DelayedArray Framework to Support the Analysis of Large Datasets
+Authors@R: c(
+  person(
+  given = "Peter",
+  family = "Hickey",
+  role = c("aut", "cre"),
+  email = "peter.hickey@gmail.com",
+  comment = c(ORCID = "0000-0002-8153-6258")))
+Version: 1.0.4
+Description: This workshop will teach the fundamental concepts underlying the 
+  DelayedArray framework and related infrastructure. 
+Imports:
+  DelayedArray,
+  HDF5Array,
+  ExperimentHub,
+  DelayedMatrixStats,
+  BiocPkgTools,
+  rmarkdown,
+  BiocStyle,
+  rhdf5,
+  SingleCellExperiment,
+  scuttle,
+  knitr,
+  DT
+Suggests:
+    pkgdown,
+    TENxBrainData
+License: Artistic-2.0
+VignetteBuilder: knitr
+Encoding: UTF-8
+DockerImage: petehaitch/bioc2020_delayedarray_workshop:latest
+URL: https://petehaitch.github.io/BioC2020_DelayedArray_workshop/

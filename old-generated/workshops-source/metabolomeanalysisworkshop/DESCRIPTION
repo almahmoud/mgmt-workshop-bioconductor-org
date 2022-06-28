@@ -1,0 +1,32 @@
+Package: metabolomeanalysisworkshop
+Title: Bioconductor Workshop Template and Github Actions
+Version: 0.9.0
+Authors@R: 
+    person(given = "Hiroyuki",
+           family = "Yamamoto",
+           role = c("aut", "cre"),
+           email = "h.yama2396@gmail.com",
+           comment = c(ORCID = "your-orc-id-here"))
+Description: This package serves as a template for using github actions to 
+    prepare a Bioconductor Workshop package for use. In particular,
+    a pkgdown website and docker image are generated based on workflow 
+    settings. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: 
+    Biobase,
+    rawrr,
+    xcms,
+    loadings,
+    faahKO
+Suggests: 
+    knitr,
+    rmarkdown,
+    pkgdown
+URL: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop/
+BugReports: https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: hyama/metabolomeanalysisworkshop:latest

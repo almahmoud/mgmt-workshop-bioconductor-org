@@ -1,0 +1,20 @@
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+.rds
+*.rds.gz
+
+# RStudio files
+.Rproj.user/
+*.Rproj
+
+# Mac artifacts
+*.DS_Store
+
+# built README
+README.html
+.Rproj.user
+inst/doc

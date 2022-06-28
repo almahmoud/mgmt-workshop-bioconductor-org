@@ -13,22 +13,117 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(DECIPHER)
+library(SynExtend)
 ```
 
-## Coming Soon!
-This tutorial will be coming soon! It will begin with the data from the previous step and cover the following topics:
+## Coevolutionary Analysis
 
-* Analyzing coevolutionary signal with `ProtWeaver()`
-* Different predictive models available in `predict.ProtWeaver()`
-* Working with `ProtWeb` objects
+At this point, we've learned how to generate gene trees for a set of COGs.
+We're now ready to look for signals of coevolution, which imply functional associations.
+These methods are implemented via the `ProtWeaver` class in `SynExtend`, which 
+includes many commonly used methods for detecting coevolutionary patterns.
+While the previous step only generated a few gene trees, I've included an 
+`RData` file with the results if we had generated gene trees for all COGs in the
+dataset.
+
+Generating a `ProtWeaver` object from this is simple:
 
 ```{r eval=FALSE}
+library(DECIPHER)
 library(SynExtend)
-
-pw <- ProtWeaver(treesFromCOGs)
-res <- predict(pw)
-res
 ```
+```{r results='hide', fig.keep='all', warning=FALSE}
+datafile <- system.file('extdata', 'treesFromCOGs.RData', 
+                        package='CompGenomicsBioc2022')
+load(datafile, verbose=TRUE)
+
+pw <- ProtWeaver(treesFromCOGs[1:25])
+```
+
+```{r}
+print(pw)
+```
+The `ProtWeaver` constuctor automatically detects the type of data you have and 
+adjusts available predictors accordingly. While it functions best with a list
+of dendrograms for each COG, it can also run with simple presence/absence patterns.
+See the documentation file for `ProtWeaver` for more information on this functionality.
+
+We're now ready to make predictions. Predicting functional associations is done
+with the `predict.ProtWeaver` S3 method. Let's examine possible functional associations 
+between the first 100 COGs we have.
+
+```{r results='hide'}
+preds <- predict(pw)
+```
+
+```{r}
+print(preds)
+```
+## Viewing our results
+
+Notice that `preds` is a `ProtWeb` object. This is just a simple S3 class with a 
+pretty print method wrapping a matrix of pairwise association scores. We can get
+the raw data with `GetProtWebData()`:
+
+```{r}
+# Subset so the output is actually readable
+GetProtWebData(preds)[1:7, 1:7]
+```
+
+The `ProtWeb` class will be updated next release cycle to include more methods, 
+including a custom plotting function. The current `plot.ProtWeb` S3 method 
+implements a force-directed embedding of the pairwise scores, but it's a
+big work-in-progress. Stay tuned for the next release cycle for more functionality
+regarding `ProtWeb`.
+
+## Methods Implemented in ProtWeaver
+
+By default, `predict.ProtWeaver` makes an ensemble prediction using as many individual
+models as it can run with the data provided. However, users are free to use any of 
+the individual models without the ensemble predictor. The methods implemented are 
+the following:
+
+```{r results='hide', eval=FALSE}
+# PHYLOGENETIC PROFILING METHODS:
+  ## P/A = Presence/Absence Profiles
+  ## Jaccard distance of P/A
+Jaccard <- predict(pw, method='Jaccard') 
+
+  ## Hamming distance of P/A
+Hamming <- predict(pw, method='Hamming') 
+
+  ## MutualInformation of P/A
+MutualInf <- predict(pw, method='MutualInformation')
+
+  ## Direct Coupling Analysis of P/A
+ProfDCA <- predict(pw, method='ProfDCA') 
+
+  ## Correlation of gain/loss events on phylogeny, requires Species Tree
+Behdenna <- predict(pw, method='Behdenna', mySpeciesTree=exSpeciesTree)
+
+# CO-LOCALIZATION METHODS:
+Colocalization <- predict(pw, method='Coloc') # Co-localization analysis
+
+# DISTANCE MATRIX METHDOS:
+MirrorTree <- predict(pw, method='MirrorTree')
+ContextTree <- predict(pw, method='ContextTree')
+
+# Residue Methods: (ONLY AVAILABLE IN DEV VERSION)
+#   ## MutualInf of residues
+#ResidueMI <- predict(pw, method='ResidueMI') 
+#   ## MutualInf of phyletic changes
+#DendroMI <- predict(pw, method='DendroMI')
+```
+
+## Thank you!
+
+If you've made it through this entire tutorial, thank you for following along!
+I hope this series was informative and useful to your analyses. All code showcased
+here is actively being worked on by members of our lab, especially the `ProtWeaver`
+and `ProtWeb` functionalities. If you have any comments, suggestions, or feature requests
+for `ProtWeaver`, `ProtWeb`, or this tutorial, please feel free to either email me at 
+ahl27@pitt.edu or open an issue on GitHub.
 
 ```{css, echo=FALSE}
 .pagination {

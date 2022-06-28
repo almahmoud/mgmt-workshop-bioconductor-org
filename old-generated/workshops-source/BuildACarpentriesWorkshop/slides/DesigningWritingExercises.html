@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Designing and Writing Exercises</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Toby Hodges" />
+    <script src="DesigningWritingExercises_files/header-attrs-2.9/header-attrs.js"></script>
+    <link href="DesigningWritingExercises_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="DesigningWritingExercises_files/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Designing and Writing Exercises
+### Toby Hodges
+### 8/5/2021
+
+---
+
+
+# About The Author
+
+
+
+**Dr Toby Hodges**
+Curriculum Team Lead at The Carpentries
+
+The Carpentries is a US-based Not-For-Profit organisation building global capacity in essential data and computational skills for research.
+
+Check out our community's lessons in [The Carpentries Incubator](https://carpentries.org/community-lessons/).
+
+---
+# About This Presentation
+The aim of this presentation is to get you thinking about how to design good exercises that are appropriate to your audience and topic, and to show you how to format those exercises within The Carpentries lesson template.
+
+---
+# The Story So Far...
+
+This presentation is most relevant if:
+
+* you have a clear idea of target audience for your lesson
+* your lesson already has defined learning objectives, describing the skills that learners should leave with
+
+---
+# Designing Exercises 1
+
+The goal is **to design (at least) one exercise to assess learners' progress towards each defined objective**. These exercises can be used for _formative assessment_ during the workshop: assessments that tell the instructors (and the learners) whether the learners have learned the things the lesson is designed to teach them, allowing the instructors to adjust their teaching based on the result.
+
+---
+# Designing Exercises 2
+
+For example, if your lesson has an objective,
+
+&gt; Learn how to add additional gene annotations to the object.
+
+an appropriate exercise for formative assessment could be
+
+&lt;blockquote&gt;
+&lt;p&gt;Fill in the blanks in the code block below, to add the &lt;code&gt;sample&amp;#95;identifier&lt;/code&gt; vector as a new annotation to the SummarizedExperiment object, &lt;code&gt;se&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;sample_identfier &lt;- 1:24&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;se &lt;- addAnnotation(x=___,&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;sampleAnnotationType="sample_id",&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;sampleAnnotation=___)&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+
+---
+# Designing Exercises 3
+
+* exercises should help you and the learner assess whether they have learned what you have just taught them
+* they should be specific to their target learning objective i.e. they should not test more than one skill/concept at once
+* ideally, incorrect answers should have _diagnostic power_ i.e. should help you identify what the learner has misunderstood/missed
+* exercises should be regularly spaced throughout the material
+  * aim for at least one every ~15 minutes
+
+---
+# Exercise formats
+
+There are many suitable formats for exercises.
+
+- Code &amp; run
+- Multiple choice questions
+- Fill in the blanks
+- Minimal fix
+- Theme &amp; variations
+- Labeling a diagram
+- Parsons problem
+
+Find more in Greg Wilson's [Teaching Tech Together](http://teachtogether.tech/#s:exercises). 
+The following examples are taken from that chapter.
+
+---
+# Exercise formats: Multiple choice questions
+
+&gt; In what order do operations occur when the computer evaluates the expression `price = addTaxes(cost - discount)`?
+&gt;
+&gt; 1. subtraction, function call, assignment
+&gt; 2. function call, subtraction, assignment
+&gt; 3. function call, then assignment and subtraction simultaneously
+&gt; 4. none of the above
+
+- each incorrect answer should be a _plausible distractor_
+
+---
+# Exercise formats: Code &amp; run
+
+&gt; The variable `picture` contains a full-color image read from a file. Using one function, create a black and white version of the image and assign it to a new variable called `monochrome`.
+
+- be careful! it's easy to make code &amp; run exercises too difficult for novices
+- you can combine with multiple choice question to give answer options
+
+---
+# Exercise formats: Minimal fix
+
+&lt;blockquote&gt;
+&lt;p&gt;This function is supposed to test whether a number lies within a range. Make one small change so that it actually does so.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;def inside(point, lower, higher):&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;if (point &lt;= lower):&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;return false&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;elif (point &lt;= higher):&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;return false&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;else:&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;return true&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+- helps learners to develop debugging skills.
+
+---
+# Exercise formats: Theme &amp; variations
+
+&lt;blockquote&gt;
+&lt;p&gt;Change the inner loop in the function below so that it fills the upper left triangle of an image with a specified color.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;function fillTriangle(picture, color) is&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;nbsp;	&amp;nbsp;	for x := 1 to picture.width do&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	for y := 1 to picture.height do&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	picture[x, y] = color&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	&amp;nbsp;	end&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;&amp;nbsp;	&amp;nbsp;	end&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;end&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+- helps learners develop a key skill: adapting existing code for a new purpose
+
+---
+# Exercise formats: Labeling a diagram
+
+&gt; Figure 1 shows how a small fragment of HTML is represented in memory. Put the labels 1–9 on the elements of the tree to show the order in which they are reached in a depth-first traversal.
+
+- an effective way of assessing a learner's mental model of a (sub)topic
+- probably better suited to a physical classroom than online/self-directed learning
+
+---
+# Exercise formats: Parsons problem
+
+&lt;blockquote&gt;
+&lt;p&gt;Rearrange and indent these lines to sum the positive values in a list. (You will need to add colons in appropriate places as well.)&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;total = 0&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;if v &gt; 0&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;total += v&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;for v in values&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+- particularly well-suited for testing understanding of control flow
+
+---
+# Exercise formats
+
+Different types of exercise are suited to assess different skills and experience levels.
+
+E.g. "Fill in the blanks" exercises are a good fit for novices, because they allow the learner to focus only on the specific concept/syntax you are assessing.
+
+"Minimal fix" exercises are less well-suited to novices: they require the learner to trace execution of a program, identify problems in it, consider one or more ways to fix it and which one is the "minimal" fix, and then implement that fix correctly.
+
+---
+# Designing exercises: recommendations
+
+1. Try to align exercises with specific learning objectives in the lesson/section
+1. Use a variety of formats
+1. Provide plenty of scaffold for novices
+1. Always include a solution
+
+---
+# Exercises in The Carpentries lesson template
+
+Exercise blocks in a Carpentries lesson are created as
+special blockquotes in the source (R)Markdown file,
+followed by a `{: .challenge }` tag assigning the CSS class.
+
+---
+# Exercises in The Carpentries lesson template
+
+https://carpentries.github.io/lesson-example/05-rmarkdown-example/
+
+---
+# Exercises in The Carpentries lesson template
+
+Watch out for:
+
+1. The level of blockquote - solution boxes are two blockquotes deep.
+2. The level of the exercise heading - this should be `h2` i.e. `##` in Markdown.
+
+---
+# Resources and support
+
+- Lesson template documentation: https://carpentries.github.io/lesson-example/
+- Source code of that site: https://github.com/carpentries/lesson-example/
+- Questions and bug reports to https://github.com/carpentries/styles/issues
+
+Contact me: [tobyhodges@carpentries.org](mailto:tobyhodges@carpentries.org)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create();
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

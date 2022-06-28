@@ -1,0 +1,726 @@
+---
+title: "Visualising molecular phenotypes inferred from individual samples using singscore, vissE and msigdb"
+author:
+  - name: Dharmesh D Bhuva
+    affiliation:
+      - Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, Australia
+      - Department of Medical Biology, University of Melbourne, Parkville, VIC 3010, Australia
+    email: bhuva.d@wehi.edu.au
+  - name: Chin Wee Tan
+    affiliation:
+      - Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, Australia
+      - Department of Medical Biology, University of Melbourne, Parkville, VIC 3010, Australia
+    email: cwtan@wehi.edu.au
+  - name: Melissa J Davis
+    affiliation:
+      - Bioinformatics Division, Walter and Eliza Hall Institute of Medical Research, Parkville, VIC 3052, Australia
+      - Department of Medical Biology, University of Melbourne, Parkville, VIC 3010, Australia
+      - Department of Biochemistry and Molecular Biology, Faculty of Medicine, Dentistry and Health Sciences, University of Melbourne, Parkville, VIC, 3010, Australia
+    email: davis.m@wehi.edu.au
+date: "`r format(Sys.time(), '%b %Y')`"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    toc: yes
+    toc_depth: 2
+    number_sections: yes
+    fig_caption: yes
+    df_print: paged
+nocite: | 
+  @R-ggplot2, @R-knitr, @R-BiocWorkflowTools, @R-rmarkdown, @R-prettydoc
+bibliography: [bibliography.bib, packages.bib]
+vignette: >
+  %\VignetteIndexEntry{Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb.}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+keywords: single sample, gene set scoring, signature scoring, visualisation
+abstract: >
+  Abstract
+---
+
+<p>
+
+**R version**: `r R.version.string` <br /> **Bioconductor version**: `r BiocManager::version()` <br /> **Package version**: `r packageVersion("GenesetAnalysisWorkflow")`
+
+</p>
+
+```{r setup, include=FALSE}
+#set knitr chunk options
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+#load packages to avoid startup messages later in the code
+suppressPackageStartupMessages({library(GenesetAnalysisWorkflow)})
+library(ggplot2)
+library(SummarizedExperiment)
+library(ExperimentHub)
+library(edgeR)
+library(GSEABase)
+library(emtdata)
+library(singscore)
+library(msigdb)
+library(vissE)
+library(graphics)
+library(patchwork)
+library(igraph)
+library(limma)
+library(edgeR)
+
+#automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'knitr', 'rmarkdown', 'prettydoc'
+), 'packages.bib')
+```
+
+# Introduction
+
+A standard bioinformatics analysis of 'omics data will produce a list of molecules following statistical analysis. In the context of transcriptomics, these molecules are genes or transcripts and the statistical approach used to identify them is mostly a differential expression analysis. Once genes have been identified as differentially expressed in an experiment, biologists are often interested in understanding their biological implications. This is done by understanding their functional role in the biological system being investigated. The role and function of many genes is known to some extent and this is an area of continued research. Knowledge on gene function is often encoded into knowledgebases such as the gene ontology and other pathway databases. Given these functional annotations, we are interested in identifying over-represented functions in our data.
+
+To do so, we use gene-set enrichment analysis, a group of methods designed to identify enriched functions represented by collections of genes known as gene-sets. This workflow will demonstrate functional analysis of transcriptomic data using the molecular signatures database (through the `msigdb` R/Bioconductor package) and a gene-set enrichment method, `singscore`. It will also demonstrate how higher order biological themes can be identified in data using the `vissE`package. It will begin by loading gene expression data and gene-sets from the `ExperimentHub` using the `emtdata` and `msigdb` R/Bioconductor packages. Molecular phenotypes representing the functional characterisitic of Samples will be identified using the single-sample gene-set enrichment method, singscore. Finally, higher-order functional themes will be identified using vissE.
+
+# Description of the biological problem
+
+Epithelial--mesenchymal transition (EMT) is a cellular process where static and polarised epithelial cells convert to a motile mesenchymal phenotype. It is the fundamental mechanism involved in embryogenesis and tissue differentiation. In the context of cancer, it is implicated in cancer progression and metastasis. EMT entails a progressive loss of epithelial characteristics and acquisition of mesenchymal features that in cancer, enables cells to acquire migratory and invasive properties, induces stemness, avoid apoptosis and senescence, and become immune-resistant ([@yilmaz2009,@thiery2009,@polyak2009,@ksiazkiewicz2012]).
+
+EMT is characterised by downregulation of epithelial markers (e.g E-cadherin, claudins) and upregulation of mesenchymal markers (e.g., vimentin, N-cadherin). Changes to these markers result in the loss of cell--cell adhesion and cell polarity, and the acquisition of migratory and invasive properties. There is a switch from keratin-rich adherens junction network to a vimentin-rich focal adhesion network with cadherins switching from E-cadherin to N-cadherin [@tomita2000].
+
+Although cancer cells use EMT to facilitating metastatic spread, they rarely fully convert to the mesenchymal phenotype, and instead presents a hybrid phenotype loosely termed epithelial mesenchymal plasticity (EMP). EMP has been associated with increased metastatic risk and poor prognosis in breast cancer [@cursons15]. There are currently limited specific markers proposed for this transient/metastable phenotype, owing to the lack of reliable progression readout and consequent limited studies for the transitional and progression states of EMT. Identification of specific markers of this hybrid state will provide crucial information to identify interventions for metastasis as well as mechanistic insights to uncover potential therapeutics. [@ribeiro2015]
+
+In this workflow, we use bulk transcriptomic data from [@cursons15] study which interrogates EMP in two breast cancer cell line models, namely the PMC42 system (PMC42-ET and PMC42-LA sublines) and MDA-MB-468. In this data, PMC42-LA is an epithelial subline derived from the vimentin positive, E-Cadherin negative parental PMC42-ET cells with both classified as having a "Basal B" transcriptome (expressed mesenchymal gene, lacked epithelial marker expression).
+
+# Molecular phenotyping of individual samples
+
+To preform molecular phenotyping of the data from [@cursons15], we need the RNA-seq counts and appropriate gene-sets that represent the molecular phenotypes of interest. We will use processed RNA-seq data from the `emtdata` package in this workflow. We will then score individual samples against custom gene signatures from [@tan14] and from the molecular signatures database (MSigDB) ([@liberzon15,@subramanian05]) using singscore ([@foroutan18,@bhuva20]).
+
+## Load data
+
+The `emtdata` package contains multiple pre-processed RNA-seq data from experiments studying the epithelial to mesenchymal transition. The package contains the following processed datasets:
+
+1.  cursons2015_se - RNA-seq data from various breast cancer cell lines representing different degrees of epithelial and mesenchymal phenotypes [@cursons15].
+2.  cursons2018_se - RNA-seq data from the human mammary epithelial (HMLE) cell line treated with TGF$\beta$ to induce an epithelial to mesenchymal transition (EMT) which is followed by treatment with miR-200c to induce a mesenchymal to epithelial transition (MET) [@cursons18].
+3.  foroutan2017_se - A compendium of EMT induction experiments combined and corrected for batch effects [@foroutan17].
+
+The data used in this workflow is the [@cursons15] RNA-seq data. RNA-seq reads downloaded from the sequencing read archive (SRA) and processed using the Subread aligner [@liao13] and featureCounts [@liao14] to generate a counts matrix. Following this, genes with low expression were filtered out using `edgeR::filterByExpr()`. Normalisation factors were computed using TMM [@robinson10] and reads per kilobase per million (RPKM) values computed using function in the `edgeR` R/Bioconductor package [@R-edgeR]. Data were then stored in a SummarizedExperiment object that can be retrieved from the `ExperimentHub` using the `emtdata` R/Bioconductor package.
+
+Data from the `emtdata` package can be retireved by using accessors within the package or by querying the `ExperimentHub`. The query below searches for all objects in the hub associated with the search term "emtdata". Information about three datasets available in the `emtdata` package is retrieved.
+
+```{r}
+library(ExperimentHub)
+
+eh = ExperimentHub()
+res = query(eh, 'emtdata')
+res
+```
+
+We can view all metadata associated with each object using the `mcols()` function. This information links back to the original publication for each data. We can also see information on the species this data was generated from.
+
+```{r}
+#retrieve metadata for records
+mcols(res)
+```
+
+Objects can then be retrieved using the accession ID ("EH5441") or using the function `cursons2015_se()`. Data are stored as `SummarizedExperiment` objects and the functions `rowData()`, `colData()` and `assay()` can be used to interact with the object. We see that the data has measurements for approximately 30000 genes across 21 samples. Both count-level data and logRPKM measurements are stored in the object.
+
+```{r}
+library(SummarizedExperiment)
+library(emtdata)
+
+#load using object ID
+emt_se = eh[['EH5441']]
+
+#alternative approach
+emt_se = cursons2015_se()
+emt_se
+```
+
+The sample annotations show us that there are 3 cell lines in this data (PMC42-ET, PMC42-LA and MDA-MB-648). These cell lines have been treated with Hypoxia and EGF with measurements taken either 3 or 7 days post treatment. We also get metadata associated with each sample, including the original SRA identifier and their library sizes.
+
+```{r}
+#view sample annotations
+as.data.frame(colData(emt_se))
+```
+
+Gene identifiers in this data are Ensembl gene identifiers, however, gene symbols or Entrez IDs will be requried for the downstream analysis. We will convert Ensembl IDs to gene symbols as these are easier to interpret visually. The row annotations of `emt_se` contain mappings to other identifiers such as gene symbols. We can convert Ensembl IDs to gene symbols by using the mappings stored in the object. Due to the issue of multi-mapping between identifiers, we first have to deal with duplicate mappings. We can identify duplicates as below.
+
+```{r}
+#identify duplicated mappings
+all_genes = rowData(emt_se)$gene_name
+dups = unique(all_genes[duplicated(all_genes)])
+dups
+```
+
+Most duplicates are arising from miscellaneous RNA therefore duplicated mappings can either be removed or resolved manually using other annotations such as their biotypes (for example, retaining protein coding genes). For simplicity, we discard multimapped genes in this analysis. Since the number of genes being discarded is relatively small and the genes being discarded are unrelated to the process we wish to study (EMT), the effect of their removal will be minimal and can be safely ignored.
+
+```{r}
+#remove duplicated genes
+emt_se = emt_se[!all_genes %in% dups, ]
+rownames(emt_se) = rowData(emt_se)$gene_name
+emt_se
+```
+
+## Load gene-sets
+
+Gene-sets representing the molecular phenotypes of interest need to be prepared to query individual samples against. We can either use signatures from the molecular signatures database made available through the `msigdb` R/Bioconductor package or we can use custom signatures from publications. @tan14 developed gene-sets that represent an epithelial and a mesenchymal phenotype. We will use these to explore the epithelial-mesenchymal landscape of samples. Data from the publication is organised in the *Thiery_EMTsignatures.txt* file that is stored in the package associated with this workflow.
+
+```{r}
+#read Thiery et al. signatures
+thiery_path = system.file('extdata/Thiery_EMTsignatures.txt', package = 'GenesetAnalysisWorkflow')
+thiery_data = read.table(thiery_path, header = TRUE)
+head(thiery_data)
+```
+
+Since gene symbols are used in the gene expression data, we will use create gene-sets using gene symbols. We will use signatures specific to cell lines from @tan14. Gene-sets are stored in the dedicated `GSEABase::GeneSet` object that allows storage of metadata associated with gene-sets. Singscore can work with gene-sets defined as a character vector or in GeneSet objects. Since the latter is more structured, we prefer to use them for our analysis. GeneSet objects are used in the following vissE analysis too, further motivating their use. Unique gene identifiers are required for GeneSet objects. It is good practice to specify a unique, well-defined setName for each gene-set. Additionally, to enable usage with the `vissE` package, we will specify the identifier type (i.e. `SymbolIdentifier()`).
+
+```{r}
+library(GSEABase)
+
+#retrieve epithelial genes
+epi_genes = thiery_data$officialSymbol[thiery_data$epiMes_cellLine %in% 'epi']
+#select unique genes
+epi_genes = unique(epi_genes)
+#create GeneSet object
+epi_sig = GeneSet(epi_genes, setName = 'THIERY_EPITHELIAL_CELLLINE', geneIdType = SymbolIdentifier())
+epi_sig
+
+#retrieve mesenchymal genes
+mes_genes = thiery_data$genes[thiery_data$epiMes_cellLine %in% 'mes']
+#select unique genes
+mes_genes = unique(mes_genes)
+#create GeneSet object
+mes_sig = GeneSet(mes_genes, setName = 'THIERY_MESENCHYMAL_CELLLINE', geneIdType = SymbolIdentifier())
+mes_sig
+```
+
+If the gene-sets of interest are available in the molecular signatures database (MSigDB), the `msigdb` package can be used. This package uses the `ExperimentHub` to make MSigDB gene-sets available as GeneSet objects in a `GSEABase::GeneSetCollection` object. The GeneSetCollection object can be used to store multiple GeneSet objects. The `msigdb` package provides signatures for human and mouse (the version provided by the Smyth lab at WEHI) using either gene symbols or Entrez IDs. The package provides versions of MSigDB including and greater than 7.2.
+
+```{r}
+library(msigdb)
+
+#load MSigDB gene-sets
+msigdb.hs = getMsigdb(org = 'hs', id = 'SYM', version = '7.2')
+#add KEGG gene-sets
+msigdb.hs = appendKEGG(msigdb.hs)
+msigdb.hs
+```
+
+## Singscore
+
+With the data and gene-sets ready, we can now score samples against gene-sets to explore molecular phenotypes using singscore [@foroutan18]. Singscore is a rank-based single sample scoring approach implemented in the `singscore` R/Bioconductor package. The core computation of scores can be summarised in two steps: computing within sample gene ranks and computing gene-set scores using ranks. Data used for singscore should be length bias corrected (e.g. TPM, RPKM, RSEM) and should have filtered out genes with low expression across most samples. The data used here has been processed as such therefore no further pre-processing is required. Further information on length-bias correction and filtering with respect to singscore can be found in @bhuva19.
+
+```{r}
+library(singscore)
+
+#rank genes based on expression (logRPKM)
+eranks = rankGenes(assay(emt_se, 'logRPKM'))
+#compute epithelial scores
+epi_score = simpleScore(eranks, epi_sig)
+head(epi_score)
+#compute mesenchymal scores
+mes_score = simpleScore(eranks, mes_sig)
+head(mes_score)
+```
+
+Unlike other single-sample methods, the results from singscore contain two values, the score and the dispersion. We have found both to be useful in interpreting scores from gene-sets. The score is an indication of the median expression of all genes in the gene-set relative to all measured genes. The dispersion is a measure of the coordination of gene expression for genes in the signature. Lower dispersion indicates that genes in the gene-set are expressed at a similar level. The `plotDispersion()` function can be used to plot scores against their dispersions. Samples can be annotated using discrete or continous annotations. All plots in the `singscore` package can be turned into interactive plots by setting `isInteractive = TRUE`.
+
+```{r}
+plotDispersion(
+  epi_score,
+  annot = emt_se$Subline,
+  annot_name = 'Subline',
+  size = 5,
+  alpha = 0.5,
+  isInteractive = FALSE
+)
+```
+
+The plot above shows that the MDA-MB-468 cell line is more epithelial than the other cell lines as indicated by larger scores. Lower dispersion values for these samples indicate that epithelial genes are expressed at similar levels relative to other genes. The mesenchymal signature shows the inverse pattern with PMC42-ET and PMC42-LA cell lines having higher scores and lower dispersion values compared to MDA-MB-468.
+
+```{r}
+plotDispersion(
+  mes_score,
+  annot = emt_se$Subline,
+  annot_name = 'Subline',
+  size = 5,
+  alpha = 0.5,
+  isInteractive = FALSE
+)
+```
+
+It is often useful to investigate the association between gene-sets, especially when phenotypes are expected to be associated biologically. @cursons18 and @foroutan18 have used the epithelial-mesenchymal landscapes to better understand the behaviour of biological models across the epithelial mesenchymal transition. Additionally, it is often the case in biology that biological models are compared with patient data to enable translation of discoveries. Singscore enables this by plotting cell line data on a background dataset. In the plots below, we plot breast cancer patient data from The Cancer Genome Atlas (TCGA) in the background. We then project our cell line data onto the patient data to explore and explain various aspects of the epithelial mesenchymal landscape. Projecting cell line data onto the patient data enables transfer of discoveries made on cell lines to patients. We use pre-computed epithelial and mesenchymal scores of TCGA breast cancer patient data from the `singscore` package.
+
+```{r}
+#load pre-computed TCGA breast cancer EMT scores
+data("scoredf_tcga_epi")
+data("scoredf_tcga_mes")
+
+#plot an EMT landscape
+p_tcga = plotScoreLandscape(
+  scoredf1 = scoredf_tcga_epi,
+  scoredf2 = scoredf_tcga_mes,
+  scorenames = c('Epithelial score', 'Mesenchymal score')
+)
+```
+
+The plot below shows that PMC42-ET and PMC42-LA have similar mesenchymal scores, but very distinct epithelial scores. MDA-MB-468 on the other hand is a very epithelial cell line and less mesenchymal. We would suspect that PMC42-LA has both epithelial and mesenchymal properties. Like other plots in singscore, the plots below can be made interactive setting `isInteractive = TRUE`.
+
+```{r}
+projectScoreLandscape(
+  p_tcga,
+  scoredf1 = epi_score,
+  scoredf2 = mes_score,
+  annot = emt_se$Subline,
+  annot_name = 'Subline',
+  isInteractive = FALSE
+)
+```
+
+Annotating samples using the treatment shows that hypoxic treatment of MDA-MB-468 results in increased mesenchymal properties of the cell line.
+
+```{r}
+projectScoreLandscape(
+  p_tcga,
+  scoredf1 = epi_score,
+  scoredf2 = mes_score,
+  annot = emt_se$Treatment,
+  annot_name = 'Treatment',
+  isInteractive = FALSE
+)
+```
+
+The Hallmark collection of the MSigDB represent key molecular processes associated with cancer progression. The HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION represents EMT in cancer therefore we could compute scores for samples using it. We can annotate samples using the hallmark EMT score to assess their relation with the EMT landscape. The plot below shows that the combined epithelial-mesenchymal axis is represented by the hallmark EMT signature.
+
+```{r}
+#extract the hallmark EMT signature
+hemt_sig = msigdb.hs[['HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION']]
+#score samples using the hallmark EMT signature
+hemt_score = simpleScore(eranks, hemt_sig)
+
+#plot Hallmark EMT signature
+projectScoreLandscape(
+  p_tcga,
+  scoredf1 = epi_score,
+  scoredf2 = mes_score,
+  annot = hemt_score$TotalScore,
+  annot_name = 'Hallmark EMT score',
+  isInteractive = FALSE
+)
+```
+
+The above plots show that the difference between PMC42-ET and PMC42-LA is mainly along the epithelial axis. We can investigate the contribution of each gene across individual samples using the `plotRankDensity()` function. The distribution of unit normalised ranks shows that most genes in the epithelial gene-set are expressed at higher levels that all other genes in PMC42-LA. In contrast, epithelial genes are more dispersed in PMC42-ET. Interactive versions of these plots can be used to explore individual genes.
+
+```{r}
+plotRankDensity(eranks[, 'PMC42LA_Ctrl_Rep1', drop = FALSE], epi_sig, isInteractive = FALSE)
+plotRankDensity(eranks[, 'PMC42ET_Ctrl_Rep1', drop = FALSE], epi_sig, isInteractive = FALSE)
+```
+
+## Stingscore
+
+At times whole transcriptome measurements are not feasible either due to costs or due to availability of high quality genomic material (as is the case with FFPE samples). In such cases, we may wish to work with targeted transcriptomic panels. Most gene-set scoring methods, including singscore, require transcriptome-wide measurements therefore making them unusable in a targeted sequencing context. In such cases, the stingscore method [@bhuva20] implemented in the `singscore` package can be used. Stingscore makes use of stably expressed genes to estimate gene-set scores using a reduced set of measurements.
+
+To demonstrate usage of stingscore in a targeted seqencing context, we will simulate a targeted sequencing panel using epithelial genes, mesenchymal genes and a few stably expressed genes. We will use the top 5 stably expressed genes identified in @bhuva20 to score samples.
+
+```{r}
+#simulate data by sub-sampling
+sample_genes = union(geneIds(epi_sig), geneIds(mes_sig))
+sample_genes = union(sample_genes, getStableGenes(5))
+#subset genes with measurements in the data
+sample_genes = intersect(sample_genes, rownames(emt_se))
+#subset data
+targeted_se = emt_se[sample_genes, ]
+targeted_se
+```
+
+The data samples genes of interest from the full data matrix resulting in the measurement of 214 genes. In reality, a panel of this size could be measure using technologies such as NanoString's nCounter panel. The top 5 stably expressed genes used here could be used to score samples and to normalise expression measurements for additional analyses. The only difference between singscore and stingscore are in the way ranks are computed. In stingscore, ranks are estimated using stably expressed genes. Following rank estimation, scores can be computed as with singscore using the `simpleScore()` function.
+
+```{r}
+st_genes = getStableGenes(5)
+st_genes
+
+#rank genes using stably expressed genes
+st_eranks = rankGenes(targeted_se, stableGenes = st_genes)
+
+#score samples using the simulated targeted sequencing data
+epi_score_st = simpleScore(st_eranks, epi_sig)
+mes_score_st = simpleScore(st_eranks, mes_sig)
+
+#plot scores computed using singscore vs stingscore
+colmap = c('MDA-MB-468' = '#1B9E77', 'PMC42-ET' = '#D95F02', 'PMC42-LA' = '#7570B3')
+par(mfrow = c(1, 2))
+plot(
+  epi_score$TotalScore,
+  epi_score_st$TotalScore,
+  col = colmap[targeted_se$Subline],
+  main = 'Epithelial score',
+  xlab = 'Singscore',
+  ylab = 'Stingscore (targeted)'
+)
+abline(coef = c(0, 1), col = 2, lty = 2)
+plot(
+  mes_score$TotalScore,
+  mes_score_st$TotalScore,
+  col = colmap[targeted_se$Subline],
+  main = 'Mesenchymal score',
+  xlab = 'Singscore',
+  ylab = 'Stingscore (targeted)'
+)
+abline(coef = c(0, 1), col = 2, lty = 2)
+```
+
+The plots above show that both epithelial and mesenchymal scores computed using singscore and stingscore are highly correlated. Though the scores are correlated, their values are not an exact match as there is an offset. As the relative order of samples remains the same, biological inferences are unaffected by the offset in scores computed using stingscore.
+
+## Multiscore
+
+When the hypothesis are not pre-determined, we may wish to perform an exploratory analysis using multiple gene-sets. In such a scenario, we would wish to score samples against 100s-1000s of gene-sets which we would then summarise using further downstream analysis. The `multiScore()` function can be used to score samples against multiple signatures simultaneously. This implementation is much faster than `simpleScore()` and is therefore the recommended function for scoring against multiple gene-sets.
+
+We will score samples against gene-sets from the hallmark collection, gene ontologies, KEGG pathways, Reactome pathways and Biocarta pathways. The `subsetCollection()` function in the `msigdb` package can be used to subset a GeneSetCollection based on MSigDB categories and sub-categories. The function returns GeneSetCollection objects which can be concatenated as normal lists. The resulting list needs to be converted back into a GeneSetCollection object before passing it to `multiScore()`.
+
+```{r}
+#subset collections and subcollections of interest
+genesigs = c(
+  epi_sig,
+  mes_sig,
+  subsetCollection(msigdb.hs, 'h'),
+  subsetCollection(msigdb.hs, 'c2', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA')),
+  subsetCollection(msigdb.hs, 'c5', c('GO:BP', 'GO:MF', 'GO:CC'))
+)
+genesigs = GeneSetCollection(genesigs)
+```
+
+The results of `multiScore()` is a list containing a matrix of scores and a matrix of dispersion values. As some gene-sets could be entirely composed of genes not measured in the data, there may be missing values in these matrices.
+
+```{r}
+eranks = rankGenes(assay(emt_se, 'logRPKM'))
+msigdb_scores = multiScore(eranks, genesigs)
+lapply(msigdb_scores, function(x) x[1:5, 1:2])
+lapply(msigdb_scores, dim)
+```
+
+Plotting scores against dispersion values across all signatures demonstrates the usual trend between these two values. The trend is expected since strong positive or negative scores can only be obtained if genes in gene-sets are coordinately expressed. The more interesting gene-sets are those that have low dispersion with scores close to 0; these gene-sets contain coordinately expressed genes with average expression relative to all measured genes.
+
+```{r}
+smoothScatter(msigdb_scores$Scores, msigdb_scores$Dispersions, xlab = 'Score', ylab = 'Dispersion', main = 'Score vs Dispersion')
+```
+
+We can assess gene-sets for individual samples to determine their phenotype composition. As transcriptomic measurements are more biologically meaningful when assessed relatively, we compute the difference in scores between one PMC42-ET control replicate and another PMC42-LA control replicate. The top positive and negative scores are listed below.
+
+```{r}
+#select scores for a single Hypoxic sample
+et_la_scores = msigdb_scores$Scores[, 'PMC42ET_Ctrl_Rep1'] - msigdb_scores$Scores[, 'PMC42LA_Ctrl_Rep1']
+et_la_scores = sort(et_la_scores)
+head(et_la_scores)
+tail(et_la_scores)
+```
+
+# Identifying and visualising higher-order phenotypes
+
+In many RNA-seq sequencing data analyses, gene-set enrichment analysis (be it an over representation analysis of a functional class scoring approach) is typically performed resulting in a list of gene-sets that are accompanied by their statistics and p-values or false discovery rates (FDR). In most conventional collaborations, these results are typically manually curated/ scanned through by domain experts or biologists who then extract relevant themes pertaining to their specific experiment or domain of interest. Manual curation and interpretation can be very time consuming considering the fact that most gene-set enrichment analyses produce 100s to 1000s of gene-sets.
+
+The approach in this workflow uses the R package, `vissE`, which will allow automated extraction of biological themes based on the data thus reducing the load on domain experts. The following analysis uses a subset of the \@cursons15 dataset (specifically the untreated samples from PMC42-ET and PMC42-LA sublines) to demonstrate the workflow for vissE. We first perform differential expression (DE) analysis to assess differences between the PMC42-LA and PMC42-ET sublines. A functional analysis is then performed using the popular `limma::fry` method, thus identifying biological processes that differ across the sublines. Finally, we identify, summarise and visualise higher order molecular phenotypes using vissE.
+
+## Perform DE analysis
+
+As we are interested in understanding the functional implications of the differences between the PMC42 sublines, we will only use the control samples from the PMC42 sublines in [@cursons15]. As we are dealing with count data, we will use the quasi-likelihood differential expression analysis pipeline from @chen16. We refer users to the original publication of the workflow for details on the decisions made at each step of the analysis.
+
+```{r}
+library(edgeR)
+library(limma)
+
+#subset dataset to extract only control samples of PMC42-ET and PMC42-LA
+emt_se_sub = emt_se[, emt_se$Subline %in% c('PMC42-ET', 'PMC42-LA') &
+                      emt_se$Treatment == 'control']
+#create DGElist object from SE object
+emt_dge = asDGEList(emt_se_sub)
+#create model design matrix
+design = model.matrix(~ Subline, data = emt_dge$samples)
+#remove lowly expressed genes
+keep = filterByExpr(emt_dge, design = design)
+emt_dge = emt_dge[keep, ]
+#calculate normalisation factor using on TMM
+emt_dge = calcNormFactors(emt_dge, method = "TMM")
+
+#estimate dispersions
+emt_dge = estimateDisp(emt_dge, design = design, robust = TRUE)
+#fit usimg edgeR's Generalized Linear Models with Quasi-likelihood Tests (GLM) function
+fit = glmQLFit(emt_dge, design, robust = TRUE)
+#get DE genes list
+res = glmQLFTest(fit, coef = 'SublinePMC42-LA')
+is.de = decideTestsDGE(res)
+plotMD(fit, status = is.de, main = 'PMC42-LA vs. PMC42-ET')
+# get DE list based on p-value 0.05 cutoff
+DE_list = as.data.frame(topTags(res, n = Inf, p.value = 0.05)[,-(1:6)])
+head(DE_list)
+
+# get all genes statistics
+allg_list = as.data.frame(topTags(res, n = Inf)[,-(1:6)])
+```
+
+## Gene-set testing using `limma::fry`
+
+A functional analysis using `limma::fry` is then performed to identify biological processes that are altered across the PMC42 sublines. The gene-sets used for this analysis are from the molecular signatures database (MSigDB) [@subramanian05,@liberzon15] and are accessed through the `msigdb` package as demonstrated in a previous section.
+
+Based on our general experience with vissE, we have found curated gene-set collection such as the hallmark collection (h), the curated pathways collection (c2) and the ontology collection (GO) to work best in providing insight into biological processes when using vissE. Additionally, we subset collection on sub-collections of interest though the choice of collections/sub-collections of interest would depend on the biology being investigated. For example, the immunologic signatures collection (c7) may be included when investigating immune processes.
+
+A common approach to gene-set testing using `limma::fry` is to perform the analysis on each collection separately thus correcting for multiple hypothesis testing within each collection. This is a valid approach when biological insights are gained from a collection independent of other collections. However, since we are relying on all collections collectively to generate insights using vissE, we combine gene-sets and run `limma::fry` on all the combined gene-set collection.
+
+```{r, message=FALSE, warning=FALSE}
+#subset collections and subcollections of interest
+genesigs = c(
+  epi_sig,
+  mes_sig,
+  subsetCollection(msigdb.hs, 'h', c('CP:KEGG', 'CP:REACTOME', 'CP:BIOCARTA', 'GO:BP', 'GO:MF', 'GO:CC'))
+)
+genesigs = GeneSetCollection(genesigs)
+
+#Use geneset collection (genesigs) generated earlier to create fry indices
+fry_indices = ids2indices(geneIds(genesigs), rownames(emt_dge))
+#remove very small and very large genesets
+fry_indices = fry_indices[sapply(fry_indices, length) > 10
+                          & sapply(fry_indices, length) < 500]
+
+#Perform a geneset enrichment analysis using limma::fry
+fry_res = fry(emt_dge,
+              index = fry_indices,
+              design = design,
+              contrast = 'SublinePMC42-LA')
+
+#select significant results (FDR < 0.05)
+fry_res = fry_res[fry_res$FDR < 0.05, ]
+head(fry_res)
+```
+
+## Prepare gene-set testing results for vissE
+
+With the available information from the differential expression analysis and gene-set enrichment analysis, we now perform a vissE (Visualising Set Enrichment) analysis to identify higher-order molecular phenotypes. We note that a similar analysis can be performed with various other gene-set testing approaches such as over-representation analysis from the `clusterProfiler` R/Bioconductor package or from the popular GSEA tool [@subramanian05].
+
+A standard vissE analysis involves 3 steps:
+
+1.  Compute gene-set overlaps and the gene-set overlap network.
+2.  Identify clusters of gene-sets based on their overlap network.
+3.  Characterise clusters using a text mining analysis.
+4.  (Optional) Visualise gene-level statistics for each cluster of gene-sets
+
+To perform these analyses, we first prepare the necessary data as follows:
+
+-   a `GeneSetCollection` object by subsetting on the significant gene-sets identified from the gene-set enrichment analysis (from `limma:fry` in this case).
+-   a named vector containing gene-set statistics to use for the visualisation.
+-   a named vector containing gene-level statistics from the DE analysis.
+
+The gene-set statistic we use for visualisation purposes is a signed log-transformed false discovery rate ($\pm 1\times -\log_{10}(FDR)$) where the sign is positive for up-regulated gene-sets and negative for down-regulated gene-sets. The gene-level statistic visualised is the log fold-change (logFC).
+
+```{r, message=FALSE, warning=FALSE}
+#create a GeneSetCollection by subsetting significant gene-sets
+siggs = genesigs[rownames(fry_res)]
+siggs
+
+#prepare gene-set statistics for visualisation (signed -log10(FDR))
+gsStats = -log10(fry_res$FDR)
+#use a positive sign to indicate up-regulated gene-sets
+gsStats = gsStats * c('Up' = 1, 'Down' = -1)[fry_res$Direction]
+#has to be a named vector
+names(gsStats) = rownames(fry_res)
+head(gsStats)
+
+#prepare gene-level statistics for visualisation (logFC)
+gStats = allg_list$logFC
+#has to be a named vector
+names(gStats) = rownames(allg_list)
+head(gStats)
+```
+
+## Compute the overlap network
+
+The vissE package supports two gene-set similarity measures based on the overlap of genes between gene-sets: the Jaccard index (default) and the overlap coefficient. The overlap coefficient promotes parent-child relationships between gene-sets therefore is an ideal choice for hierarchically structured databases such as the gene ontology or Reactome, however, this is only recommended when running vissE on a single hierarchically structured database and not a combination of databases.
+
+Since we performed gene-set testing across various collections of the MSigDB, gene-set similarity is computed using the Jaccard index. We then create a network using the gene-set similarity data and visualise it.
+
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+library(vissE)
+library(igraph)
+
+#compute gene-set overlaps between significant gene-sets
+gs_ovlap = computeMsigOverlap(siggs, thresh = 0.25, measure = 'jaccard')
+#create a network from overlaps
+gs_ovnet = computeMsigNetwork(gs_ovlap, msigGsc = siggs)
+#plot the network
+set.seed(21) #set seed for reproducible layout
+plotMsigNetwork(gs_ovnet)
+```
+
+The overlap network plot above is annotated based on the MSigDB categories, however, more information can be included by annotating nodes with a gene-set statistic. Here we use the gene-set statistics prepared in the previous section.
+
+```{r fig.height=8, fig.width=8}
+#plot the network and overlay gene-set statistics
+set.seed(21) #set seed for reproducible layout
+plotMsigNetwork(gs_ovnet, genesetStat = gsStats)
+```
+
+## Identify communities within the network
+
+Given a network of related gene-sets, we expect that related gene-sets would likely represent a common higher-order biological process. As such, we perform clustering on gene-sets to identify gene-set clusters. The user can select their preferred clustering approach, however, we recommended graph clustering approaches in order to use the information provided in the overlap graph. Since we have a network of gene-sets, we can use graph clustering algorithms such as those from the `igraph` R package. Specifically, the walktrap algorithm is recommended as it works well across both dense and sparse graphs and is good at identifying both large and small clusters [@yang16].
+
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#identify clusters using a graph clustering algorithm
+grps = cluster_walktrap(gs_ovnet)
+#extract clustering results
+grps = groups(grps)
+#remove small groups
+grps = grps[sapply(grps, length) > 5]
+length(grps)
+```
+
+Since we could identify numerous gene-set clusters, we need to come up with a prioritisation scheme to explore them appropriately. Since the second step of vissE works best for large clusters as there is more information to perform text-mining on, cluster size can be used as a prioritisation scheme. However, large gene-set clusters could simply arise from well-represented processes in databases. For instance, many databases have an over-representation of immune related processes as these have been studied extensively in the past therefore immune processes are likely to form large gene-set clusters. To avoid selecting for such gene-set clusters, we additionally prioritise gene-sets using gene-set statistics. As such a combined prioritisation method is recommended. In this workflow, we prioritise large gene-set clusters that also have a large average statistic ($\mathrm{mean}(-\log_{10}(FDR))$). The product-of-ranks approach used by @bhuva20 is used to equally weight both measures when prioritising gene-set clusters.
+
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#compute cluster sizes
+grp_size = sapply(grps, length)
+#compute cluster statistic - median of the absolute statistic
+grp_stat = sapply(grps, function(x) median(abs(gsStats[x])))
+#combine using product of ranks
+grp_pr = rank(grp_size) * rank(grp_stat)
+#order group using the product of ranks - maximise cluster size and statistic
+grps = grps[order(grp_pr, decreasing = TRUE)]
+```
+
+Clearly, from the number of gene-set clusters obtained, it will be difficult to visualize the gene-set clusters all at once, therefore, we focus our analysis on the top 12 prioritised gene-set clusters.
+
+```{r fig.height=8, fig.width=8, message=FALSE, warning=FALSE}
+#plot the top 12 clusters
+set.seed(21) #set seed for reproducible layout
+p1 = plotMsigNetwork(gs_ovnet, markGroups = grps[1:12], genesetStat = gsStats)
+p1
+```
+
+## Characterise gene-set clusters
+
+Having identified gene-set clusters, we would want to derive a biological explanation for each cluster. Since gene-sets from the MSigDB are appropriately named (even those that are not manually curated) and come with short descriptions, we can harness this information to evaluate the common biological theme for each cluster.
+
+```{r}
+#all gene-sets have names
+sapply(siggs[1:3], setName)
+#almost all gene-sets have short descriptions
+sapply(siggs[1:3], description)
+```
+
+VissE automatically annotates each cluster by performing text mining analysis of either gene-set names or descriptions. Word frequencies weighted by the inverse document frequency (IDF) are computed within each cluster and visualised using the word clouds. These word clouds can be used to automatically annotate gene-sets
+
+```{r fig.height=8, fig.width=9}
+#compute and plot the results of text-mining: using gene-set name
+p2 = plotMsigWordcloud(msigGsc = siggs, groups = grps[1:12], type = 'Name')
+p2
+
+#compute and plot the results of text-mining: using gene-set short description
+plotMsigWordcloud(msigGsc = siggs, groups = grps[1:12], type = 'Short')
+```
+
+## Visualise gene-level statistics for gene-set clusters
+
+After annotating gene-set clusters with biological themes, the next step is to further understand the individual contributing to the significance of these gene-set clusters. Here we link up the gene-level statistics (e.g., from a DE analysis) for each gene-set cluster identified. In addition to the statistic, it could be useful to assess the frequency of gene in the gene-set cluster, that is, the number of gene-sets within the cluster to which a gene belongs. In the `plotGeneStats()` function, we plot gene-level statistic against gene frequencies. Genes with a high statistic and a high frequency could be though of as key genes in the biological process identified. To reduce over-plotting, a jitter is applied along the x-axis (due to its discrete nature).
+
+```{r fig.height=8, fig.width=9}
+#plot the gene-level statistics (logFC)
+p3 = plotGeneStats(gStats,
+                   msigGsc = siggs,
+                   groups = grps[1:12],
+                   statName = 'logFC')
+#since all vissE plots are ggplot2 objects, they can be modified
+p3 = p3 + geom_hline(yintercept = 0, colour = 2, lty = 2)
+p3
+```
+
+## Assessing protein-protein interactions within clusters
+
+Like gene-sets, protein-protein interaction (PPI) networks can be used to assess functional roles of groups of genes. Genes associated via protein-protein interactions are likely involved in related functions. To assess this independent line of evidence, vissE provides a module to assess the protein-protein interactions between genes in a gene-set cluster.
+
+Before a network is generated for each cluster, the full human PPI network needs to be loaded. The `msigdb` R/Bioconductor package provides the processed PPI network from the international molecular exchange consortium (IMEx). Human and mouse PPIs are available and can be loaded using the `getIMEX()` function. To expand coverage, PPIs can be borrowed from across organisms via a homology-based translation. This can be done by setting `inferred=TRUE`.
+
+```{r}
+#find versions of IMEx stored
+getIMEXVersions()
+#load the human PPI data from the IMEx database using the msigdb package
+ppi = getIMEX(org = 'hs', inferred = TRUE)
+head(ppi)
+```
+
+Gene-level statistics are annotated onto each gene in the network to provide a holistic view. The network can be filtered using the following filters:
+
+1.  `threshFrequency` - this selects nodes that have a specific frequency in a gene-set cluster, that is, the proportion of gene-sets in the cluster in which the gene belongs.
+2.  `threshConfidence` - this applies a filter on the PPI edges to select interactions that have a high confidence statistic.
+3.  `threshStatistic` - this selects genes that have a statistic of interest (e.g., log fold-change) greater than the threshold.
+
+```{r}
+p4 = plotMsigPPI(
+  ppidf = ppi,
+  msigGsc = siggs,
+  groups = grps[1:12],
+  geneStat = gStats,
+  threshFrequency = 0.25, #threshold on gene frequency per cluster
+  threshConfidence = 0.2, #threshold on PPI edge confidence
+  threshStatistic = 0.5, #threshold on gene-level statistic
+  threshUseAbsolute = TRUE #apply threshold to absolute values
+)
+p4
+```
+
+## Interpreting biology from vissE
+
+Now that we have generated the three plots, we can combine them to provide a holistic view of the data. This will provide an integrated view of biological themes identified by the analysis, as well as the underlying genes driving these gene-sets.
+
+```{r fig.height=15, fig.width=15}
+library(patchwork)
+
+#combine plots into a unified visualisation
+p1 + p2 + p3 + p4 + plot_layout(2, 2)
+```
+
+An expected result of this analysis is identified in cluster "90" that contains 9 gene-sets. We can generate the plot above specifically for cluster "90" and while doing so, annotate more genes in the gene-level statistics plot.
+
+```{r fig.height=15, fig.width=15}
+#investigate specific clusters
+set.seed(21) #set seed for reproducible layout
+#select group to plot
+g = '90'
+
+# extract cluster of interest
+grps['90']
+
+#compute and plot vissE panels for the group
+p1_g = plotMsigNetwork(gs_ovnet, markGroups = grps[g], genesetStat = gsStats)
+p2_g = plotMsigWordcloud(msigGsc = siggs, groups = grps[g], type = 'Short')
+p3_g = plotGeneStats(
+  gStats,
+  msigGsc = siggs,
+  groups = grps[g],
+  statName = 'logFC',
+  topN = 25
+) + geom_hline(yintercept = 0, lty = 2, colour = 2)
+p4_g = plotMsigPPI(
+  ppidf = ppi,
+  msigGsc = siggs,
+  groups = grps[g],
+  geneStat = gStats,
+  threshFrequency = 0.25, #threshold on gene frequency per cluster
+  threshConfidence = 0.2, #threshold on PPI edge confidence
+  threshStatistic = 0.5, #threshold on gene-level statistic
+  threshUseAbsolute = TRUE #apply threshold to absolute values
+)
+p1_g + p2_g + p3_g + p4_g + plot_layout(2, 2)
+```
+
+The word cloud computed using gene-set names hints at a theme around keratinisation. This is further empahsised when annotating the cluster using gene-set descriptions. An additional line of evidence for this theme is the gene-level statistic plot that shows keratin genes (*KRT*s) having high logFCs and frequencies. Gene-sets in the gene-set cluster are tightly clustered suggesting they share many genes among themselves. This cluster is mainly composed of gene-sets that are being up-regulated in PMC42-LA compared to PMC42-ET. As was discussed in the background biology section of this document, keratin-rich adherens junctions are characteristics of an epithelial phenotype. This is consistent with the visualisations provided by the vissE analysis.
+
+# Summary
+
+Functional analysis is an important component of a bioinformatics pipeline and is key point in connecting bioinformatics with biology. The tools presented in this workflow allow users to investigate molecular phenotypes in biological systems using gene-set enrichment analysis. These tools and the workflow put an emphasis on visualisation as this is an important factor in interacting with data and interpreting meaningful biology from molecular data.
+
+# Packages used {.unnumbered}
+
+This workflow depends on various packages from version `r BiocManager::version()` of the Bioconductor project, running on `r version$version.string` or higher. The complete list of the packages used for this workflow are shown below:
+
+```{r session_info}
+sessionInfo()
+```
+
+# Acknowledgments {.unnumbered}
+
+We would like to thank Ahmed Mohamed for his ideas on improving text-mining.
+
+# References {.unnumbered}

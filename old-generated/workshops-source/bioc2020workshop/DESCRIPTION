@@ -1,0 +1,19 @@
+Package: gxbioc2020workshop
+Title: A workshop on discovering biomarkers from high through put response screens
+Version: 0.2.1
+Author: Petr Smirnov, Chris Eeles, Arvind Mer, Benjamin Haibe-Kains
+Maintainer: Petr Smirnov <psmirnov2000@gmail.com>
+Description: This workshop focuses on the synergies between analysis results 
+    from the PharmacoGx, Xeva and RadioGx packages and their usefulness for 
+    discovery of biomarkers of drug and/or radiation sensitivity in cancer cell 
+    lines (CCLs) and patent derived xenograft models (PDXs).
+Encoding: UTF-8
+LazyData: true
+License: CC BY 4.0 + file LICENSE
+RoxygenNote: 7.1.0
+Suggests: knitr, rmarkdown, BiocStyle, magick
+Imports: PharmacoGx, RadioGx, SummarizedExperiment, ToxicoGx, ggplot2, Xeva, igraph, pkgdown
+URL:  https://bhklab.github.io/bioc2020workshop
+BugReports: https://github.com/bhklab/bioc2020workshop/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: bhklab/gxbioc2020workshop:latest

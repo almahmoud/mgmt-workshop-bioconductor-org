@@ -1,0 +1,18 @@
+url: https://jianhong.github.io/trackViewerBiocAsia2020Workshop
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-93043521-1
+
+home:
+  title: "trackViewerBiocAsia2020Workshop"
+  type: inverse
+
+
+navbar:
+  right:
+   - icon: fa-github
+     href: https://github.com/jianhong/trackViewerBiocAsia2020Workshop
+     
+

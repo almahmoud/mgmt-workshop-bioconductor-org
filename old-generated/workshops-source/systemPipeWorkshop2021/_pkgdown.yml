@@ -1,0 +1,40 @@
+url: https://systempipe.org/systemPipeWorkshop2021
+
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-158796879-1
+
+home:
+  title: "systemPipeWorkshop2021"
+  type: inverse
+  links:
+  - text: Download from Github
+    href: https://github.com/systemPipeR/systemPipeWorkshop2021/
+  - text: Report a bug
+    href: https://github.com/systemPipeR/systemPipeWorkshop2021/issues
+navbar:
+  title: ~
+  type: default
+  left:
+    - text: Workshop
+      href: articles/systemPipeWorkshop2021.html
+    - text: Slides
+      menu:
+      - text: Slides
+        href: http://www.dcassol.com/bioc2021_slides/
+    - text: Articles
+      menu:
+      - text: Project structure
+        href: articles/spr_project.html
+      - text: CWL syntax
+        href: articles/cwl_syntax.html
+      - text: SPR and CWL
+        href: articles/cwl_and_spr.html
+      - text: SPR Function and Methods
+        href: articles/spr_functions.html
+  right:
+   - icon: fab fa-github
+     href: https://github.com/systemPipeR/systemPipeWorkshop2021
+   - icon: fab fa-docker
+     href: https://hub.docker.com/r/systempipe/systempipeworkshop2021

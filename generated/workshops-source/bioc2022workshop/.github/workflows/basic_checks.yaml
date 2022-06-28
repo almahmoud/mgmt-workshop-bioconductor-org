@@ -1,9 +1,15 @@
 name: Check, build, and push image
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 env:
-  cache-version: v2
+  cache-version: v3
 
 jobs:
   r-build-and-check:

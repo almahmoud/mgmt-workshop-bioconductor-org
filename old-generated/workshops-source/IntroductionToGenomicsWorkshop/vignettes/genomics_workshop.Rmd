@@ -1,0 +1,517 @@
+---
+title: "Genomics Workshop"
+author: 
+  - Ruining Dong^[dong.rn@wehi.edu.au]
+  - James Fu^[fu.j@wehi.edu.au]
+  - Daniel Cameron^[cameron.d@wehi.edu.au]
+output: 
+  rmarkdown::html_vignette
+  # rmdformats::downcute:
+  #   toc_depth: 6
+
+vignette: >
+  %\VignetteIndexEntry{Genomic Workshop}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Overview
+In this 2-hour workshop, you will have hands-on experience on SNV calling and 
+analysis. You will be provided toy short-read sequencing samples, followed by 
+read alignments, variant calling and pathogenicity analysis.
+
+### Description
+This workshop will guide you through the workflow of a simple genomic SNV analysis.
+
+This is a hands-on workshop, which means you will be given time to get the tools running. 
+
+For each task, you will be given a brief instruction prior to getting your hands dirty. At the end of the given time, there will be a brief summary.
+
+### Pre-requisites
+
+Basic knowledge of using command line and Rstudio is ideal. Although strictly speaking, no prior knowledge is required to attend this workshop.
+
+### Participation
+
+The workshop runs for 2 hours. You will find tasks and related information in the worksheet.
+
+If you run into any problems, please describe the issue and send via zoom chat. The instructors will be monitoring the chat panel and answer any question in real time.
+
+### Tools to be used
+
+* [bwa](http://bio-bwa.sourceforge.net/bwa.shtml)
+* [samtools](http://www.htslib.org/doc/samtools.html)
+* [Strelka2](https://github.com/Illumina/strelka)
+* [VariantAnnotation](https://bioconductor.org/packages/release/bioc/html/VariantAnnotation.html)
+* [TxDb.Hsapiens.UCSC.hg19.knownGene](https://bioconductor.org/packages/release/data/annotation/html/TxDb.Hsapiens.UCSC.hg19.knownGene.html)
+* [BSgenome.Hsapiens.UCSC.hg19](https://bioconductor.org/packages/release/data/annotation/html/BSgenome.Hsapiens.UCSC.hg19.html)
+* [COSMIC.67](https://bioconductor.org/packages/release/data/experiment/html/COSMIC.67.html)
+* [org.Hs.eg.db](https://bioconductor.org/packages/release/data/annotation/html/org.Hs.eg.db.html)
+* [COSMIC](https://cancer.sanger.ac.uk/cosmic)
+
+### Time outline
+
+For this 120-minute workshop:
+
+| Activity                                               | Time |
+|--------------------------------------------------------|------|
+| Introduction                                           |  5m  |
+| Working Environment: command line and Rstudio          | 15m  |
+| Read Alignment: bwa and samtools                       | 20m  |
+| SNV calling: Strelka2                                  | 20m  |
+| Pathogenicity analysis                                 | 50m  |
+| Summary                                                | 10m  |
+
+### Workshop goals and objectives
+
+Variant calling is a vital component of genomics studies. Genomic variants have been found in various structures and sizes, including single-nucleotide variants (SNVs), small insertion and deletions (INDELs), copy number variants (CNVs) and structural variants (SVs). Computational tools for detecting these variants are developed with different underlying approaches.
+
+This workshop is designed to offer a hands-on experience on genomic variant calling and analysis. The tasks are designed to guide you through the key steps of SNV analysis on a tumour/normal paired sample.  
+
+### Learning goals
+
+* To understand the general workflow of a genomic variant analysis
+* To identify methods to handle short-read sequencing data and variant calls
+
+### Learning objectives
+
+* To recall the key concepts in genomic variant analysis
+* To apply the concepts in SNV calling to germline and paired tumour/normal data
+* To perform SNV analysis using publicly available resources
+
+## Workshop
+### Getting started
+1. Rstudio working environment (console vs. terminal)
+2. Data directory
+3. Working with UNIX commands
+
+*working directories*
+```{bash, eval=FALSE, include=TRUE}
+cd colo829
+ls
+```
+
+*running cmd tools*
+```{bash, eval=FALSE, include=TRUE}
+samtools
+man samtools #q for quitting the man page
+```
+
+*piping*
+```{bash, eval=FALSE, include=TRUE}
+ls | head -3
+```
+
+4. SNV analysis workflow
+
+```{r, echo=FALSE}
+knitr::include_graphics("../inst/extdata/snvWorkflow.png")
+# knitr::include_graphics(system.file("extdata", "snvWorkflow.png", package = "IntroductionToGenomicsWorkshop"))
+```
+
+
+### Task 1: read alignments, sorting, and indexing
+
+Here you will need to align short-read sequencing reads to the reference genome (hg19) and get them ready for SNV calling. There are two samples you will need the work with, the tumor sample and the matched normal sample of COLO829^[Craig, D., Nasser, S., Corbett, R. et al. A somatic reference standard for cancer genome sequencing. Sci Rep 6, 24607 (2016). https://doi.org/10.1038/srep24607].
+
+
+#### *Aligning reads to the reference genome*
+Typical human whole genome sequencing (WGS) data contains hundreds of millions or billions of reads.
+These data sets take many hours to align so for this workshop we are going to align a very small subset of real sequencing data.
+
+The data we are using today is located in the colo829 directory.
+The reads can be found at `/home/rstudio/colo829/*.fastq.gz`, and the reference genome is located at `/home/rstudio/colo829/chr7.fa`.
+
+Sequence alignment tools are command-line tools so for this first task, we are going to use the command-line terminal.
+
+To start, let us navigate to the directory containing our data.
+
+```{bash, eval=FALSE, include=TRUE}
+cd colo829
+ls
+```
+
+The `cd` command is the "change directory" command.
+It changes our working directory from our "home" directory to the colo829 directory.
+
+The `ls` command is the "list" command.
+It outputs all the files and directories in the current directory.
+
+Our input data is paired-end sequencing data for a tumour sample and a matched normal.
+
+This `fastq` files are output from the sequencing machine and we need to align them to the reference genome.
+In this workshop, we are going to use chromosome 7 of the hg19 human reference genome as our reference.
+
+We will use `bwa mem` for our sequence alignment. If we type:
+
+```{bash, eval=FALSE, include=TRUE}
+bwa mem
+```
+
+We see that `bwa mem` requires a reference genome, input file(s), and has many optional parameters.
+The reference genome is `chr7.fa`, and the files that start with `chr7.fa.`.
+
+<details>
+<summary>Hint </summary>
+<ul>
+```{bash, eval=FALSE, include=TRUE}
+bwa mem [options] <idxbase> <in1.fq> [in2.fq] > colo829.sam
+```
+</ul>
+</details>
+
+#### *Converting the output file format*
+
+The output file of `bwa mem` can be saved as a `SAM` file, standing for Sequence Alignment Map. For storage efficiency, `SAM` files are often losslessly compressed to `BAM` format, standing for Binary Alignment Map. 
+
+Try it yourself by modifying this template:
+
+```{bash, eval=FALSE, include=TRUE}
+samtools view -S -b output.sam -o output.bam
+```
+
+This step is optional if you "pipe" your `bwa` output to `samtools` (see below).
+
+#### *Sorting and indexing*
+
+We also need to sort the output of `bwa` into the order in which they align in the reference genome.
+For this we will use `samtools sort`:
+
+```{bash, eval=FALSE, include=TRUE}
+samtools sort
+```
+
+and `samtools index`:
+
+```{bash, eval=FALSE, include=TRUE}
+samtools index
+```
+
+To avoid writing additional (uncompressed) files, we will combine the alignment and sorting steps together with a unix "pipe".
+A pipe `|` takes the output from one program and sends it to the next program.
+
+We can run our `bwa` and `samtools` commands together in a pipe using:
+
+```{bash, eval=FALSE, include=TRUE}
+bwa mem chr7.fa normal_R1.fastq.gz normal_R2.fastq.gz | samtools sort - > normal.bam
+```
+
+Our variant caller requires a index file for our `normal.bam` file so we create this using `samtools index`:
+
+```{bash, eval=FALSE, include=TRUE}
+samtools index normal.bam
+```
+
+As we are doing somatic variant calling, we need to repeat these steps on the tumour sequencing reads as well.
+Our tumour data is larger than our normal so to reduce the time it takes to perform alignment, we'll tell `bwa mem` that it can use both CPU cores available to us in our workshop virtual machines by telling it to use 2 threads. 
+
+Now please try applying all the above steps on the tumour reads.
+
+<details>
+<summary>Solution </summary>
+<ul>
+
+```{bash, eval=FALSE, include=TRUE}
+bwa mem -t 2 chr7.fa tumour_R1.fastq.gz tumour_R2.fastq.gz | samtools sort - > tumour.bam
+samtools index tumour.bam
+```
+
+</ul>
+</details>
+
+
+
+### Task 2: calling SNVs using Strelka2
+Now that we have the sequencing reads in order, we will start calling SNVs.
+We now have both the normal and tumour inputs ready for variant calling.
+In a real pipeline, there are additional quality control, adapter trimming, and duplicate filtering steps but for this workshop, the data has been pre-processed for us so we can skip these steps.
+
+The variant caller we are using is [Strelka2](https://github.com/Illumina/strelka/blob/v2.9.x/docs/userGuide/quickStart.md).
+Looking through the quick start guide, we can see that Strelka2 supports both somatic and germline variant calling.
+As we are doing somatic variant calling, we want to configure a somatic Strelka workflow
+
+```{bash, eval=FALSE, include=TRUE}
+configureStrelkaSomaticWorkflow.py \
+  --normalBam normal.bam \
+  --tumorBam tumour.bam \
+  --referenceFasta chr7.fa \
+  --runDir strelka
+```
+
+This created a `strelka` subdirectory containing `runWorkflow.py` which is the command we will use to run Strelka.
+
+```{bash, eval=FALSE, include=TRUE}
+strelka/runWorkflow.py
+```
+
+As we can see from the usage message, Strelka requires additional arguments.
+In our case, we want to specify that we will be running it on the same computer that we are running the `runWorkflow.py` command.
+We will also tell Strelka that it can use both the CPU cores available to us.
+
+```{bash, eval=FALSE, include=TRUE}
+strelka/runWorkflow.py -j 2 -m local
+```
+
+If you navigate to the `colo829/strelka/results/variants/` directory, you should now have a `somatic.snvs.vcf.gz` file containing the somatic variants that Strelka detected in our example sequencing data.
+
+### Task 3: investigating the driver gene
+#### *Load packages*
+
+```{r, eval = TRUE, message = FALSE}
+library(VariantAnnotation)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(org.Hs.eg.db)
+```
+
+#### *Read and pre-process VCF file*
+
+We use the `VariantAnnotation` package to read and annotate the SNVs we just found.
+
+```{r, eval = TRUE}
+#vcf <- readVcf(system.file("extdata", "strelka.somatic.vcf", package = #"IntroductionToGenomicsWorkshop"))
+vcf <- readVcf("../inst/extdata/strelka.somatic.vcf")
+```
+
+Variant sequence style is changed to maintain its consistency with other databases.
+
+```{r, eval = TRUE}
+seqlevelsStyle(vcf) <- "UCSC"
+```
+
+#### *Header information of VCF file*
+
+`header()` function will show the header information from the VCF file.
+
+```{r, eval = TRUE}
+header(vcf)
+```
+
+Further information for the headers can be extracted by functions like `samples(), geno(), meta()`, etc.
+
+<details>
+<summary>Solution</summary>
+<ul>
+<li>This will fail.</li>
+```{r, eval = TRUE, error = TRUE}
+samples(vcf)
+```
+<li>These will work.</li>
+```{r, eval = TRUE}
+samples(header(vcf))
+geno(vcf)
+head(geno(header(vcf)), 3)
+```
+</ul>
+</details>
+
+#### *Variant genomic position*
+
+The chromosomal location for each SNV can be identified by `rowRanges()`.
+
+```{r, eval = TRUE}
+head(rowRanges(vcf), 3)
+```
+
+Individual fields can be pulled out either with the `$` sign or named accessors like `ref()`, `alt()`.
+
+```{r, eval = TRUE}
+head(rowRanges(vcf)$ALT, 3)
+head(alt(vcf), 3)
+```
+
+#### *Locate variants in and around genes*
+
+Variant location with respect to genes can be identified with the `locateVariants()` function.
+
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
+# Get variant location information.
+rd <- rowRanges(vcf)
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+loc <- locateVariants(rd, txdb, CodingVariants())
+head(loc, 3)
+```
+
+Gene ID can be replaced my gene symbols which are more readable, using `org.HS.eg.db` database.
+
+```{r, eval = TRUE, message = FALSE}
+gene_symbol <- biomaRt::select(org.Hs.eg.db, keys=loc$GENEID, columns=c("SYMBOL"), keytype="ENTREZID")$SYMBOL
+head(gene_symbol, 5)
+loc$SYMBOl <- gene_symbol
+head(loc, 3)
+```
+
+The number of SNVs on each chromosome can be displayed by `seqnames()`.
+
+```{r, eval = TRUE, warning = FALSE}
+seqnames(loc)
+```
+
+The documentation of `locateVariants()` describes how to identify variants in other regions, like *splicing sites*.
+
+<details>
+<summary>Solution</summary>
+<ul>
+<li>Check the documentation of `locateVariants()`.</li>
+```{r, eval = TRUE}
+?locateVariants
+```
+<li>
+Following functions are used to identify variants in distinct gene regions:
+
+| Function             | Description                                                           |
+|----------------------|-----------------------------------------------------------------------|
+| CodingVariants()     | Falls within a coding region                                          |
+| IntronVariants()     | Falls within an intron region                                         |
+| FiveUTRVariants()    | Falls within a 5' untranslated region                                 |
+| ThreeUTRVariants()   | Falls within a 3' untranslated region                                 |
+| IntergenicVariants() | Does not fall within a transcript associated with a gene              |
+| SpliceSiteVariants() | Overlaps any portion of the first 2 or last 2 nucleotide of an intron |
+| PromoterVariants()   | Falls within a promoter region of a transcript                        |
+| AllVariants()        | All regions                                                           |
+</li>
+```{r, eval = TRUE, message = FALSE}
+loc_splice <- locateVariants(rd, txdb, SpliceSiteVariants())
+head(loc_splice, 3)
+seqnames(loc_splice)
+```
+</ul>
+</details>
+
+#### *Amino acid coding changes*
+
+`predictCoding` computes amino acid coding changes for non-synonymous mutations.
+
+```{r, eval = TRUE, warning = FALSE}
+coding <- predictCoding(vcf, txdb, seqSource = Hsapiens)
+coding[3:4]
+```
+
+Here shows all consequences of coding variants.
+
+```{r, eval = TRUE}
+table(coding$CONSEQUENCE)
+```
+
+We can also annotate each of these variants with their corresponding gene by looking up the `GENEID`.
+
+```{r, eval = TRUE}
+coding$SYMBOL <- biomaRt::select(org.Hs.eg.db, keys=coding$GENEID, columns=c("SYMBOL"), keytype="ENTREZID")$SYMBOL
+coding[3:4]
+```
+
+We can discard the synonymous mutations, and the rest are potential cancer drivers.
+Then map them back to the VCF data and filter it.
+
+```{r, eval = TRUE}
+potential_drivers = coding[!is.na(coding$CONSEQUENCE) & coding$CONSEQUENCE != "synonymous"]
+potential_drivers = rowRanges(vcf)[overlapsAny(rowRanges(vcf), potential_drivers, ignore.strand=TRUE)]
+```
+
+
+#### *Predict impact*
+
+For the nonsynonymous mutations, we'd like to know how much these impact the protein.
+For this, we will use to pre-calculated scores from the rfPred package.
+To work out how to use the package, we look up the help.
+```{r, eval = FALSE}
+`?rfPred-package`
+```
+
+If you click on the index link, it will show you all functions available in the package.
+Check what the scoring function requires we see the `variant_list` parameter requires a `data.frame` with specific columns.
+We'll need to create that before calling the function.
+
+```{r, eval = FALSE}
+library(rfPred)
+rfpred_gr = potential_drivers
+seqlevelsStyle(rfpred_gr) = "NCBI"
+rfpred_df = data.frame(
+  seqnames=seqnames(rfpred_gr),
+  start=start(rfpred_gr),
+  reference=as.character(rfpred_gr$REF),
+  alteration =as.character(unlist(rfpred_gr$ALT)))
+scores = rfPred::rfPred_scores(
+  variant_list=rfpred_df, 
+  data="/home/rstudio/rfPred/all_chr_rfPred.txtz",
+  index="/home/rstudio/rfPred/all_chr_rfPred.txtz.tbi")
+scores = scores[order(-as.numeric(scores$rfPred_score)),]
+head(scores, 20)
+```
+
+
+#### *Match variants within COSMIC*
+
+To work out which variants are likely driver genes, we can check if they have been seen before in [COSMIC](https://cancer.sanger.ac.uk/cosmic/)
+
+Read and pre-process COSMIC database.
+
+```{r, eval = TRUE}
+cosmic_path <- system.file("vcf", "cosmic_67.vcf.gz", package = "COSMIC.67")
+cosmic_db <- readVcf(cosmic_path, genome = "GRCh37")
+seqlevelsStyle(cosmic_db) <- "UCSC"
+```
+
+The potential driver variants are matched with the COSMIC database.
+
+```{r, eval = TRUE}
+# Match by chromosome and location of the variants.
+cosmics_hits = findOverlaps(potential_drivers, rowRanges(cosmic_db), type="equal")
+# Match by reference and alternative allele of the variants.
+cosmics_hits = cosmics_hits[
+  as.character(potential_drivers$REF[queryHits(cosmics_hits)]) == as.character(rowRanges(cosmic_db)$REF[subjectHits(cosmics_hits)]) &
+  as.character(unlist(potential_drivers$ALT[queryHits(cosmics_hits)])) == as.character(unlist(rowRanges(cosmic_db)$ALT[subjectHits(cosmics_hits)]))
+  ]
+```
+
+Finally, we take the COSMIC information of the potential driver mutants and rank them by `CNT`.
+`CNT` values denote the sample count for the given variant.
+
+```{r, eval = TRUE}
+found_in_cosmic = info(cosmic_db)[subjectHits(cosmics_hits),]
+found_in_cosmic = found_in_cosmic[order(-found_in_cosmic$CNT),]
+found_in_cosmic = found_in_cosmic[!is.na(found_in_cosmic$CNT),]
+head(found_in_cosmic, 5)
+```
+
+Now you can search the mutation identifier *(COSM476 for example)* in [COSMIC](https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=170110762#) and learn more about the variant.
+
+<!-- <details> -->
+<!-- <summary>Solution </summary> -->
+<!-- <ul> -->
+<!-- <li>First do this.</li> -->
+<!-- ```{bash, eval = FALSE} -->
+<!-- #bwa index ref.fa -->
+<!-- bwa mem ref.fa read1.fq read2.fq > output.sam -->
+<!-- ``` -->
+<!-- <li>Then do that.</li> -->
+<!-- ```{bash, eval = FALSE} -->
+<!-- samtools view -S -b output.sam -o output.bam #converting SAM to BAM -->
+<!-- samtools sort output.bam output.sorted #sorting the BAM reads -->
+<!-- samtools index output.sorted.bam #indexing the sorted BAM -->
+<!-- ``` -->
+
+<!-- <li>OR, pipe some of the commands in a one-liner:</li> -->
+
+<!-- ```{bash, eval = FALSE} -->
+<!-- bwa mem ref.fa read1.fq read2.fq | samtools view -S -b - | samtools sort -o output.sorted.bam - -->
+
+<!-- samtools index output.sorted.bam -->
+<!-- ``` -->
+
+<!-- <li>Blah blah.</li> -->
+<!-- <li>You should be able to see the resultant files `file1` and `file2`.</li> -->
+
+<!-- </ul> -->
+<!-- </details> -->
+
+

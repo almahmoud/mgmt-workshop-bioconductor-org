@@ -1,0 +1,148 @@
+---
+title: "Building Carpentries-based Bioconductor Lessons"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{WorkshopSyllabus}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+Authors:
+    Jenny Drnevich^[drnevich@illinois.edu],
+    Charlotte Soneson^[charlotte.soneson@fmi.ch],
+    Toby Hodges^[tobyhodges@carpentries.org],
+    Laurent Gatto^[laurent.gatto@uclouvain.be],
+    Kevin Rue-Albrecht^[kevin.rue-albrecht@kennedy.ox.ac.uk],
+    Robert Castelo^[robert.castelo@upf.edu].
+    <br/>
+Last modified: `r Sys.Date()`.
+
+## Overview
+
+### Description
+
+The Bioconductor teaching committee was established in early 2020, and one of its aims is to coordinate the development of Bioconductor-focused training material, consistent with the guiding principles of the Carpentries (https://carpentries.org). During its first year, the committee has started the development of three lessons: an introduction to R (with a Bioconductor focus), an overview of the Bioconductor project, and a lesson on bulk RNA-seq analysis with Bioconductor. In this workshop, we would like to raise awareness of the existing lessons within the Bioconductor community, and invite contributions from interested community members. We will start by giving an overview of the Carpentries guiding principles and the procedures for proposing and developing a Bioconductor lesson. After that, we will invite participants to actively engage with and contribute to the existing material, as well as form new working groups for development of additional lessons.
+
+### Pre-requisites
+
+Essential pre-requisites:
+
+* Basic knowledge of R syntax
+* An interest in teaching R to others
+
+Suggested pre-requisites:
+
+* Basic knowledge of git
+* Basic knowledge of Rmarkdown
+
+
+Background reading:
+
+* [Teaching Tech Together](http://teachtogether.tech/) - Greg Wilson
+* [The Carpentries Curriculum Development Handbook](https://cdh.carpentries.org/)
+  - [Designing Challenges](https://cdh.carpentries.org/designing-challenges.html)
+* [The Carpentries Instructor Training Curriculum](https://carpentries.github.io/instructor-training/)
+
+
+### Participation
+
+Attendees are interested in learning about the Carpentries' guiding principles on the science of learning and how to apply them in their own teaching. They will review existing workshop material from the Bioconductor teaching committee and participate in a "lesson sprint": contribute ideas, suggestions for improvement, evaluation tests, etc. They will also have the opportunity to suggest other lessons and network with others to hopefully form groups to develop these lessons in the future. 
+
+### Code of Conduct
+
+We will follow the [Bioc2021 Code of Conduct](https://bioc2021.bioconductor.org/code/) and aim to provide a supportive, collegial, and harassment-free environment. If someone makes you or anyone else feel unsafe or unwelcome, please report it as soon as possible using any of the avenues listed in the link above. 
+
+
+### Time outline
+
+| Activity                     | Time |
+|------------------------------|------|
+| Introduction | 5m |
+| Carpentries guiding principles | 20m  |
+| Overview of workshops in development          | 10m  |
+| Lesson sprint | 45m   |
+| Future lesson planning               | 10m  |
+
+### Workshop goals and objectives
+
+
+### Learning goals
+
+* Describe the backwards design instructional model and how it influences the development of course content.
+* Assess the  Introduction to R workshop being developed by the Bioconductor teaching committee and provide feedback whether the lesson design fulfills the stated learning objectives.
+* Understand how to create meaningful assessment exercises to test whether learners have learned a particular skill or concept or what misconceptions they still have.
+* Form collaborative groups for future lesson development. 
+
+
+
+### Learning objectives
+
+* Identify the target audience and learning objectives of the Bioconductor-focused Introduction to R workshop.
+* Modify/edit workshop materials to better obtain the stated learning objectives.
+* Create multiple choice, fill in the blanks, minimal fix, and/or code adaptation exercises to assess specific knowledge gained. 
+* Network with others interested in teaching R/Bioconductor workshops.
+
+
+## Workshop
+
+
+### [Carpentries guiding principles](https://jdrnevich.github.io/BuildACarpentriesWorkshop/articles/CarpentrieGuidingPrinciples.html)
+
+
+
+### Overview of workshops in development
+
+https://github.com/Bioconductor/bioconductor-teaching
+
+#### [Introduction to data analyis with R and Bioconductor](https://carpentries-incubator.github.io/bioc-intro/)
+
+Target audience: At least a mid-level Bachelor student with basic biology knowledge. They have or will have some type of -omic data they will need to analyze and visualize but possibly no prior experience in programming or data analysis.  
+
+
+Learning objectives:
+
+* Be able to organize data in a spreadsheet in a manner conducive to reading into R
+* Know how to check for and correct common data entry errors (e.g., inconsistent capitalizations, naming conventions, non-allowed characters, etc.)
+* Import data into R and put in a proper object class
+* Produce visual summaries of the data
+
+
+
+
+#### [Overview of the Bioconductor project](https://carpentries-incubator.github.io/bioc-project/)
+
+Target audience: At least a mid-level Bachelor student with basic biology knowledge. They have or will have some type of -omic data they will need to analyze and visualize, and have the obtained the learning objectives of the Introduction to R workshop. They want to learn how to do the analysis themselves but do not know how to start or what software packages are available. 
+
+
+Learning objectives: 
+
+* Navigate the Bioconductor website and learn to how to find packages for particular types of -omics data
+* Install specific Bioconductor packages in R
+* Open a package vignette a practice running through the example
+* Name the different types of Bioconductor S4 object types and what kind of data they hold.
+* How to modify code and contribute to existing Bioconductor packages. 
+
+
+
+#### [RNA-seq analysis with Bioconductor](https://carpentries-incubator.github.io/bioc-rnaseq)
+
+Target audience: At least a graduate student basic biology knowledge. They have or will have bulk RNA-Seq count data they need to analyze and visualize. They are already familiar with R, RStudio and Bioconductor. 
+
+
+Learning objectives:
+
+* Extract information from a SummarizedExperiment object.
+* Perform quality assessment steps/exploratory analysis of a gene expression matrix and understand the implications for downstream analysis.
+* Run a typical differential expression analysis using DESeq2 and interpret the output.
+* Convert between different types of gene identifiers.
+* Perform a gene set enrichment analysis.
+

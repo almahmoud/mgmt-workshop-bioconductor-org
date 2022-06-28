@@ -1,0 +1,27 @@
+Package: SingleCellWorkshop
+Title: Single cell RNA-seq analysis workshop
+Version: 0.1.22
+Authors@R: 
+    person(given = "Yunshun",
+           family = "Chen",
+           role = c("aut", "cre"),
+           email = "yuchen@wehi.edu.au",
+           comment = c(ORCID = "0000-0003-4911-5653"))
+Description: This package describes a detailed workflow of a single cell
+    RNA-seq analysis.
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: 
+    Seurat, edgeR, vcd, scales, pheatmap
+Suggests: 
+    knitr,
+    rmarkdown,
+    markdown,
+    pkgdown
+URL: https://yunshun.github.io/SingleCellWorkshop/
+BugReports: https://github.com/yunshun/SingleCellWorkshop/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: yunshun/singlecellworkshop:latest

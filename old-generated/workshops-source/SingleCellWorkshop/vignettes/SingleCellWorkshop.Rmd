@@ -1,0 +1,676 @@
+---
+title: "Integration analysis of multi-sample single cell RNA-seq experiment"
+author:
+- name: Yunshun Chen
+  affiliation: Walter and Eliza Hall Institute of Medical Research, 1G Royal Parade, Parkville, VIC 3052, Melbourne, Australia
+  email: yuchen@wehi.edu.au
+date: Aug 21, 2021
+vignette: >
+  %\VignetteIndexEntry{Integration analysis of multi-sample single cell RNA-seq experiment}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: ref.bib
+output:
+  rmarkdown::html_vignette:
+    fig_caption: true
+---
+
+
+# Introduction
+
+Single-cell RNA sequencing (scRNA-seq) has become a widely used technique that allows researchers to profile the gene expression and study molecular biology at the cellular level. 
+It provides biological resolution that cannot be achieved with conventional bulk RNA-seq experiments on cell populations.
+
+Here, we provide a detailed workflow for analyzing the 10X single cell RNA-seq data from a single cell RNA expression atlas of human breast tissue [@pal2021scrnaseqatlas].
+This cell atlas explores the cellular heterogeneity of human mammary gland across different states including normal, pre-neoplastic and cancerous states.
+
+We will be using part of this cell atlas data to demonstrate how to perform a standard analysis for examining one single cell sample, an integration analysis for exploring the cellular heterogeneity across multiple samples, and how to perform differential expression analysis using pseudo-bulk approach.
+Most of the analysis will be performed using the _Seurat_ package [@satija2015spatial].
+
+# Preliminary
+
+## Pre-processing the raw data
+
+The raw 10X data come in BCL format.
+They need to be pre-processed by software tools such as _cellranger_.
+
+We use _cellranger_ to convert BCL files into the FASTQ files, then align the reads to the human genome, and finally quantify the UMI counts for each gene in each cell.
+The entire analysis in this workflow is conducted within the R environment using the outputs from _cellranger_.
+We do not cover the details of running _cellranger_ as they are beyond the scope of this workflow.
+The information of how to run _cellranger_ is available at [here](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger).
+
+```{r GlobalOptions, echo=FALSE, include=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=5.5, fig.align='center')
+#knitr::opts_chunk$set(error=FALSE, prompt=TRUE, comment=NA)
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=TRUE)
+#knitr::opts_chunk$set(cache=TRUE, cache.lazy=FALSE)
+options(digits=3)
+options(width=90)
+set.seed(2020)
+```
+
+## Downloading the read counts
+
+In this workshop, we will be using four samples from this published study [@pal2021scrnaseqatlas].
+These four samples correspond to four individual patients with the following Ids: N1469, N0280, N0230 and N0123.
+The accession numbers of the four samples are GSM4909258, GSM4909255, GSM4909264 and GSM4909267, respectively.
+
+We first create a `Data` folder under the current working directory.
+Then we make four subfolders with the patient Ids as the folder names under the `Data` folder.
+```{r Samples}
+Samples <- c("N1469", "N0280", "N0230", "N0123")
+for(i in 1:length(Samples)){
+    out_dir  <- file.path("Data", Samples[i])
+    if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+}
+```
+
+The cellranger output of each sample consists of three data files: a count matrix in _mtx.gz_ format, barcode information in _tsv.gz_ format, and feature information in _tsv.gz_.
+We download the three data files from GEO for each of the four samples and store them in each of the subfolders accordingly.
+```{r Download, eval=TRUE}
+GSM <- "https://ftp.ncbi.nlm.nih.gov/geo/samples/GSM4909nnn/"
+url.matrix <- paste0(GSM, 
+    c("GSM4909258/suppl/GSM4909258_N-NF-Epi-matrix.mtx.gz",
+      "GSM4909255/suppl/GSM4909255_N-N280-Epi-matrix.mtx.gz", 
+      "GSM4909264/suppl/GSM4909264_N-N1B-Epi-matrix.mtx.gz",
+      "GSM4909267/suppl/GSM4909267_N-MH0023-Epi-matrix.mtx.gz"))
+url.barcodes <- gsub("matrix.mtx", "barcodes.tsv", url.matrix)
+url.features <- "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE161nnn/GSE161529/suppl/GSE161529_features.tsv.gz"
+for(i in 1:length(Samples)){
+    utils::download.file(url.matrix[i], destfile=paste0("Data/", Samples[i], "/matrix.mtx.gz"), mode="wb") 
+    utils::download.file(url.barcodes[i], destfile=paste0("Data/", Samples[i], "/barcodes.tsv.gz"), mode="wb") 
+    utils::download.file(url.features, destfile=paste0("Data/", Samples[i], "/features.tsv.gz"), mode="wb") 
+}
+```
+
+# Standard analysis
+
+## Read in the data
+
+We load the Seurt package and read in the 10X data for Patient N1469.
+The object `N1469.data` is a sparse matrix containing the raw count data of Patient N1469.
+Rows are features (genes) and columns are cells.
+By default, the column names of the data are the cell barcodes.
+To distinguish cells from different patients in the integration analysis later on, the patient Id is added as a prefix to the column names.
+```{r loadSeurat}
+library(Seurat)
+N1469.data <- Read10X(data.dir = "Data/N1469")
+colnames(N1469.data) <- paste("N1469", colnames(N1469.data), sep="_")
+```
+
+We then create a Seurat object `N1469`.
+Genes expressed in less than 3 cells are removed.
+Cells with at least 200 detected genes are kept in the analysis.
+```{r SeuratObject}
+N1469 <- CreateSeuratObject(counts=N1469.data, project="N1469", min.cells=3, min.features=200)
+```
+
+## Quality control
+
+Quality control is essential for scRNA-seq analysis.
+Cells of low quality and genes of low expression shall be removed prior to the analysis.
+
+Two common measures of cell quality are the library size and the number of expressed genes in each cell.
+The number of unique genes and total molecules (library size) are automatically calculated during `CreateSeuratObject()`.
+Another measure to look at is the proportion of reads from mitochondrial genes in each cell.
+Cells with higher mitochondrial content are more prone to die, and hence should also be from the analysis [@ilicic2016classification].
+Here, we calculate the percentages of reads from mitochondrial genes and store them in the metadata of the Seurat object.
+We use the set of all genes starting with MT- as a set of mitochondrial genes.
+```{r MT}
+N1469[["percent.mt"]] <- PercentageFeatureSet(N1469, pattern = "^MT-")
+```
+
+The QC metrics of a Seurat object can be viewed as follows.
+```{r QCMetric}
+head(N1469@meta.data)
+```
+
+Scatter plots can be produced for visualizing some of the QC metrics.
+```{r QC_Scatter_plot, fig.cap="Scatter plots of QC metrics.", fig.height=4, fig.width=9}
+plot1 <- FeatureScatter(N1469, feature1 = "nCount_RNA", feature2 = "percent.mt", plot.cor=FALSE)
+plot2 <- FeatureScatter(N1469, feature1 = "nCount_RNA", feature2 = "nFeature_RNA", plot.cor=FALSE)
+plot1 + plot2
+```
+
+For this particular data, we filter cells that have unique feature less than 500 and with >20\% mitochondrial counts.
+```{r CellFilter}
+N1469 <- subset(N1469, subset = nFeature_RNA > 500 & percent.mt < 20)
+```
+
+## Normalization
+
+After cell filtering, the next step is normalization.
+Normalization is useful for removing cell-specific biases.
+
+Here, we perform the default normalization method in Seurat, which divides gene counts by the total counts for each cell, multiplies this by a scale factor of 10,000, and then log-transforms the result.
+```{r Normalization}
+N1469 <- NormalizeData(N1469)
+```
+
+## Highly variable genes
+
+Single cell RNA-seq data is often used for exploring heterogeneity within cell population.
+To reduce the computational complexity of downstream calculations and also to focus on the true biological signal, a subset of highly variable genes (HVGs) is often selected prior to downstream analyses.
+One of the most commonly used strategies is to take the top genes with the highest variances across all the cells.
+The choice of the number of HVGs is fairly arbitrary, with any value from 500 to 5000 considered reasonable.
+
+For this data, we select top 1500 HVGs to be used in downstream analyses such as PCA and UMAP visualization.
+```{r HVG}
+N1469 <- FindVariableFeatures(N1469, selection.method="vst", nfeatures=1500)
+```
+
+A mean-variance plot can be produced for visualizing the top variable genes.
+```{r HVG_plot, fig.cap="A mean-variance plot where top 1500 HVGs are highlighted in red and top 50 HVGs are labelled.", fig.height=5, fig.width=7}
+top50 <- head(VariableFeatures(N1469), 50)
+plot1 <- VariableFeaturePlot(N1469)
+plot2 <- LabelPoints(plot=plot1, points=top50, repel=TRUE)
+plot2
+```
+
+Before proceeding to dimensional reduction, we apply a linear transformation to "scale" the data.
+This data scaling is performed by the `ScaleData()` function, which standardizes the expression of each gene to have a mean expression of 0 and a variance of 1 across all the cells.
+This step gives equal weight to the genes used in downstream analyses so that highly-expressed genes do not dominate.
+
+By default, the scaling process is only applied to the previously identified 1500 HVGs as these HVGs are used for the downstream analyses.
+```{r Scaling}
+N1469 <- ScaleData(N1469)
+```
+
+## Dimensional reduction
+
+Dimensional reduction is an essential step in single cell analysis.
+It summarizes the variances of thousands of genes in a much lower numbers of dimensions, hence reduces computational work in downstream analyses.
+A simple, highly effective and widely used approach for linear dimensional reduction is principal components analysis (PCA).
+The top PCs would capture the dominant factors of heterogeneity in the data set. 
+
+Here, we perform PCA on the scaled data. 
+By default, only the previously determined 1500 HVGs are used and the first 50 PCs are computed and returned.
+The PCA results can be visualized in a PCA plot.
+```{r PCA, fig.cap="PCA plot showing the first two principal components of the data.", fig.height=5.5, fig.width=7}
+N1469 <- RunPCA(N1469, features=VariableFeatures(N1469))
+DimPlot(N1469, reduction = "pca")
+```
+
+Although PCA greatly reduces the dimension of the data from thousands of genes to 50 PCs, it is still difficult to visualize and interpret the 50 PCs at the same time.
+Therefore, further dimensionality reduction strategies are required to compress the data into 2-3 dimensions for a more intuitive understanding of the data.
+The two popular non-linear dimensional reduction techniques are _t_-stochastic neighbor embedding (tSNE) [@van2008visualizing] and uniform manifold approximation and projection (UMAP) [@mcinnes2018umap].
+
+It is debatable whether the UMAP or tSNE visualization is better. 
+UMAP tends to have more compact visual clusters but reduces resolution within each cluster. 
+The main reason that UMAP has an increasing popularity is that UMAP is much faster than tSNE. 
+Note that both UMAP and tSNE involve a series of randomization steps so setting the seed is critical.
+
+Here we perform both UMAP and tSNE for dimensional reduction and visualization.
+The top 30 PCs are used as input and a random seed is used for reproducibility.
+```{r DR_plot, fig.cap="UMAP and t-SNE visualization", fig.height=4, fig.width=9}
+dimUsed <- 30
+N1469 <- RunUMAP(N1469, dims=1:dimUsed, seed.use=2021, verbose=FALSE)
+N1469 <- RunTSNE(N1469, dims=1:dimUsed, seed.use=2021)
+plot1 <- DimPlot(N1469, reduction = "umap")
+plot2 <- DimPlot(N1469, reduction = "tsne")
+plot1 + plot2
+```
+
+
+## Cell clustering
+
+Cell clustering is a procedure in scRNA-seq data analysis to group cells with similar expression profiles.
+It is an important step for summarizing information and providing biological interpretation of the data.
+Seurat offers a graph-based clustering approach, which is one of the most popular clustering algorithms due to its flexibilty and scalability for large scRNA-seq datasets.
+
+One of the most commonly asked questions in cell clustering is "how many cell clusters are there in the data?"
+This question is often hard to answer since we can define as many clusters as we want.
+In fact, the number of clusters would depend on the biological questions of interest (eg. whether resolution of the major cell types will be sufficient or resolution of subtypes is required).
+In practice, we often experiment with different resolution in data exploration to obtain the "optimal" resolution that provides the best answer to the questions of our interest.
+
+In Seurat, the cell clustering procedure starts by constructing a KNN graph using the `FindNeighbors()` function.
+Here, we use the top 30 PCs as input.
+Then the Seurat `FindClusters()` function applies the Louvain algorithm (by default) to group cells together.
+For this particular data, we set the resolution parameter to 0.1.
+The final clusters can be found using the `Idents()` function.
+```{r Cluster}
+N1469 <- FindNeighbors(N1469, dims=1:dimUsed)
+N1469 <- FindClusters(N1469, resolution=0.1)
+table(Idents(N1469))
+```
+
+We can visualize the cell clusters in a UMAP plot.
+```{r UMAP, fig.cap="UMAP visualization where cells are coloured by cell cluster.", fig.height=6.5, fig.width=7.5}
+DimPlot(N1469, reduction = "umap", label = TRUE)
+```
+
+## Marker genes identification
+
+The next step after cell clustering is to identify marker genes that drive separation between the cell clusters.
+Marker genes are usually obtained by performing differential expression analyses between different clusters.
+In Seurat, the differential expression analysis is performed by the `FindMarkers()` function.
+By default, it identifies positive and negative markers of a single cluster (specified in `ident.1`), compared to all other cells.
+
+To increase the computational speed, the Seurat `FindMarkers()` function only performs DE tests on a subset of genes that satisfy certain thresholds.
+The `min.pct` argument requires a gene to be detected at a minimum percentage in either of the two groups of cells, and by default it is set to 10\%.
+The `logfc.threshold` limits testing to genes of which the log-fold change between the two groups is above a certain level (0.25 by default).
+By default the `FindMarkers()` function performs Wilcoxon Rank Sum tests, but other statistical tests (eg. likelihood-ratio test, _t_-test) are also available.
+
+Here we find all markers of cluster 1 as follows.
+```{r Markers1}
+cluster1.markers <- FindMarkers(N1469, ident.1 = 1, min.pct = 0.25)
+head(cluster1.markers)
+```
+
+To find all markers distinguishing cluster 2 from clusters 0 and 1, we use the following lines.
+```{r Markers2}
+cluster2.markers <- FindMarkers(N1469, ident.1 = 2, ident.2 = c(0, 1), min.pct = 0.25)
+head(cluster2.markers)
+```
+
+The Seurat `FindAllMarkers()` function automates the marker detection process for all clusters.
+Here we find markers for every cluster compared to all remaining cells, report only the positive ones.
+```{r AllMarkers}
+N1469.markers <- FindAllMarkers(N1469, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+```
+
+We select the top 3 marker genes for each of cluster and list them below.
+```{r TopMarkers}
+topMarkers <- split(N1469.markers, N1469.markers$cluster)
+top3 <- lapply(topMarkers, head, n=3)
+top3 <- do.call("rbind", top3)
+top3
+```
+
+The expression level of the top marker genes can be overlaid on the UMAP plots for visualization.
+```{r FeaturePlotMarkers, fig.cap="Top marker expression visualizations on a UMAP plot.", fig.height=15, fig.width=11}
+FeaturePlot(N1469, features = top3$gene, ncol=3)
+```
+
+A dot plot can also be produced for visualizing the top marker genes.
+```{r DotPlotMarkers, fig.cap="A dot plot of top marker genes of each cluster.", fig.height=4, fig.width=8}
+DotPlot(N1469, features = top3$gene, dot.scale = 8) + RotatedAxis()
+```
+
+## Cell type annotation
+
+Interpreting cell clusters in biological context is one of the most challenging tasks in scRNA-seq data analysis.
+Prior biological knowledge is often required to do so.
+Marker genes from the literatures or the curated gene sets (e.g., Gene Ontology, KEGG pathways) are the common sources of prior information.
+Alternatively, we can use published reference datasets where samples are well annotated with cell type information.
+
+Here we use a reference bulk RNA-seq dataset of human mammary gland epithelium from the same study [@pal2021scrnaseqatlas].
+This reference RNA-seq (GSE161892) data consists of a total of 34 samples from basal, luminal progenitor (LP), mature luminal (ML), and stromal cell types.
+Differential expression analysis of this reference data was performed using limma-voom and TREAT [@law2014voom; @mccarthy2009testing]. 
+Genes were considered cell type-specific if they were upregulated in one cell type vs all other types. 
+This yielded 515, 323, 765, and 1094 signature genes for basal, LP, ML, and stroma, respectively.
+
+Here we download those signature genes and load them into R.
+```{r HumanSig, eval=TRUE}
+url.Signatures <- "https://github.com/SmythLab/scRNAseq-Workshop/raw/main/Data/Human-PosSigGenes.RData"
+utils::download.file(url.Signatures, destfile="Data/Human-PosSigGenes.RData", mode="wb") 
+```
+
+We restrict the signature genes to those expressed in the single cell data.
+```{r LoadSig}
+load("Data/Human-PosSigGenes.RData")
+HumanSig <- list(Basal=Basal, LP=LP, ML=ML, Str=Str)
+HumanSig <- lapply(HumanSig, intersect, rownames(N1469))
+```
+
+To associate each cell in the single cell data with the four cell populations in the reference bulk data, we compute the signature scores of the four cell populations for each cell.
+Here the signature score of a particular cell type is defined as the average expression level of the cell type-specific genes in a given cell.
+```{r SigScores}
+SigScore <- list()
+for(i in 1:length(HumanSig)){
+    SigScore[[i]] <- colMeans(N1469@assays$RNA@data[HumanSig[[i]], ])
+}
+```
+
+We can visualize the signature scores in both UMAP plots and violin plots.
+```{r AddMetaData}
+SigScores <- do.call("cbind", SigScore)
+colnames(SigScores) <- c("Basal", "LP", "ML", "Stroma")
+N1469@meta.data <- cbind(N1469@meta.data, SigScores)
+```
+```{r SigScorePlot, fig.cap="Signature scores.", fig.height=8.5, fig.width=10}
+FeaturePlot(N1469, features = colnames(SigScores))
+```
+```{r SigScoreViolinPlot, fig.cap="Violin plots of signature scores.", fig.height=8, fig.width=11}
+VlnPlot(N1469, features = colnames(SigScores), ncol=2, pt.size=0.1)
+```
+It can be seen that cells in cluster 2 have high expression levels of basal signature genes, suggesting these cells are likely to be basal cells.
+Likewise, cluster 0 and 4 are LP, cluster 1 is ML and cluster 3 is stroma. 
+
+Another way to visualize the correlation between the single cell and the reference bulk dataset is to make a ternary plot, which is useful for studies concerning three major cell populations.
+For this data, we are particularly interested in assigning each cell to one of the three major epithelial cell populations (basal, LP and ML).
+
+We produce a ternary plot to see which of the three populations the cells are closer to.
+To measure the similarity between each cell and three populations, we count the numbers of expressed signatures (with at least 1 count) in each cell.
+The position of each cell on the ternary plot is determined by the numbers of expressed gene signatures of the three populations in that cell.
+```{r TernaryPlot, fig.cap="Ternary plot positioning each cell according to the proportion of basal, LP, or ML signature genes expressed by that cell.", fig.height=5.5, fig.width=5.5}
+TN <- matrix(0L, ncol(N1469), 3L)
+colnames(TN) <- c("LP", "ML", "Basal")
+for(i in colnames(TN)){
+    TN[, i] <- colSums(N1469@assays$RNA@counts[HumanSig[[i]], ] > 0L)
+}
+library(vcd)
+col.p <- scales::hue_pal()(nlevels(Idents(N1469)))
+ternaryplot(TN, cex=0.2, pch=16, col=col.p[Idents(N1469)], grid=TRUE)
+```
+
+
+# Integration analysis
+
+## Batch effects
+
+Comprehensive single cell RNA-seq experiments usually consist of multiple samples, which may be collected and prepared at different times, by different operators or with different reagents.
+These inconsistencies are referred to as "batch effects" and they often lead to systematic differences in the expression profiles of the scRNA-seq data.
+Batch effects can be problematic as they distort the genuine biological differences and may mislead the interpretation of the data.
+Therefore, integration methods that adjust for "batch effects" are highly essential in multi-sample single cell RNA-seq analysis.
+
+Here, we will demonstrate how to perform an integration analysis in Seurat.
+
+## Read in the data
+
+We use 10X single cell RNA-seq profiles of normal epithelial cells from four individual human.
+We first read in the raw data of all four samples for the integration analysis.
+```{r ReadAll, eval=TRUE}
+Samples <- c("N1469", "N0280", "N0230", "N0123")
+RawData <- list()
+RawData[[1]] <- N1469.data
+for(i in 2:length(Samples)) {
+    RawData[[i]] <- Read10X(data.dir = paste0("Data/", Samples[i]))
+    colnames(RawData[[i]]) <- paste(Samples[i], colnames(RawData[[i]]), sep="_")
+}
+names(RawData) <- Samples
+```
+
+Then we create a list of four Seurat objects (one for each human sample).
+The same cell filtering criteria is applied to all the samples. 
+```{r SeuratList, eval=TRUE}
+SeuratList <- list()
+for(i in 1:length(Samples)){
+	SeuratList[[i]] <- CreateSeuratObject(counts=RawData[[i]], project=Samples[i], min.cells=3, min.features=200)
+	SeuratList[[i]][["percent.mt"]] <- PercentageFeatureSet(SeuratList[[i]], pattern = "^MT-")
+	SeuratList[[i]] <- subset(SeuratList[[i]], subset = nFeature_RNA > 500 & percent.mt < 20)
+}
+```
+
+We perform all the pre-processing steps (normalization and defining HVGs) for each individual sample.
+We skip the data scaling as all the samples will be automatically scaled in the integration step.
+```{r Preprocessing, eval=TRUE}
+SeuratList <- lapply(SeuratList, NormalizeData)
+SeuratList <- lapply(SeuratList, FindVariableFeatures, selection.method="vst", nfeatures=1500)
+names(SeuratList) <- Samples
+```
+
+## Data integration
+
+Seurat implements an anchor-based method for integrating multiple single cell RNA-seq samples.
+The method first identifies pairs of cells between different samples ("anchors") that are in a matched biological state.
+These "anchors" are then used to harmonize datasets into a single reference, of which the labels and data can be projected onto query datasets [@stuart2019comprehensive].
+
+We identify anchors using the `FindIntegrationAnchors()` function, which takes a list of Seurat objects as input.
+```{r Anchor, eval=TRUE}
+Anchors <- FindIntegrationAnchors(SeuratList)
+```
+
+We then use these anchors to integrate the four datasets together with `IntegrateData()`.
+This step creates an `integrated` data assay.
+```{r Integrate, eval=TRUE}
+NormEpi <- IntegrateData(Anchors)
+```
+
+Now we can run a single integrated analysis on all cells.
+The downstream analysis will be performed on corrected data (the `integrated` data assay).
+The original unmodified data still resides in the `RNA` assay.
+
+## Dimensional reduction
+
+The dimensional reduction step for the integrated data is the same as for a single sample.
+We first scale the data.
+```{r Scale_ALL}
+NormEpi <- ScaleData(NormEpi, verbose=FALSE)
+```
+
+Then we perform dimensional reduction (PCA and UMAP) for the integrated data.
+The UMAP visualization of the integrated data is shown below.
+```{r UMAP_Sample, fig.cap="UMAP visualization of the integrated data where cells are coloured by patient.", fig.height=7, fig.width=8}
+dimUsed <- 30
+NormEpi <- RunPCA(NormEpi, npcs=dimUsed, verbose=FALSE)
+NormEpi <- RunUMAP(NormEpi, dims=1:dimUsed, seed.use=2021)
+DimPlot(NormEpi, reduction = "umap", group.by="orig.ident")
+```
+From the UMAP it can be seen that cells are not clustered by sample, indicating the batch effects between different samples have been removed.
+It is also noticable that each of the big clusters contains a mixture of cells from different samples, suggesting these four samples share a similar cell type composition.
+
+## Cell clustering
+
+We then proceed to cell clustering of the integrated data, which is done in the same way as before.
+```{r Cluster_All}
+NormEpi <- FindNeighbors(NormEpi, dims=1:dimUsed)
+NormEpi <- FindClusters(NormEpi, resolution=0.1)
+table(Idents(NormEpi))
+```
+
+The clustering results are shown in the UMAP plot below.
+```{r UMAP_Cluster, fig.cap="UMAP visualization of the integrated data where cells are coloured by cluster.", fig.height=7, fig.width=8}
+DimPlot(NormEpi, reduction = "umap", label=TRUE)
+```
+
+## Cell type annotation
+
+The same human reference data is used for cell type annotation.
+The signature scores of the four cell populations are calculated for each cell in the integrated data.
+```{r LoadSig2}
+HumanSig2 <- list(Basal=Basal, LP=LP, ML=ML, Str=Str)
+HumanSig2 <- lapply(HumanSig2, intersect, rownames(NormEpi))
+```
+```{r SigScores2}
+SigScore2 <- list()
+for(i in 1:length(HumanSig2)){
+    SigScore2[[i]] <- colMeans(NormEpi@assays$RNA@data[HumanSig2[[i]], ])
+}
+```
+```{r AddMetaData2}
+SigScores2 <- do.call("cbind", SigScore2)
+colnames(SigScores2) <- c("Basal", "LP", "ML", "Stroma")
+NormEpi@meta.data <- cbind(NormEpi@meta.data, SigScores2)
+```
+
+We then produce feature plots and violin plots to visualize the signature scores.
+```{r SigScorePlot2, fig.cap="Signature scores for the integrated data.", fig.height=8.5, fig.width=10}
+FeaturePlot(NormEpi, features = colnames(SigScores2))
+```
+```{r SigScoreViolinPlot2, fig.cap="Violin plots of signature scores for the integrated data.", fig.height=8, fig.width=11}
+VlnPlot(NormEpi, features = colnames(SigScores2), ncol=2, pt.size=0.1)
+```
+It can be seen that cells in cluster 2 have high expression levels of basal signature genes, suggesting these cells are likely to be basal cells.
+Likewise, cluster 0 and 4 are LP or LP-like, cluster 1 is ML, and cluster 3 is stroma. 
+
+A ternary plot can also be generated in the same way to examine the correlation between the cells and the three major epithelial populations.
+```{r TernaryPlot2, fig.cap="Ternary plot positioning each cell according to the proportion of basal, LP, or ML signature genes expressed by that cell.", fig.height=6, fig.width=6}
+TN2 <- matrix(0L, ncol(NormEpi), 3L)
+colnames(TN2) <- c("LP", "ML", "Basal")
+for(i in colnames(TN2)){
+    TN2[, i] <- colSums(NormEpi@assays$RNA@counts[HumanSig2[[i]], ] > 0L)
+}
+col.p <- scales::hue_pal()(nlevels(Idents(NormEpi)))
+ternaryplot(TN2, cex=0.2, pch=16, col=col.p[Idents(NormEpi)], grid=TRUE)
+```
+
+
+# Differential expression analysis by pseudo-bulk
+
+## Biological variation
+
+In RNA-seq experiments with replicate samples, biological variation represents the variation of the underlying gene abundances between the replicates.
+Accounting for biological variation is crucial in RNA-seq DE analysis.
+Many statistically rigorous methods and software packages have been developed for estimating biological variation and incorporating it into the DE analysis (e.g., edgeR, limma, DESeq2 etc.).
+
+For single cell RNA-seq experiments with biological replicates, one should also take into account the biological variation between different replicate samples where cells are obtained.
+However, applying bulk RNA-seq DE methods directly to single cell RNA-seq data is not appropriate as each cell is not independent biological replicate.
+One of the commonly used methods to account for biological variation between replicates is the "pseudo-bulk" approach, where read counts from all cells with the same combination of label (e.g., cluster) and sample are summed together [@tung2017batch].
+
+## Creating pseudo-bulk samples
+
+We first extract the cluster and sample information from the integrated Seurat object and combine them together.
+The numbers of cells under different combinations of cell cluster and sample are shown below.
+```{r SampClustID}
+sampID <- NormEpi@meta.data$orig.ident
+clustID <- Idents(NormEpi)
+sampClust <- paste(sampID, clustID, sep="_Clst")
+table(sampClust)
+```
+
+We then form pseudo-bulk samples by aggregating the read counts for each gene by cluster-sample combination.
+```{r Aggregate}
+rawCounts <- as.matrix(NormEpi@assays$RNA@counts)
+counts <- t(rowsum(t(rawCounts), group=sampClust))
+```
+
+We create a `DGEList` object using the pseudo-bulk samples and proceed to the edgeR DE analysis pipeline [@chen2016reads].
+```{r edgeR}
+library(edgeR)
+y <- DGEList(counts)
+y$samples$group <- as.factor(gsub("^.*_Clst", "", colnames(y)))
+y$samples$Patient <- factor(gsub("_.*$", "", colnames(y)), level=Samples)
+```
+
+## Filtering
+
+The library size (total number of reads) of each pseudo-bulk sample highly depends on the number of cells in that sample.
+We remove the samples with library size less than 50,000.
+```{r edgeR_Filtering}
+keep.sample <- y$samples$lib.size > 5e4
+table(keep.sample)
+y <- y[,keep.sample]
+```
+
+The gene filtering is performed by the `filterByExpr` function in edgeR.
+```{r edgeR_Filtering2}
+keep.gene <- filterByExpr(y)
+table(keep.gene)
+y <- y[keep.gene,,keep=FALSE]
+```
+
+## Normalization
+
+We perform TMM normalization [@robinson2010scaling] to adjust for the compositional biases between the samples.
+The normalization factors are listed below.
+```{r TMM}
+y <- calcNormFactors(y)
+y$samples
+```
+
+## Data exploration
+
+We produce an MDS plot to visualize the relationship between all the pseudo-bulk samples.
+```{r MDS, fig.cap="MDS plots of the pseudo-bulk samples.", fig.height=5.5, fig.width=11}
+Cluster <- factor(y$samples$group)
+Patient <- y$samples$Patient
+par(mfrow=c(1,2))
+plotMDS(y, pch=16, col=col.p[Cluster], main="By cluster")
+legend("bottomright", legend=paste("Cluster", levels(Cluster)), pch=16, col=col.p)
+plotMDS(y, pch=16, col=Patient, main="By sample")
+legend("bottomright", legend=levels(Patient), pch=16, col=1:5)
+```
+From the MDS plot it can be seen that the pseudo-bulk samples are grouped by cluster defined at the single cell level.
+We also notice that the pseudo-bulk samples from luminal (cluster 0, 1 and 4), basal (cluster 2) and stroma (cluster 3) are separated in the first dimension.
+The three luminal cell populations (cluster 0, 1 and 4) are separated from each other in the second dimension.
+
+We use the cluster and sample information to create a design matrix as follows.
+```{r design}
+design <- model.matrix(~ 0 + Cluster + Patient)
+colnames(design)
+```
+
+## Dispersion estimation
+
+We estimate negative binomial dispersions and quasi-likelihood dispersions as follows.
+```{r dispersion}
+y <- estimateDisp(y, design)
+fit <- glmQLFit(y, design)
+```
+
+The dispersions can be examined in the following plots.
+```{r plotDisp, fig.cap="edgeR BCV and quasi-likelihood dispersion plots.", fig.height=5.5, fig.width=11}
+par(mfrow=c(1,2))
+plotBCV(y)
+plotQLDisp(fit)
+```
+
+## Differential expression
+
+For the differential expression analysis, we are particularly interested in the genes that are up-regulated in each cluster compared with all the other clusters.
+Therefore, we create a contrast matrix as follows.
+Each column of the matrix represents a testing constrast that compares one cluster with the average of all the other clusters.
+```{r contrast}
+ncls <- nlevels(Idents(NormEpi))
+contr <- rbind( matrix(1/(1-ncls), ncls, ncls),
+                matrix(0, ncol(design)-ncls, ncls) )
+diag(contr) <- 1
+rownames(contr) <- colnames(design)
+colnames(contr) <- paste0("Cluster", levels(Idents(NormEpi)))
+contr
+```
+
+We then perform quasi-likelihood F-test under each contrast.
+In order to focus on genes with strong DE signal, we test for the differences above a fold-change threshold of 1.3.
+This is done by calling the `glmTreat` function in edgeR.
+The results of all the tests are stored as a list of `DGELRT` objects.
+```{r DETest}
+test <- list()
+for(i in 1:ncls) test[[i]] <- glmTreat(fit, contrast=contr[,i], lfc=log2(1.3))
+names(test) <- colnames(contr)
+```
+
+The number of DE genes under each comparison can be viewed by the `decideTestsDGE` function.
+```{r decideTest}
+dtest <- lapply(lapply(test, decideTestsDGE), summary)
+dtest <- do.call("cbind", dtest)
+colnames(dtest) <- colnames(contr)
+dtest
+```
+
+We can view the top DE results using the `topTags` function.
+For example, to see the top 20 DE genes of cluster 2 vs all the other clusters, we use the following line.
+```{r topTags_cluster2}
+topTags(test$Cluster2, n=20L)
+```
+
+We can extract the top 15 marker genes (up-regulated only) of each cluster as follows.
+```{r topMarkersPB}
+top <- 15
+pseudoMakers <- list()
+for(i in 1:ncls) {
+    res <- test[[i]]$table
+    ord <- order(log(res$PValue)*sign(res$logFC))
+    pseudoMakers[[i]] <- rownames(y)[ord[1:top]]
+}
+Markers <- unlist(pseudoMakers)
+Markers <- Markers[!duplicated(Markers)]
+```
+
+Then we create a heatmap using `pheatmap` for those top marker genes.
+The standardized log-CPM values of the marker genes are used for the expression levels on the heatmap.
+Genes and samples on the heatmap are reordered by the Ward method of hierarchical clustering, which correctly groups samples by cell cluster.
+```{r HeatmapPB, fig.cap="Heat map of the top marker genes.", fig.height=11, fig.width=7.5}
+library(pheatmap)
+lcpm <- cpm(y, log=TRUE)
+expr <- t(scale(t(lcpm[Markers, ])))
+annot <- data.frame(Cluster=paste0("Cluster ", Cluster), Patient=Patient)
+rownames(annot) <- colnames(expr)
+ann_colors <- list(Cluster=col.p[1:ncls], Patient=col.p[1:length(Samples)])
+names(ann_colors$Cluster) <- paste0("Cluster ", levels(Idents(NormEpi)))
+names(ann_colors$Patient) <- Samples
+pheatmap(expr, color=colorRampPalette(c("blue","white","red"))(100), border_color="NA",
+    breaks=seq(-2,2,length.out=101), cluster_cols=TRUE, scale="none", fontsize_row=7,
+    show_colnames=FALSE, treeheight_row=70, treeheight_col=70, cutree_cols=ncls,
+    clustering_method="ward.D2", annotation_col=annot, annotation_colors=ann_colors)
+```
+
+
+# Session info
+
+```{r}
+sessionInfo()
+```
+
+# References

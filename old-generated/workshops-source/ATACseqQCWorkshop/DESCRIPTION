@@ -1,0 +1,53 @@
+Package: ATACseqQCWorkshop
+Title: Best practices for ATAC-seq QC and data analysis
+Version: 0.1.0
+Authors@R: 
+    c(person(given = "Haibo",
+           family = "Liu",
+           role = c("aut", "cre"),
+           email = "haibo.liu@umassmed.edu"),
+    person(given = "Jianhong",
+            family = "Ou",
+            role = c("aut"),
+            email = "jianhong.ou@duke.edu"),
+    person(given = "Kai",
+            family = "Hu",
+            role = c("aut"),
+            email = "Kai.Hu@umassmed.edu"),
+    person(given = "Lihua",
+            family = "Zhu",
+            role = c("aut"),
+            email = "Julie.Zhu@umassmed.edu"))
+Description: ATAC-seq, an assay for Transposase-Accessible Chromatin
+    using sequencing, is a rapid and sensitive method for chromatin
+    accessibility analysis. Compared to other methods, such as 
+    MNase-seq, FAIRE-seq and DNAse-seq, ATAC-seq requires less 
+    biological materials and time to process. In this workshop, 
+    participants will not only gain the theoretical understanding of
+    the characteristics of ATAC-seq data and the workflow of ATAC-seq
+    data quality assessment, but will also obtain hands-on experience
+    in analyzing ATAC-seq data using the ATACseqQC package. We will
+    provide a brief introduction to the ATAC-seq technology, high
+    quality data generation and computational analysis workflow. Then, 
+    we will give a demo to perform a comprehensive quality assessment
+    of a typical ATAC-seq dataset using the ATACseqQC package. Participants 
+    will have the opportunity to analyze several excerpted datasets of 
+    different quality. Detailed notes and R code will be provided for
+    reproducibility and follow-up practicing.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: R (>= 4.0), ATACseqQC, Biobase
+Suggests: knitr, rmarkdown, pkgdown, BiocGenerics, S4Vectors, BSgenome, Biostrings,
+    ChIPpeakAnno, IRanges, GenomicRanges, GenomicAlignments, GenomeInfoDb, 
+    GenomicScores, graphics, grid, limma, Rsamtools (>= 1.31.2), randomForest,
+    rtracklayer, stats, motifStack, preseqR, utils, KernSmooth, edgeR, BiocStyle,
+    BSgenome.Hsapiens.UCSC.hg38,TxDb.Hsapiens.UCSC.hg38.knownGene, 
+    BSgenome.Hsapiens.UCSC.hg19, TxDb.Hsapiens.UCSC.hg19.knownGene, 
+    MotifDb, trackViewer, SRAdb, png, jpeg
+URL: https://haibol2016.github.io/ATACseqQCWorkshop/
+BugReports: https://github.com/haibol2016/ATACseqQCWorkshop/issues/new/choose
+VignetteBuilder: knitr
+DockerImage: nemat1976/atacseqqcworkshop_2020:latest

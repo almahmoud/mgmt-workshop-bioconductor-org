@@ -1,0 +1,9 @@
+^LICENSE\.md$
+^Makefile$
+^README\.Rmd$
+^\.$
+^docs$
+^pkgdown$
+^_pkgdown\.yml$
+.github
+Dockerfile

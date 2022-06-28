@@ -1,0 +1,471 @@
+---
+output:
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_depth: 3
+    fig_width: 5
+vignette: >
+  %\VignetteIndexEntry{Bioc2020RCWL-1}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding[utf8]{inputenc}
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+# Connecting Bioconductor to other bioinformatics tools using `Rcwl`
+
+## Instructor(s) name(s) and contact information
+
+* [Qian Liu](https://github.com/liubuntu) (Qian.Liu@roswellpark.org)
+* [Qiang Hu](https://github.com/hubentu) (Qiang.Hu@roswellpark.org)
+
+## Workshop Description
+
+This workshop introduces the Bioconductor toolchain for usage and
+development of reproducible bioinformatics pipelines using packages of
+`Rcwl` and `RcwlPipelines`. The Common Workflow Language (CWL) is an
+open standard for the development of data analysis workflows that is
+portable and scalable across different tools and working
+environments. `Rcwl` provides a simple way to wrap command line tools
+and build CWL data analysis pipelines programmatically within R. It
+increases the ease of use, development, and maintenance of CWL
+pipelines, and offers a higher performance by intuitively supporting
+parallel work with high performance computing (HPC). More than a
+hundred of pre-built and tested CWL tool/pipeline recipes are included
+in `RcwlPipelines` package. These tools and pipelines are highly
+modularized for easy customization of complex bioinformatics
+analysis. Here we included a scRNAseq preprocessing pipeline that uses
+`STARsolo` for alignment and quantification, and `DropletUtils` for
+filtering raw gene-barcode matrix and removing empty droplets. This
+pipeline demonstrates the typical use case of our packages. More
+details for usage and examples are available on Rcwl website:
+https://hubentu.github.io/Rcwl/.
+
+
+## Pre-requisites
+
+- Basic knowledge of using R and Bioconductor packages
+- Basic familiarity with running command-line tools
+- No prior experience with CWL is necessary!
+
+## Workshop Participation
+
+Participants will be able to try out all of the functionality
+described. Active user participation throughout the event is highly
+encouraged including but not limited to lecture material, hands-on
+sections and final discussion.
+
+Some basic ideas about how CWL works.
+* https://www.commonwl.org/user_guide/
+
+## _R_ / _Bioconductor_ packages used
+
+* [`Rcwl`](https://bioconductor.org/packages/Rcwl/)
+* [`RcwlPipelines`](https://bioconductor.org/packages/RcwlPipelines/)
+
+System dependencies
+* [cwltool](https://github.com/common-workflow-language/cwltool)
+* [docker](https://docs.docker.com/get-docker/)
+
+## Time outline
+
+| Activity                                                      | Time |
+|---------------------------------------------------------------|------|
+| Overview of bioinformatics pipelines and CWL (ppt)            | 10 min |
+| Use core functions to update, search and load tools/pipelines | 5 min  |
+| Use single cell indexing tool `STARindex`                     | 5 min |
+| Use single cell alignment tool `STARsolo`                     | 5 min  |
+| Use single cell filtering tool `DropletUtils`                 | 5 min  |
+| Use single cell preprocessing pipeline `STARsoloDropletUtils` | 5 min  |
+| Wrap command line tools using `Rcwl`                          | 0m (developers only) |
+| Customize your pipelines using `Rcwl`                         | 0m (developers only) |
+
+## Workshop goals and objectives
+
+### Learning goals
+
+* Basic knowledge of Common Workflow Language (CWL)
+* Knowledge of R/Bioconductor interface of CWL
+* Usage of the pre-built bioinformatics tools and pipelines in _R_
+* Understand how to wrap command line tools with `Rcwl` (developers only)
+* Understand how to build bioinformatics pipelines with `Rcwl` (developers only)
+
+### Learning objectives
+
+* Run the scRNA-seq indexing tool `STARindex` in _R_
+* Run the scRNA-seq alignment tool `STARsolo` in _R_
+* Run the scRNA-seq QC tool `DropletUtils` in _R_
+* Run the scRNA-seq preprocessing pipeline which combines alignment and QC steps in _R_
+* Create a basic echo tool using `Rcwl` (developers only)
+* Build a basic DNAseq pipeline using `RCWL` (developers only) 
+
+## Introduction to Rcwl & RcwlPipelines
+
+Please see details in the slides. 
+
+## single cell RNA sequencing data 
+
+### Data resources
+
+We have prepared all the files needed in this workshop. By initiating
+the docker image for this workshop, you should already have it
+available in the filepath (`path`) below. We have also mounted your
+local working directory to this rstudio session (`outpath`) to store
+the intermediate or result files from running the examples.
+
+```{r}
+path <- "~/inst/testdata"  ## source data
+outpath <- "~/outdir"      ## output files
+dir.create(outpath, showWarnings = FALSE)
+```
+
+The single cell data resource we are using today is the 1k PBMCs from
+10x genomics, which consists of 1000 Peripheral blood mononuclear cells
+(PBMCs) extracted from a healthy donor, where PBMCs are primary cells
+with relatively small amounts of RNA (~1pg RNA/cell).
+
+The source material consists of 6 FASTQ files split into two
+sequencing lanes L001 and L002, each with three reads of R1
+(barcodes), R2 (cDNA sequences), I1 (illumina lane infold).  10x
+Genomics has its own processing pipeline, `Cell Ranger` to process the
+scRNA-seq outputs it produces (and requires many configurations to run
+and is significantly slower than other mappers), which requires all
+three files to perform the demultiplexing and quantification, but
+`STARsolo` does not require the I1 lane file to perform the
+analysis. The source files can be found
+[here](https://zenodo.org/record/3457880#.XxLjOvhKjvU).
+
+For this tutorial, we will use datasets sub-sampled from the source
+files to contain only 15 cells instead of 1000. We have also further
+curated the data to only include reads on chromosome 21, so that the
+real execution of our CWL tools/pipelines in _R_ can be done within
+1~2 minutes for each step. 
+
+```
+subset15_chr21_pbmc_1k_v3_S1_L001_R1_001.fastq.gz
+subset15_chr21_pbmc_1k_v3_S1_L001_R2_001.fastq.gz
+subset15_chr21_pbmc_1k_v3_S1_L002_R1_001.fastq.gz
+subset15_chr21_pbmc_1k_v3_S1_L002_R2_001.fastq.gz
+```
+
+For the mapping, we need a “whitelist” of known cell barcodes. Here we
+used the 15 barcodes that we already subsetted. The original 737,000
+barcodes can be freely extracted from the [Cell Ranger
+pipeline](https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-whitelist).
+
+```
+subset15_demo_barcode.txt
+```
+
+The barcodes in the R1 FASTQ data are checked against these known cell
+barcodes in order to assign a specific read to a specific known
+cell. The barcodes are designed in such a manner that there is
+virtually no chance that they will align to a place in the reference
+genome. 
+
+In this tutorial, we will be using the hg19 (GRCh37) version of the
+human genome, and will therefore also need to use a hg19 GTF file to
+annotate our reads (on chromosome 21 only for this demo).
+
+```
+chr21.fa
+Homo_sapiens.GRCh37.75.21.gtf
+```
+
+### `Rcwl` version of scRNA-seq preprocessing steps
+
+In this tutorial, we are basically trying to reproduce the [GALAXY
+pipeline](https://galaxyproject.github.io/training-material/topics/transcriptomics/tutorials/scrna-preprocessing-tenx/tutorial.html#producing-a-count-matrix-from-fastq)
+for scRNA-seq data pre-processing. We will use `STARsolo` to produce a
+count matrix from FASTQ, and `DropletUtils` to produce a high-quality
+count matrix with feature/cell annotation files saved in an R object
+of `SingleCellExperiment`. Before these 2 steps, we have also added a
+one-time indexing step in our workshop.
+
+With `Rcwl`, we can easily write cwl tools and pipelines
+programmatically in _R_ (the other vignette called
+"Bioc2020RCWL4devel" covers more of this topic for developers). We
+have pre-built and tested more than a hundred of tools/pipelines which
+can be loaded using `RcwlPipelines` (tools and pipelines developing
+scripts can be found here:
+https://github.com/hubentu/RcwlRecipes/tree/master/Rcwl). 
+
+For usage of the existing tools/pipelines, Three major steps are
+needed: 1) Search and load the tools/pipelines, 2) assign values for
+each of the defined parameters, 3) execute the tools/pipelines. All
+steps are done programmatically in _R_, and then we can get the
+results ready in the user-specified directory.
+
+#### Loading the tools
+
+Here we show the usage of 3 core functions: `cwlUpdate`, `cwlSearch`
+and `cwlLoad` for updating, searching, and loading the needed tools
+or pipelines in _R_.
+
+- `cwlUpdate`
+
+The `cwlUpdate` syncs the current `Rcwl` recipes and return a
+`BiocFileCache` object which contains the most updated Rcwl recipes.
+
+```{r}
+library(Rcwl)
+library(RcwlPipelines)
+```
+
+```{r}
+atls <- cwlUpdate()  ## sync the tools/pipelines
+atls
+```
+
+the `bfcinfo()` function returns a BiocFileCache tibble containing all
+information about each available tool or pipeline. Currently, we have
+integrated 103 command line tools and 26 pipelines.
+
+```{r}
+bfcinfo(atls)
+table(bfcinfo(atls)$Type)
+```
+
+- `cwlSearch`
+
+We can use (multiple) keywords to search for any specific tools/pipelines of
+interest, which internally search the keywords against the
+BiocFileCache tibble in columns of "rname", "rpath", "fpath",
+"Command" and "Containers". 
+
+```{r}
+tls <- cwlSearch(c("STAR", "index"))
+data.frame(tls)
+```
+
+- `cwlLoad`
+
+The last core function is `cwlLoad` which sources the `Rcwl` script
+for the interested tool/pipeline into the _R_ working environment.
+
+```{r}
+cwlLoad(tls$rname[2])  ## "tl_STARindex"
+cwlLoad(tls$fpath[2])  ## equivalent to the above. 
+STARindex
+```
+
+Now the Rcwl version of `STARindex` is successfully loaded into _R_
+and ready to use. 
+
+#### Indexing
+
+Before the alignment and QC in the aboved mentioned GALAXY pipeline,
+we will add an indexing step using the tool `STARindex`. The command
+line for indexing looks like this:
+
+```
+$ STAR --runMode genomeGenerate --runThreadN 4 --genomeDir STARindex 
+--genomeFastaFiles chr21.fa --sjdbGTFfile Homo_sapiens.GRCh37.75.21.gtf
+```
+
+Using the `Rcwl` version of `STARindex`, we can equivalently do the
+same indexing within _R_ which was internally passed as a cwl
+script. What we need to do is assign values for the input parameters,
+and execute the cwl script using `runCWL` function.
+
+```{r} 
+cwlVersion(STARindex)
+inputs(STARindex)
+outputs(STARindex)
+requirements(STARindex)
+```
+
+Now let's assign values for these parameters. 
+
+```{r, eval=FALSE}
+inputs(STARindex)
+STARindex$genomeFastaFiles <- file.path(path, "chr21.fa")
+STARindex$sjdbGTFfile <- file.path(path, "Homo_sapiens.GRCh37.75.21.gtf")
+STARindex  ## values (filepatt) are added
+writeCWL(STARindex, prefix = file.path(outpath, "STARindex"))  ## 2 files .cwl/.yml 
+```
+
+The `runCWL(docker = )` takes 3 values: 
+- TRUE: on the HPC, runtime is docker, and will pull docker images for
+  the required command line tools.
+- FALSE: on your local computer, with all command line tools pre-installed. 
+- "singularity": On the HPC, runtime is singularity. 
+
+```{r, eval=FALSE}
+system.time(
+    runCWL(cwl = STARindex, outdir = file.path(outpath, "STARindex_output"),
+           docker = FALSE, showLog = TRUE)
+    ) ## elapsed: 74.795S
+dir(file.path(outpath, "STARindex_output"), recursive = TRUE)
+```
+
+Now that the output files are generated in the folder of
+"STARindex_output/STARindex" under `outpath`. These output files are
+ready to pass as input to the next tool for single cell read
+alignment.
+
+#### Alignment
+
+To align single cell reads using `STAR`, it can be done directly in
+command line:
+
+```
+$ STAR --soloType CB_UMI_Simple --genomeDir STARindex_output/STARindex --soloCBwhitelist subset15_demo_barcode.txt --soloUMIlen 12 --readFilesIn subset15_chr21_pbmc_1k_v3_S1_L001_R2_001.fastq.gz,subset15_chr21_pbmc_1k_v3_S1_L002_R2_001.fastq.gz subset15_chr21_pbmc_1k_v3_S1_L001_R1_001.fastq.gz,subset15_chr21_pbmc_1k_v3_S1_L002_R1_001.fastq.gz --soloUMIfiltering MultiGeneUMI --soloCBmatchWLtype 1MM_multi_pseudocounts --readFilesCommand gzcat --runThreadN 1
+```
+
+Now we can follow the previous example to load our `Rcwl` version of
+`STARsolo` and run the command in _R_.
+
+```{r}
+STARsolo <- cwlLoad("tl_STARsolo")  ## "tl_STARsolo"
+STARsolo
+inputs(STARsolo)
+```
+```{r, eval=FALSE}
+cdna.fastq <- file.path(path, list.files(path, pattern = "_R2_"))
+cb.fastq <- file.path(path, list.files(path, pattern = "_R1_"))
+cblist <- file.path(path, "subset15_demo_barcode.txt")
+genomeDir <- file.path(outpath, "STARindex_output/STARindex")
+
+STARsolo$readFilesIn_cdna <- cdna.fastq
+STARsolo$readFilesIn_cb <- cb.fastq
+STARsolo$whiteList <- cblist
+STARsolo$genomeDir <- genomeDir
+STARsolo
+writeCWL(STARsolo, prefix = file.path(outpath, "STARsolo"))
+```
+
+```{r, eval=FALSE}
+runCWL(STARsolo, outdir = file.path(outpath, "STARsolo_output"),
+       docker = FALSE, showLog = TRUE)  ## approximately 2 mins
+dir(file.path(outpath, "STARsolo_output"), recursive = TRUE)
+```     
+
+Now we have all files generated in the "STARsolo_output" folder under
+`outpath`, which can be passed into the next tool.
+
+#### `DropletUtils`
+
+To get a high quality count matrix we must apply the `DropletUtils`
+tool, which will produce a filtered dataset that is more
+representative of the Cell Ranger pipeline.
+
+Since CWL itself doesn't support the integration of _R_ packages or
+_R_ function, this is a unique feature for `Rcwl`, where we can easily
+connect the upstream data preprocessing steps (previously based on
+command line tools) and the downstream data analysis steps (heavily
+done in _R/Bioconductor_).
+
+The idea here is to put anything you want to do into an _R_ function,
+with specified arguments for input and output files, then it's ready
+to be wrapped as an `Rcwl` tools for execution. 
+
+For example, in using the package `DropletUtils`
+(https://github.com/hubentu/RcwlRecipes/blob/master/Rcwl/tl_DropletUtils.R),
+we mainly did 3 things: 1) use the `read10xCounts` function to read
+the output files from the alignment step and convert into a
+`SingleCellExperiment` object. 2) Calculate the barcode ranks and
+plotting. 3) calcualte the empty droplets and plotting.
+
+```{r}       
+cwlLoad("tl_DropletUtils")
+inputs(DropletUtils)
+```
+
+```{r, eval=FALSE}
+DropletUtils$dirname <- file.path(outpath, "STARsolo_output/Solo.out")
+DropletUtils$lower <- 100
+DropletUtils$df <- 5
+```
+
+```{r, eval=FALSE}
+runCWL(DropletUtils, outdir = file.path(outpath, "dropletUtils_output"), showLog = TRUE)
+dir(file.path(outpath, "dropletUtils_output"))
+```
+
+Now that we get 2 output files:
+
+- The pdf file with 2 diagnostic figures: Barcode ranks, and empty droplets. Details for interpretation of each diagnostic figure please refer to the [DropletUtils vignette](https://bioconductor.org/packages/release/bioc/vignettes/DropletUtils/inst/doc/DropletUtils.html)  
+- The `SingleCellExperiment` object which has filtered out unqualified cells and analysis ready.   
+
+```{r, eval=FALSE}
+#> Biobase::openPDF(file.path(outpath, "dropletUtils_output/diagnostics.pdf"))
+sce <- readRDS(file.path(outpath, "dropletUtils_output/sce_filtered.rds"))
+sce
+```
+
+### scRNA-seq preprocessing pipeline
+
+Alternatively and more easily, we can connect these tools and make a
+pipeline, which is already available in `RcwlPipelines` called
+`pl_STARsoloDropletUtils`. It has integrated the `STARsolo` and
+`DropletUtils` for a streamlined pre-processing analysis within
+_R_. These pipelines are ready for customization for your own
+research.
+
+In a pipeline, we only need to assign input values for the whole pipeline, not individual tools involved. The input and output between each step are pre-defined in the pipeline to ensure a smooth passing.  
+
+
+```{r}
+cwlLoad("pl_STARsoloDropletUtils")
+plotCWL(STARsoloDropletUtils)
+```
+
+```{r, eval=FALSE}
+inputs(STARsoloDropletUtils)
+STARsoloDropletUtils$fastq_cdna <- cdna.fastq
+STARsoloDropletUtils$fastq_cb <- cb.fastq
+STARsoloDropletUtils$genomeDir <- file.path(outpath, "STARindex_output/STARindex")
+STARsoloDropletUtils$whiteList <- cblist
+STARsoloDropletUtils$runThreadN <- 1
+```
+
+```{r, eval=FALSE}
+runCWL(STARsoloDropletUtils, outdir = file.path(outpath, "scpipeline_output"),
+       docker = FALSE, showLog = TRUE)
+```
+
+The overall output of the pipeline was pre-defined to glob the
+important files from separate steps.
+
+```{r, eval=FALSE}
+dir(file.path(outpath, "scpipeline_output"), recursive = TRUE)
+outputs(STARsoloDropletUtils)
+```
+
+### Summary and some additional comments
+
+There are some other cool functionalities that we haven't included in
+this workshop. For example, the `runCWLBatch()` function is designed
+for execution of CWL pipelines in high performance computing with
+support of different job submitting systems, such as slurm, SGE,
+etcs. The `cwlShiny` opens a user-friendly shiny interface for any
+`Rcwl` tools.
+
+As a summary, this workshop we have introduced the usage of two
+packages: `Rcwl` and `RcwlPipelines` in constructing and executing the
+CWL tools/pipelines with _R_ for the previously command line tools as
+well as customized _R_ functions. The pre-built tools and pipelines
+are highly modularized and optimized for easy customization for
+specific data analysis needs. These packages are under active
+development, and we welcome any question for the functionalities,
+feature requests (support site, email), and issue reports
+(https://github.com/hubentu/Rcwl/issues,
+https://github.com/hubentu/RcwlPipelines/issues).
+
+Most importantly, we are trying to make this project as a community
+effort for developing and sharing of specific sets of tools and
+pipelines in their bioinformatics domains. We look forward to any
+collaborations in developing the pipelines and please feel free to
+make your pull requests for your recipes
+[here](https://github.com/hubentu/RcwlRecipes). 
+
+### Acknowledgement
+
+This work was supported by Clinical and Translational Science Award
+[UL1TR001412 or KL2TR001413] to the University at Buffalo from the NIH
+National Center for Advancing Translational Sciences.
+

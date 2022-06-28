@@ -1,0 +1,49 @@
+Package: bioc2021trajectories
+Title: Trajectory inference across conditions: differential topology, progression and expression
+Version: 0.0.21
+Authors@R: c(person("Kelly", "Street", role = c("aut"),
+                     email = "kstreet@ds.dfci.harvard.edu"),
+              person("Koen", "Van den Berge", role = c("aut"),
+                     email = "koenvdberge@berkeley.edu"),
+	      person("Hector","Roux de Bezieux", role = c("aut", "cre"),
+			email = "hector.rouxdebezieux@berkeley.edu"))
+Description: Repository for the Bioc2021 workshop.
+Depends: R (>= 3.5.0)
+Encoding: UTF-8
+LazyData: true
+LazyDataCompression: bzip2
+License: CC BY 4.0  + file LICENSE
+RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    RColorBrewer,
+    rmarkdown,
+    pkgdown,
+    viridis,
+    ggplot2,
+    condiments,
+    scales,
+    UpSetR,
+    gridExtra,
+    pheatmap,
+    msigdbr,
+    magrittr,
+    fgsea,
+    cowplot,
+    hexbin,
+    randomForest,
+    tradeSeq
+Imports: 
+    slingshot,
+    GEOquery,
+    Matrix,
+    SingleCellExperiment,
+    stringr,
+    dplyr,
+    readr,
+    matrixStats,
+    DropletUtils,
+    openxlsx
+VignetteBuilder: knitr
+URL: https://hectorrdb.github.io//bioc2021trajectories
+DockerImage: hectorrb/bioc2021trajectories:latest

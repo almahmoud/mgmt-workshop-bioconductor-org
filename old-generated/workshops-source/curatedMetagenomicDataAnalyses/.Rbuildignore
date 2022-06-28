@@ -1,0 +1,11 @@
+^curatedMetagenomicAnalyses\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+Dockerfile
+cMD3_paper_analyses
+python_modules
+python_tools

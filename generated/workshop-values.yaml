@@ -1,14 +1,14 @@
 extraFileMappings:
   /galaxy/server/tools/interactive/biocworkshop_Bioc2020Anno.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_Bioc2020Anno" tool_type="interactive" name="Introduction to Bioconductor annotation resources" version="0.1">
+      <tool id="interactivetool_biocworkshop_Bioc2020Anno" tool_type="interactive" name="Introduction to Bioconductor annotation resources" version="0.1">
           <requirements>
               <container type="docker">jmacdon/bioc2020anno:latest</container>
           </requirements>
@@ -33,17 +33,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioc_2020_tidytranscriptomics.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioc_2020_tidytranscriptomics" tool_type="interactive" name="A Tidy Transcriptomics introduction to RNA-Seq analyses" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioc_2020_tidytranscriptomics" tool_type="interactive" name="A Tidy Transcriptomics introduction to RNA-Seq analyses" version="0.1">
           <requirements>
               <container type="docker">stemangiola/bioc_2020_tidytranscriptomics:bioc2020</container>
           </requirements>
@@ -68,17 +68,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_PCAworkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_PCAworkshop" tool_type="interactive" name="An introduction to matrix factorization and principal component analysis in R" version="0.1">
+      <tool id="interactivetool_biocworkshop_PCAworkshop" tool_type="interactive" name="An introduction to matrix factorization and principal component analysis in R" version="0.1">
           <requirements>
               <container type="docker">aculhane/pcabiocworkshop2020:latest</container>
           </requirements>
@@ -103,17 +103,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_PublicDataResources.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_PublicDataResources" tool_type="interactive" name="Public Data Resources in Bioconductor" version="0.1">
+      <tool id="interactivetool_biocworkshop_PublicDataResources" tool_type="interactive" name="Public Data Resources in Bioconductor" version="0.1">
           <requirements>
               <container type="docker">waldronlab/publicdataresources:latest</container>
           </requirements>
@@ -138,17 +138,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_enrichOmics.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_enrichOmics" tool_type="interactive" name="Functional enrichment analysis of high-throughput omics data" version="0.1">
+      <tool id="interactivetool_biocworkshop_enrichOmics" tool_type="interactive" name="Functional enrichment analysis of high-throughput omics data" version="0.1">
           <requirements>
               <container type="docker">ludwigg/enrichomics:latest</container>
           </requirements>
@@ -173,17 +173,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_BasicR.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_BasicR" tool_type="interactive" name="Introductory course for R" version="0.1">
+      <tool id="interactivetool_biocworkshop_BasicR" tool_type="interactive" name="Introductory course for R" version="0.1">
           <requirements>
               <container type="docker">tothreka/basicr:latest</container>
           </requirements>
@@ -208,17 +208,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_RNAseq123workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_RNAseq123workshop" tool_type="interactive" name="RNA-seq analysis is easy as 1-2-3 with limma, Glimma and edgeR" version="0.1">
+      <tool id="interactivetool_biocworkshop_RNAseq123workshop" tool_type="interactive" name="RNA-seq analysis is easy as 1-2-3 with limma, Glimma and edgeR" version="0.1">
           <requirements>
               <container type="docker">xueyidong/rnaseq123workshop:latest</container>
           </requirements>
@@ -243,17 +243,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_SingleCellWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_SingleCellWorkshop" tool_type="interactive" name="Single cell RNA-seq analysis workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_SingleCellWorkshop" tool_type="interactive" name="Single cell RNA-seq analysis workshop" version="0.1">
           <requirements>
               <container type="docker">yunshun/singlecellworkshop:latest</container>
           </requirements>
@@ -278,17 +278,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_Bioc2021Anno.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_Bioc2021Anno" tool_type="interactive" name="Package for Bioconductor 2021 annotation workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_Bioc2021Anno" tool_type="interactive" name="Package for Bioconductor 2021 annotation workshop" version="0.1">
           <requirements>
               <container type="docker">jmacdon/bioc2021anno:latest</container>
           </requirements>
@@ -313,17 +313,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_iSEEWorkshop2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_iSEEWorkshop2020" tool_type="interactive" name="Interactive Visualization of SummarizedExperiment Objects with iSEE" version="0.1">
+      <tool id="interactivetool_biocworkshop_iSEEWorkshop2020" tool_type="interactive" name="Interactive Visualization of SummarizedExperiment Objects with iSEE" version="0.1">
           <requirements>
               <container type="docker">iseedevelopers/iseeworkshop2020:latest</container>
           </requirements>
@@ -348,17 +348,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_IntroductionToGenomicsWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_IntroductionToGenomicsWorkshop" tool_type="interactive" name="WEHI Masterclass Day 3: Genomics" version="0.1">
+      <tool id="interactivetool_biocworkshop_IntroductionToGenomicsWorkshop" tool_type="interactive" name="WEHI Masterclass Day 3: Genomics" version="0.1">
           <requirements>
               <container type="docker">wehiworkshop/introductiontogenomicsworkshop:latest</container>
           </requirements>
@@ -383,17 +383,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_GenesetAnalysisWorkflow.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_GenesetAnalysisWorkflow" tool_type="interactive" name="Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb" version="0.1">
+      <tool id="interactivetool_biocworkshop_GenesetAnalysisWorkflow" tool_type="interactive" name="Molecular phenotyping and visualisation from individual samples using singscore, vissE and msigdb" version="0.1">
           <requirements>
               <container type="docker">bhuvad/genesetanalysisworkflow:latest</container>
           </requirements>
@@ -418,17 +418,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_EpiForBioWorkshop2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_EpiForBioWorkshop2020" tool_type="interactive" name="Epidemiology for Bioinformaticians Workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_EpiForBioWorkshop2020" tool_type="interactive" name="Epidemiology for Bioinformaticians Workshop" version="0.1">
           <requirements>
               <container type="docker">cmirzayi/epiforbioworkshop2020:latest</container>
           </requirements>
@@ -453,17 +453,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_ATACseqQCWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_ATACseqQCWorkshop" tool_type="interactive" name="Best practices for ATAC-seq QC and data analysis" version="0.1">
+      <tool id="interactivetool_biocworkshop_ATACseqQCWorkshop" tool_type="interactive" name="Best practices for ATAC-seq QC and data analysis" version="0.1">
           <requirements>
               <container type="docker">nemat1976/atacseqqcworkshop_2020:latest</container>
           </requirements>
@@ -488,17 +488,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_scRNA-seq-workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_scRNA-seq-workshop" tool_type="interactive" name="scRNA-seq analysis workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_scRNA-seq-workshop" tool_type="interactive" name="scRNA-seq analysis workshop" version="0.1">
           <requirements>
               <container type="docker">chloeyou/bioc_asia_2020_scrna_seq_workshop:latest</container>
           </requirements>
@@ -523,17 +523,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioc2020trajectories.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioc2020trajectories" tool_type="interactive" name="Trajectory inference across conditions: differential expression and differential progression" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioc2020trajectories" tool_type="interactive" name="Trajectory inference across conditions: differential expression and differential progression" version="0.1">
           <requirements>
               <container type="docker">kstreet13/bioc2020trajectories:latest</container>
           </requirements>
@@ -558,17 +558,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_Bioc2020RCWL.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_Bioc2020RCWL" tool_type="interactive" name="Bioconductor toolchain for usage and development of reproducible bioinformatics pipelines in CWL" version="0.1">
+      <tool id="interactivetool_biocworkshop_Bioc2020RCWL" tool_type="interactive" name="Bioconductor toolchain for usage and development of reproducible bioinformatics pipelines in CWL" version="0.1">
           <requirements>
               <container type="docker">liubuntu/bioc2020rcwl:latest</container>
           </requirements>
@@ -593,17 +593,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_making_bioconductor_pkg.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_making_bioconductor_pkg" tool_type="interactive" name="Building a Bioconductor Package" version="0.1">
+      <tool id="interactivetool_biocworkshop_making_bioconductor_pkg" tool_type="interactive" name="Building a Bioconductor Package" version="0.1">
           <requirements>
               <container type="docker">saskiafreytag/making_bioconductor_pkg:latest</container>
           </requirements>
@@ -628,17 +628,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_IntegratedChIPseqWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_IntegratedChIPseqWorkshop" tool_type="interactive" name="Integrated ChIP-seq analysis workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_IntegratedChIPseqWorkshop" tool_type="interactive" name="Integrated ChIP-seq analysis workshop" version="0.1">
           <requirements>
               <container type="docker">hukai916/integratedchipseqanalysis_workshop:latest</container>
           </requirements>
@@ -663,17 +663,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_CreateAPackage.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_CreateAPackage" tool_type="interactive" name="Material on how to create and submit a package to Bioconductor" version="0.1">
+      <tool id="interactivetool_biocworkshop_CreateAPackage" tool_type="interactive" name="Material on how to create and submit a package to Bioconductor" version="0.1">
           <requirements>
               <container type="docker">kaylainterdonato01/createapackage:latest</container>
           </requirements>
@@ -698,17 +698,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_hypeR-workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_hypeR-workshop" tool_type="interactive" name="Efficient, Scalable, and Reproducible Enrichment Workflows" version="0.1">
+      <tool id="interactivetool_biocworkshop_hypeR-workshop" tool_type="interactive" name="Efficient, Scalable, and Reproducible Enrichment Workflows" version="0.1">
           <requirements>
               <container type="docker">montilab/hyperworkshop:latest</container>
           </requirements>
@@ -733,17 +733,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_systemPipeWorkshop2021.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_systemPipeWorkshop2021" tool_type="interactive" name="systemPipeR Workshop - BioC2021" version="0.1">
+      <tool id="interactivetool_biocworkshop_systemPipeWorkshop2021" tool_type="interactive" name="systemPipeR Workshop - BioC2021" version="0.1">
           <requirements>
               <container type="docker">systempipe/systempipeworkshop2021:bioc2021</container>
           </requirements>
@@ -768,17 +768,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_recountWorkshop2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_recountWorkshop2020" tool_type="interactive" name="Human RNA-seq data from recount2 and related packages" version="0.1">
+      <tool id="interactivetool_biocworkshop_recountWorkshop2020" tool_type="interactive" name="Human RNA-seq data from recount2 and related packages" version="0.1">
           <requirements>
               <container type="docker">lcollado/recountworkshop2020:latest</container>
           </requirements>
@@ -803,17 +803,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioc2020workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioc2020workshop" tool_type="interactive" name="A workshop on discovering biomarkers from high through put response screens" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioc2020workshop" tool_type="interactive" name="A workshop on discovering biomarkers from high through put response screens" version="0.1">
           <requirements>
               <container type="docker">bhklab/gxbioc2020workshop:latest</container>
           </requirements>
@@ -838,17 +838,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_CNVWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_CNVWorkshop" tool_type="interactive" name="Copy number variation analysis with Bioconductor " version="0.1">
+      <tool id="interactivetool_biocworkshop_CNVWorkshop" tool_type="interactive" name="Copy number variation analysis with Bioconductor" version="0.1">
           <requirements>
               <container type="docker">ludwigg/cnvworkshop:latest</container>
           </requirements>
@@ -873,17 +873,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioceurope2020_tidytranscriptomics.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioceurope2020_tidytranscriptomics" tool_type="interactive" name="Introduction to Tidy Transcriptomics" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioceurope2020_tidytranscriptomics" tool_type="interactive" name="Introduction to Tidy Transcriptomics" version="0.1">
           <requirements>
               <container type="docker">stemangiola/bioceurope2020_tidytranscriptomics:bioceurope2020</container>
           </requirements>
@@ -908,17 +908,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_AnVILWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_AnVILWorkshop" tool_type="interactive" name="Cloud-based Genomics using Terra/AnVIL" version="0.1">
+      <tool id="interactivetool_biocworkshop_AnVILWorkshop" tool_type="interactive" name="Cloud-based Genomics using Terra/AnVIL" version="0.1">
           <requirements>
               <container type="docker">shbrief/anvilworkshop:latest</container>
           </requirements>
@@ -943,17 +943,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioc2021trajectories.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioc2021trajectories" tool_type="interactive" name="Trajectory inference across conditions: differential topology, progression and expression" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioc2021trajectories" tool_type="interactive" name="Trajectory inference across conditions: differential topology, progression and expression" version="0.1">
           <requirements>
               <container type="docker">hectorrb/bioc2021trajectories:latest</container>
           </requirements>
@@ -978,17 +978,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_BioC2020_DelayedArray_workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_BioC2020_DelayedArray_workshop" tool_type="interactive" name="Effectively Using the DelayedArray Framework to Support the Analysis of Large Datasets" version="0.1">
+      <tool id="interactivetool_biocworkshop_BioC2020_DelayedArray_workshop" tool_type="interactive" name="Effectively Using the DelayedArray Framework to Support the Analysis of Large Datasets" version="0.1">
           <requirements>
               <container type="docker">petehaitch/bioc2020_delayedarray_workshop:latest</container>
           </requirements>
@@ -1013,17 +1013,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_COCOA_workshop_BIOC2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_COCOA_workshop_BIOC2020" tool_type="interactive" name="Annotating inter-sample DNA methylation and ATAC-seq variation with COCOA" version="0.1">
+      <tool id="interactivetool_biocworkshop_COCOA_workshop_BIOC2020" tool_type="interactive" name="Annotating inter-sample DNA methylation and ATAC-seq variation with COCOA" version="0.1">
           <requirements>
               <container type="docker">databio/cocoa_workshop_bioc2020:latest</container>
           </requirements>
@@ -1048,17 +1048,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_alevin2bioc.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_alevin2bioc" tool_type="interactive" name="Importing alevin scRNA-seq counts into R/Bioconductor" version="0.1">
+      <tool id="interactivetool_biocworkshop_alevin2bioc" tool_type="interactive" name="Importing alevin scRNA-seq counts into R/Bioconductor" version="0.1">
           <requirements>
               <container type="docker">mikelove/alevin2bioc:latest</container>
           </requirements>
@@ -1083,17 +1083,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_QFeaturesScpWorkshop2021.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_QFeaturesScpWorkshop2021" tool_type="interactive" name="Reproducing a single-cell proteomics data analysis using QFeatures and scp" version="0.1">
+      <tool id="interactivetool_biocworkshop_QFeaturesScpWorkshop2021" tool_type="interactive" name="Reproducing a single-cell proteomics data analysis using QFeatures and scp" version="0.1">
           <requirements>
               <container type="docker">lgatto/qfeaturesscpworkshop2021:latest</container>
           </requirements>
@@ -1118,17 +1118,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_MicrobiotaProcessWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_MicrobiotaProcessWorkshop" tool_type="interactive" name="The workshop of analysis of microbiome dataset using MicrobiotaProcess" version="0.1">
+      <tool id="interactivetool_biocworkshop_MicrobiotaProcessWorkshop" tool_type="interactive" name="The workshop of analysis of microbiome dataset using MicrobiotaProcess" version="0.1">
           <requirements>
               <container type="docker">xushuangbin/microbiotaprocessworkshop:latest</container>
           </requirements>
@@ -1153,17 +1153,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_metabolomeanalysisworkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_metabolomeanalysisworkshop" tool_type="interactive" name="Bioconductor Workshop Template and Github Actions" version="0.1">
+      <tool id="interactivetool_biocworkshop_metabolomeanalysisworkshop" tool_type="interactive" name="Bioconductor Workshop Template and Github Actions" version="0.1">
           <requirements>
               <container type="docker">hyama/metabolomeanalysisworkshop:latest</container>
           </requirements>
@@ -1188,17 +1188,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_HiCcompareWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_HiCcompareWorkshop" tool_type="interactive" name="Detection of Differentially Interacting Chromatin Regions From Multiple Hi-C Datasets" version="0.1">
+      <tool id="interactivetool_biocworkshop_HiCcompareWorkshop" tool_type="interactive" name="Detection of Differentially Interacting Chromatin Regions From Multiple Hi-C Datasets" version="0.1">
           <requirements>
               <container type="docker">mdozmorov/hiccompareworkshop:latest</container>
           </requirements>
@@ -1223,17 +1223,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_biocasia2020_tidytranscriptomics.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_biocasia2020_tidytranscriptomics" tool_type="interactive" name="Introduction to Tidy Transcriptomics" version="0.1">
+      <tool id="interactivetool_biocworkshop_biocasia2020_tidytranscriptomics" tool_type="interactive" name="Introduction to Tidy Transcriptomics" version="0.1">
           <requirements>
               <container type="docker">stemangiola/biocasia2020_tidytranscriptomics:biocasia2020</container>
           </requirements>
@@ -1258,17 +1258,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_SurfingNewWave.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_SurfingNewWave" tool_type="interactive" name="Eurobioc2020 workshop about NewWave" version="0.1">
+      <tool id="interactivetool_biocworkshop_SurfingNewWave" tool_type="interactive" name="Eurobioc2020 workshop about NewWave" version="0.1">
           <requirements>
               <container type="docker">fedeago/surfingnewwave:latest</container>
           </requirements>
@@ -1293,17 +1293,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_EuroBioc2020_SpatialWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_EuroBioc2020_SpatialWorkshop" tool_type="interactive" name="Spatial Transcriptomics workflow using SpatialExperiment package" version="0.1">
+      <tool id="interactivetool_biocworkshop_EuroBioc2020_SpatialWorkshop" tool_type="interactive" name="Spatial Transcriptomics workflow using SpatialExperiment package" version="0.1">
           <requirements>
               <container type="docker">drighelli/eurobioc2020spatialworkshop:latest</container>
           </requirements>
@@ -1328,17 +1328,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_iSEEWorkshopEuroBioc2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_iSEEWorkshopEuroBioc2020" tool_type="interactive" name="Interactive Visualization of SummarizedExperiment Objects with iSEE" version="0.1">
+      <tool id="interactivetool_biocworkshop_iSEEWorkshopEuroBioc2020" tool_type="interactive" name="Interactive Visualization of SummarizedExperiment Objects with iSEE" version="0.1">
           <requirements>
               <container type="docker">iseedevelopers/iseeworkshopeurobioc2020:latest</container>
           </requirements>
@@ -1363,17 +1363,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_CRISPRseekGUIDEseqBioc2020Workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_CRISPRseekGUIDEseqBioc2020Workshop" tool_type="interactive" name="CRISPRseek and GUIDEseq for designing target-specific gRNAs for the CRISPR genome editing system; Motif analysis with motifStack and dagLogo" version="0.1">
+      <tool id="interactivetool_biocworkshop_CRISPRseekGUIDEseqBioc2020Workshop" tool_type="interactive" name="CRISPRseek and GUIDEseq for designing target-specific gRNAs for the CRISPR genome editing system; Motif analysis with motifStack and dagLogo" version="0.1">
           <requirements>
               <container type="docker">lihuajuliezhu/crisprseekguideseqbioc2020workshop:latest</container>
           </requirements>
@@ -1398,17 +1398,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_SpectraTutorials.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_SpectraTutorials" tool_type="interactive" name="Mass Spectrometry Data Analysis with Spectra" version="0.1">
+      <tool id="interactivetool_biocworkshop_SpectraTutorials" tool_type="interactive" name="Mass Spectrometry Data Analysis with Spectra" version="0.1">
           <requirements>
               <container type="docker">jorainer/spectra_tutorials:jorainer/spectra_tutorials:latest</container>
           </requirements>
@@ -1433,17 +1433,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_BuildACarpentriesWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_BuildACarpentriesWorkshop" tool_type="interactive" name="Development Of Bioconductor-focused Carpentries Lessons" version="0.1">
+      <tool id="interactivetool_biocworkshop_BuildACarpentriesWorkshop" tool_type="interactive" name="Development Of Bioconductor-focused Carpentries Lessons" version="0.1">
           <requirements>
               <container type="docker">jdrnevich/buildacarpentriesworkshop:latest</container>
           </requirements>
@@ -1468,17 +1468,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_targetShop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_targetShop" tool_type="interactive" name="Integration of ChIP-seq and RNA-seq data in R" version="0.1">
+      <tool id="interactivetool_biocworkshop_targetShop" tool_type="interactive" name="Integration of ChIP-seq and RNA-seq data in R" version="0.1">
           <requirements>
               <container type="docker">mahshaaban/targetshop:latest</container>
           </requirements>
@@ -1503,17 +1503,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioc2021_tidytranscriptomics.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioc2021_tidytranscriptomics" tool_type="interactive" name="Introduction to Tidy Transcriptomics" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioc2021_tidytranscriptomics" tool_type="interactive" name="Introduction to Tidy Transcriptomics" version="0.1">
           <requirements>
               <container type="docker">stemangiola/bioc2021_tidytranscriptomics:bioc2021</container>
           </requirements>
@@ -1538,17 +1538,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_IMMU6110_introduction_to_bioinformatics.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_IMMU6110_introduction_to_bioinformatics" tool_type="interactive" name="" version="0.1">
+      <tool id="interactivetool_biocworkshop_IMMU6110_introduction_to_bioinformatics" tool_type="interactive" name="" version="0.1">
           <requirements>
               <container type="docker">tbrunetti/immu6110_introduction_to_bioinformatics:v02.2022</container>
           </requirements>
@@ -1573,17 +1573,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_Quantitative-ChIPseq-Workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_Quantitative-ChIPseq-Workshop" tool_type="interactive" name="Quantitiative analysis of ChiP-seq, ATAC-seq, and related DNA enrichment assays" version="0.1">
+      <tool id="interactivetool_biocworkshop_Quantitative-ChIPseq-Workshop" tool_type="interactive" name="Quantitiative analysis of ChiP-seq, ATAC-seq, and related DNA enrichment assays" version="0.1">
           <requirements>
               <container type="docker">crukcibioinformatics/quantitative_chip_workshop:latest</container>
           </requirements>
@@ -1608,17 +1608,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_epiforbioworkshop2021.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_epiforbioworkshop2021" tool_type="interactive" name="Epidemiology for Bioinformaticians Workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_epiforbioworkshop2021" tool_type="interactive" name="Epidemiology for Bioinformaticians Workshop" version="0.1">
           <requirements>
               <container type="docker">cmirzayi/epiforbioworkshop2021:latest</container>
           </requirements>
@@ -1643,17 +1643,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_trackViewerBiocAsia2020Workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_trackViewerBiocAsia2020Workshop" tool_type="interactive" name="trackViewer: Lollipop/Dandelion plots for methylation status and mutation data" version="0.1">
+      <tool id="interactivetool_biocworkshop_trackViewerBiocAsia2020Workshop" tool_type="interactive" name="trackViewer: Lollipop/Dandelion plots for methylation status and mutation data" version="0.1">
           <requirements>
               <container type="docker">jianhong/trackviewerbiocasia2020workshop:latest</container>
           </requirements>
@@ -1678,17 +1678,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_BiocAsia2020CiteFuse.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_BiocAsia2020CiteFuse" tool_type="interactive" name="Multimodal analysis of CITE-seq data with CiteFuse" version="0.1">
+      <tool id="interactivetool_biocworkshop_BiocAsia2020CiteFuse" tool_type="interactive" name="Multimodal analysis of CITE-seq data with CiteFuse" version="0.1">
           <requirements>
               <container type="docker">yingxinlin/biocasia2020citefuse:latest</container>
           </requirements>
@@ -1713,17 +1713,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_SPEAQeasyWorkshop2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_SPEAQeasyWorkshop2020" tool_type="interactive" name="EuroBioc2020 SPEAQeasy workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_SPEAQeasyWorkshop2020" tool_type="interactive" name="EuroBioc2020 SPEAQeasy workshop" version="0.1">
           <requirements>
               <container type="docker">lcollado/speaqeasyworkshop2020:latest</container>
           </requirements>
@@ -1748,17 +1748,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_GeneTonicWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_GeneTonicWorkshop" tool_type="interactive" name="GeneTonic workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_GeneTonicWorkshop" tool_type="interactive" name="GeneTonic workshop" version="0.1">
           <requirements>
               <container type="docker">federicomarini/genetonicworkshop:latest</container>
           </requirements>
@@ -1783,17 +1783,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_subtypeHeterogeneity.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_subtypeHeterogeneity" tool_type="interactive" name="Tumor subclonality of expression-based cancer subtypes " version="0.1">
+      <tool id="interactivetool_biocworkshop_subtypeHeterogeneity" tool_type="interactive" name="Tumor subclonality of expression-based cancer subtypes" version="0.1">
           <requirements>
               <container type="docker">ludwigg/subtypeheterogeneity:latest</container>
           </requirements>
@@ -1818,17 +1818,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_QFeaturesWorkshop2020.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_QFeaturesWorkshop2020" tool_type="interactive" name="QFeatures EuroBioc2020 Workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_QFeaturesWorkshop2020" tool_type="interactive" name="QFeatures EuroBioc2020 Workshop" version="0.1">
           <requirements>
               <container type="docker">lgatto/qfeaturesworkshop2020:latest</container>
           </requirements>
@@ -1853,17 +1853,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_BioC2021_DelayedArray_workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_BioC2021_DelayedArray_workshop" tool_type="interactive" name="Effectively Using the DelayedArray Framework to Support the Analysis of Large Datasets" version="0.1">
+      <tool id="interactivetool_biocworkshop_BioC2021_DelayedArray_workshop" tool_type="interactive" name="Effectively Using the DelayedArray Framework to Support the Analysis of Large Datasets" version="0.1">
           <requirements>
               <container type="docker">petehaitch/bioc2021_delayedarray_workshop:latest</container>
           </requirements>
@@ -1888,17 +1888,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_preciseTADworkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_preciseTADworkshop" tool_type="interactive" name="A workshop describing preciseTAD: A machine learning framework for " version="0.1">
+      <tool id="interactivetool_biocworkshop_preciseTADworkshop" tool_type="interactive" name="A workshop describing preciseTAD: A machine learning framework for" version="0.1">
           <requirements>
               <container type="docker">stilianoudakis/precisetadworkshop:latest</container>
           </requirements>
@@ -1923,17 +1923,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_ggmsaBioWorkshop2021.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_ggmsaBioWorkshop2021" tool_type="interactive" name="ggmsa workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_ggmsaBioWorkshop2021" tool_type="interactive" name="ggmsa workshop" version="0.1">
           <requirements>
               <container type="docker">nyzhoulang/ggmsabioworkshop2021:latest</container>
           </requirements>
@@ -1958,17 +1958,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_MultiAssayWorkshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_MultiAssayWorkshop" tool_type="interactive" name="Multi-omic Integration and Analysis of cBioPortal and TCGA data with MultiAssayExperiment" version="0.1">
+      <tool id="interactivetool_biocworkshop_MultiAssayWorkshop" tool_type="interactive" name="Multi-omic Integration and Analysis of cBioPortal and TCGA data with MultiAssayExperiment" version="0.1">
           <requirements>
               <container type="docker">waldronlab/multiassayworkshop:latest</container>
           </requirements>
@@ -1993,17 +1993,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_CompGenomicsBioc2022.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_CompGenomicsBioc2022" tool_type="interactive" name="Comparative Genomics Analyses with SynExtend and DECIPHER" version="0.1">
+      <tool id="interactivetool_biocworkshop_CompGenomicsBioc2022" tool_type="interactive" name="Comparative Genomics Analyses with SynExtend and DECIPHER" version="0.1">
           <requirements>
               <container type="docker">ahl27/compgenomicsbioc2022:latest</container>
           </requirements>
@@ -2028,17 +2028,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_Bioc2022Anno.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_Bioc2022Anno" tool_type="interactive" name="Package for Bioconductor 2022 annotation workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_Bioc2022Anno" tool_type="interactive" name="Package for Bioconductor 2022 annotation workshop" version="0.1">
           <requirements>
               <container type="docker">jmacdon/bioc2022anno:latest</container>
           </requirements>
@@ -2063,17 +2063,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_bioc2022workshop.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_bioc2022workshop" tool_type="interactive" name="PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology" version="0.1">
+      <tool id="interactivetool_biocworkshop_bioc2022workshop" tool_type="interactive" name="PharmacoGx 3.1: data structures and methods for discovering molecular biomarkers of response to drug combination therapy in precision oncology" version="0.1">
           <requirements>
               <container type="docker">bhklab/bioc2022workshop:latest</container>
           </requirements>
@@ -2098,17 +2098,17 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>
   /galaxy/server/tools/interactive/biocworkshop_epiforbioworkshop2022.xml:
     useSecret: false
-    applyToSetupJob: true
     applyToJob: true
+    applyToSetupJob: true
     applyToWeb: true
     applyToWorkflow: true
     applyToNginx: true
     tpl: false
     content: |
-        <tool id="interactivetool_biocworkshop_epiforbioworkshop2022" tool_type="interactive" name="Epidemiology for Bioinformaticians Workshop" version="0.1">
+      <tool id="interactivetool_biocworkshop_epiforbioworkshop2022" tool_type="interactive" name="Epidemiology for Bioinformaticians Workshop" version="0.1">
           <requirements>
               <container type="docker">cmirzayi/epiforbioworkshop2022:latest</container>
           </requirements>
@@ -2133,4 +2133,4 @@ extraFileMappings:
           <tests>
           </tests>
           <help></help>
-        </tool>
+      </tool>

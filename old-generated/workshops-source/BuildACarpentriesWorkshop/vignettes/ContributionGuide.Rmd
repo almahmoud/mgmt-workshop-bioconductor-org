@@ -1,0 +1,77 @@
+---
+title: "Contribution Guide"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ContributionGuide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+Authors:
+    Jenny Drnevich^[drnevich@illinois.edu],
+    Charlotte Soneson^[charlotte.soneson@fmi.ch],
+    Toby Hodges^[tobyhodges@carpentries.org],
+    Laurent Gatto^[laurent.gatto@uclouvain.be],
+    Keven Rue-Albrecht^[kevin.rue-albrecht@kennedy.ox.ac.uk],
+    Robert Castelo^[robert.castelo@upf.edu].
+    <br/>
+Last modified: `r Sys.Date()`.
+
+## How to contribute to the Bioconductor Carpentries lessons
+
+These lessons follow in Bioconductor's and the Carpentries' open source model where all contributions are welcomed and acknowledged. If you would like to contribute now or at any future point to the development of these lessons, please follow the steps below to give your input in a way we can track/acknowledge you.
+
+### View one of the current lessons
+
+Take a look through the current lessons as they would be seen by learners. Find a place that could use an assessment exercise, explanatory text, typo correction, etc. 
+
+#### [Introduction to data analyis with R and Bioconductor](https://carpentries-incubator.github.io/bioc-intro/)
+
+#### [Introduction to the Bioconductor Project](https://carpentries-incubator.github.io/bioc-project/)
+
+#### [RNA-seq analysis with Bioconductor](https://carpentries-incubator.github.io/bioc-rnaseq/)
+
+
+### Go to the corresponding GitHub page
+
+This is where the lessons are actually developed. If you do not know anything about Git, GitHub or markdown, you can still easily contribute by reading the [contributing guidelines](https://github.com/carpentries-incubator/bioc-intro/blob/f628a82bb53838a5c7fb790b380ec710c2531224/CONTRIBUTING.md) although these are still the generic Carpentries' guidelines. The best way is to create a free [GitHub account](https://github.com/join) and then you can [create an issue](https://guides.github.com/features/issues/) on each lesson's page (Issues tab on the top menu bar) with your comments/suggested assessment. 
+
+If you are comfortable with Git, feel free to [fork a repository](https://docs.github.com/en/get-started/quickstart/fork-a-repo), make your change, and then submit a [pull request](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). 
+
+
+#### [Introduction to data analyis with R and Bioconductor](https://github.com/carpentries-incubator/bioc-intro)
+
+#### [Introduction to the Bioconductor Project](https://github.com/carpentries-incubator/bioc-project)
+
+#### [RNA-seq analysis with Bioconductor](https://github.com/carpentries-incubator/bioc-rnaseq/)
+
+
+
+## Tables
+
+Are we going to split into tables? This could be a good way to find other interested people to work collaboratively.
+
+
+## More information on the Education Teaching Committee
+
+See our short talk in the Education and Frameworks session later today (Thursday) at 8 pm EDT. 
+
+## Keep contributing!
+
+Lesson development will continue after the conference. Contributions via GitHub are welcome at any time. Additionally:
+
+1. Join the #education-and-training Slack channel
+2. See the Google Doc pinned at the top of the Slack channel for information on how to join the Education Teaching Committee Google Group 
+3. Join our monthly (virtual) meetings the 2nd Monday of every month.
+
+
+

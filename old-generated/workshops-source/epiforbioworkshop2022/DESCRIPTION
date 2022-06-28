@@ -1,0 +1,49 @@
+Package: epiforbioworkshop2022
+Title: Epidemiology for Bioinformaticians Workshop
+Version: 0.1.6
+Authors@R: 
+    person(given = "Chloe",
+           family = "Mirzayi",
+           role = c("aut", "cre"),
+           email = "cmirzayi@gmail.com",
+           comment = c(ORCID = "0000-0002-9817-2868"))
+    person(given = "Levi",
+           family = "Waldron",
+           role = c("aut", "cre"),
+           email = "Levi.Waldron@sph.cuny.edu",
+           comment = c(ORCID = "0000-0003-2725-0694"))
+Description: In this workship, we introduce basic concepts of epidemiology, study design, and causal inference for bioinformaticians. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Depends: 
+    Biobase,
+    Rcpp
+Suggests: 
+    pkgdown,
+    BiocStyle,
+    knitr,
+    rmarkdown
+Imports:
+    dagitty,
+    ggdag,
+    Rcpp,
+    DESeq2,
+    edgeR,
+    curatedMetagenomicData,
+    phyloseq,
+    Biobase,
+    mia
+Remotes:
+    bioc::release/DESeq2,
+    bioc::release/edgeR,
+    bioc::release/curatedMetagenomicData,
+    bioc::release/phyloseq,
+    bioc::release/Biobase,
+    bioc::release/mia
+URL: https://chloemirzayi.com/epiforbioworkshop2022, https://cmirzayi.github.io/epiforbioworkshop2022/
+BugReports: https://github.com/cmirzayi/epiforbioworkshop2022/issues/new
+VignetteBuilder: knitr
+DockerImage: cmirzayi/epiforbioworkshop2022:latest

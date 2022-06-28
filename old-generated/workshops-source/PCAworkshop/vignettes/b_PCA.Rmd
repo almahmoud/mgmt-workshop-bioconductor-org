@@ -1,0 +1,583 @@
+---
+title: "Principal Component Analysis in R; PCA of covariance or correlation matrix"
+author: "Aedin Culhane"
+date: "July 15, 2021"
+output:
+  rmarkdown::html_document:
+    highlight: pygments
+    toc: true
+    toc_depth: 3
+    fig_width: 5
+vignette: >
+  %\VignetteIndexEntry{PCA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding[utf8]{inputenc}
+---
+
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+# Set up the environment
+opts_chunk$set(echo=TRUE, dpi=100, warnings=FALSE, message=FALSE, warning=FALSE, fig.width = 10, fig.height = 6) 
+```
+
+### R libraries
+Install, if necessary, and load necessary libraries and set up R session. If you are running the docker container or using an instance on the orchestra platform, then you should have these libraries installed already. 
+
+```{r libraries}
+
+#if (!requireNamespace("BiocManager", quietly = TRUE)) #install.packages("BiocManager")
+library(magrittr)
+library(ade4)
+library(FactoMineR)
+library(factoextra)
+library(ggplot2)
+```
+
+# PCA in R
+In R, there are several functions in many different packages that allow us to perform PCA. We will not review all of these, however will provide examples of the following;
+
+* `svd()` (`stats`)  ** on centered data** 
+* `prcomp()` (`stats`)
+* `princomp()` (`stats`)  ** on cor matrix **
+* `PCA()` (`FactoMineR`)
+* `dudi.pca()` (`ade4`)
+
+**Note, although `prcomp` sets `scale=FALSE` for consistency with S, in general scaling is advised. We will demonstrate both prcomp of unscaled and scaled data. Scaling the variables to have unit variance is advised.** 
+
+
+Give an input matrix, P and a resulting output, res
+
+|Function | loadings | scores | plot|
+| :------------- |:-------------| :-----| :-----|
+|`prcomp(P, center=TRUE, scale=TRUE`) | `res$rotation` |`res$x` | `biplot(res)`|
+|`princomp(P, cor=TRUE)` | `res$loadings` | `res$scores` | `biplot(res)`|
+|`PCA(P)` | `res$svd$V` | `res$ind$coord` | `plot(res)`|
+|`dudi.pca(P, center=TRUE, scale=TRUE)` | `res$c1` | `res$li` | `scatter(res)`|
+
+
+With `ade4::dudi.pca` and `prcomp` the default is `center = TRUE, scale = TRUE`. 
+
+With `princomp`, `cor=FALSE` is the default.
+
+
+
+
+#  A simple toy dataset
+We will demonstrate some of these and how the methods relate but first we will create a simple minimal cloud of points; two vectors, x,y of length 100. 
+
+```{r}
+ set.seed(2)             #sets the seed for random number generation.
+ x <- 1:100              #creates a vector x with numbers from 1 to 100
+ ex <- rnorm(100, 0, 30) #100 normally distributed random numbers, mean=0, sd=30
+ ey <- rnorm(100, 0, 30) # 100 normally distributed random numbers, mean=0, sd=30
+ y <- 30 + 2 * x         #sets y to be a vector that is a linear function of x
+ x_obs <- x + ex         #adds "noise" to x
+ y_obs <- y + ey         #adds "noise" to y
+ 
+# Bind both vectors in a matrix of toy data called P
+P <- data.frame(x_obs=x_obs,y_obs=y_obs) #places points in matrix
+summary(P)
+```
+
+Basic histogram of the two distributions:
+
+```{r}
+ par(mfrow=c(1,2))
+ hist(P$x_obs)
+ hist(P$y_obs)
+```
+ 
+
+
+
+# Difference between covariance-based and correlation-based PCA
+
+When performing PCA, you will encounter, two forms of PCA; PCA of a covariance or correlation matrix. 
+
+The difference between these is can be most easily understood in the data pre-processing. In the first vignette in this package, PCA was  computed as a singular value decomposition (SVD) of a column centered, scaled matrix.  This was PCA of the correlation matrix.  If the matrix is centered but not scaled, it is PCA of the covariance matrix. 
+
+
+
+- PCA of a correlation matrix = svd of **scaled**, centered, matrix  (z-score matrix)
+
+# covariance-based PCA
+
+PCA of a covariance matrix can be computed as svd of **unscaled**, centered, matrix
+
+1. Center a matrix
+Recall we had two vector x_obs, y_obs. We can center these columns by subtracting the column mean from each object in the column. We can perform PCA of the covariance matrix is several ways. 
+
+- SVD of the centered matrix
+
+- eigenanalysis of the centered, covariance  matrix
+
+- using prcomp with scale=FALSE (which is the default)
+
+
+## svd of centered data.
+
+$$\$d$$ returns the singular values, not the eigenvalues. 
+```{r}
+Mx<- scale(P, center=TRUE, scale=FALSE)
+(svd(Mx)$d / sqrt(max(1, c(dim(Mx)- 1))))^2
+```
+
+## Eigen on a covariance matrix 
+
+```{r}
+MCov <- cov(Mx) 
+eigen(MCov)       
+eigenvalues <-eigen(MCov)$values
+eigenVectors<-eigen(MCov)$vectors
+```
+
+## prcomp
+
+This is the same as `prcomp` PCA of the unscaled data. By default prcomp will perform decomposition of data that is centered but not scaled (center = TRUE, scale = FALSE)
+```{r}
+prcomp(P)
+```
+
+Note that the eigenvalues are provided as;
+
+```{r}
+prcomp(P)$sdev^2 
+```
+
+and this is also similar to `princomp`
+
+```{r}
+princomp(P)$sdev^2   
+```
+
+eigenvector from the eigenanalysis of the covariance matrix equal the rotation matrix of prcomp.
+
+```{r}
+print("$v right singular vectors of svd of centered matrix")
+svd(Mx)$v
+```
+
+```{r}
+print("eigen of covariance matrix")
+eigen(MCov)$vectors  
+```
+
+```{r}
+print("prcomp of centered but not scaled (default options) matrix")
+prcomp(P)$rotation
+```
+
+The right singular vectors are the eigenvectors of M^t^M. Next I plot the principal axes (yellow):
+ 
+```{r}
+plot(P,asp=1,col=1) #plot points
+points(x=mean(x_obs),y=mean(y_obs),col="orange", pch=19) #show center
+lines(x_obs,eigenVectors[2,1]/eigenVectors[1,1]*Mx[x]+mean(y_obs),col=8)
+```
+
+This shows the first principal axis. Note that it passes through the mean as expected. The ratio of the eigenvectors gives the slope of the axis. 
+
+Next plot the second principal axis, orthogonal to the first
+
+```{r}
+plot(P,asp=1,col=1) #plot points
+points(x=mean(x_obs),y=mean(y_obs),col="orange", pch=19) #show center
+lines(x_obs,eigenVectors[2,1]/eigenVectors[1,1]*Mx[x]+mean(y_obs),col=8)
+lines(x_obs,eigenVectors[2,2]/eigenVectors[1,2]*Mx[x]+mean(y_obs),col=8)
+```
+shows the second principal axis, which is orthogonal to the first (recall that the matrix V^t^ in the singular value decomposition is orthogonal). This can be checked by noting that the second principal axis is also, as the product of orthogonal slopes is -1. 
+
+# Correlation-based PCA
+
+Correlation-based PCA can be computed by singular value decomposition (svd) of centered and scaled matrix. So we can repeat the code above but **scale** and **center** the data with `scale(P, center=TRUE, scale=TRUE)`.  By default scale will center and scale
+
+```{r}
+scale
+```
+
+
+## svd of z-score scaled data.
+
+```{r}
+p0<-svd(scale(P))
+p0$d         #the singular values
+p0$v        #the right singular vectors
+```
+
+
+Recall, SVD returns a list with components
+
+d	= a vector containing the singular values of x, of length min(n, p), in descending order
+
+u	= a matrix whose columns contain the left singular vectors of x, present if nu > 0. Dimension c(n, nu).
+
+v	= a matrix whose columns contain the right singular vectors of x, present if nv > 0. Dimension c(p, nv).
+
+where the product of these matrix $$X = U D V'$$  recovers the original matrix;
+```{r}
+(p0$u %*% diag(p0$d) %*% t(p0$v))%>% head
+```
+which equals the scaled matrix that was decomposed using svd
+
+```{r}
+scale(P)%>% head
+```
+
+
+ 
+
+The elements of d are formed by taking the sum of the squares of the principal components but not dividing by the rank. Therefore we can divide by the rank, which is user-defined or min of the ncol or nrow of the matrix -1. 
+
+The diagonal elements of d from the SVD are proportional to the standard deviations (`sdev`) returned by PCA. 
+
+```{r}
+p0$d^2/(nrow(p0$u) - 1)
+eigenValues= p0$d^2/(nrow(p0$u) - 1)
+eigenValues
+```
+
+Summary of output from svd
+```{r}
+svdSummary<-function(svdRes,sf=4){
+  if(is(svdRes,"prcomp")){
+    eigenvalue=svdRes$sdev^2
+  }else{
+  #d=signif(svdRes$d,sf)
+  eigenvalue= svdRes$d^2/(nrow(svdRes$u) - 1)
+}
+  data.frame(cbind(
+  eigenvalues=signif(eigenvalue,sf),
+  sd = signif(sqrt(eigenvalue),sf),
+  variance.percent = paste0(signif((eigenvalue/sum(eigenvalue)),2)*100,"%"),
+  cumulative.variance.percent = paste0(cumsum(signif((eigenvalue/sum(eigenvalue)),2))*100,"%")))
+}
+
+
+eigSum.svd <-svdSummary(p0)
+eigSum.svd 
+```
+
+##  prcomp (scale = TRUE)
+
+First `stats::prcomp`.  The eigenvectors are stored in `$rotation`. Note these are the same as `svd$v` on scale data 
+```{r}
+p1<- prcomp(P, scale = TRUE)
+p1$rotation
+```
+
+```{r}
+ (p1$rotation== p0$v)
+```
+
+eigenvalues - `$sdev`
+eigenvector  - `$rotation`
+
+```{r}
+names(p1)
+```
+
+```{r}
+summary(p1)
+```
+
+To calculated eigenvalues information manually here is the code;
+```{r}
+sf=4
+eigs= p1$sdev^2
+eigSum.pca= cbind(
+  eigenvalue=eigs,
+  sd = sqrt(eigs),
+  variance.percent = eigs/sum(eigs),
+  cumulative.variance.percent = cumsum(eigs)/sum(eigs))
+
+eigSum.pca
+```
+
+which is the same as;
+```{r}
+eigSum.svd
+```
+
+
+
+If we had more components, we could generate a scree plot. Its not very useful with 2 components, but here is the code
+
+Caculate the Proportion of Variance explained by each component (eig sum Proportion above)
+```{r}
+ProportionVariance = p0$d^2 /sum(p0$d^2 )
+ProportionVariance
+```
+
+```{r}
+plot(ProportionVariance, xlim = c(0, 5), type = "b", pch = 16, xlab = "principal components", 
+    ylab = "variance explained")
+```
+
+## `princomp`
+`princomp` was written for compatiblity with S-PLUS however it is not recommended. Its is better to use prcomp or svd. That is because by default `princomp` performs a decompostion of the covariance not correlation matrix. `princomp` can call `eigen` on the correlation or covariance matrix. Its default calculation uses divisor N for the covariance matrix.
+
+```{r}
+p2<-stats::princomp(P)
+p2$sd^2
+```
+
+
+sqrt of eigenvalues
+```{r}
+p2$sdev
+```
+
+
+eigenvectors
+```{r}
+p2$loadings
+```
+
+```{r}
+head(p2$scores,2)
+```
+
+Set `cor = TRUE` in the call to princomp in order to perform PCA on the correlation matrix (instead of the covariance matrix)
+
+```{r}
+p2b<-princomp(P, cor = TRUE)
+p2b$sdev^2
+```
+
+```{r}
+p2b$loadings
+```
+
+For more info on `prcomp` v `princomp` see
+http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+
+
+## `FactoMineR`
+
+`FactoMineR::PCA` calls svd to compute the PCA
+
+
+```{r}
+p3<-FactoMineR::PCA(P)
+```
+
+The eigenvalues, same as `eigSum` and `eigSum.svd` above
+```{r}
+t(p3$eig)
+```
+
+ correlations between variables and PCs
+```{r}
+p3$var$coord  
+```
+
+
+## `ade4::dudi.pca`
+
+First `ade4::dudi.pca` scales the data and stores the scaled data in `$tab`. In PCA this will be almost equivalent to scale. However there is a minor difference (see https://pbil.univ-lyon1.fr/R/pdf/course2.pdf).  `ade4` uses the duality diagram framework for computing pca and other matrix factorizations (so it provides `lw` and `cw` which are the row and columns weights, respectively). See Cruz and Holmes 2011 for a wonderful tutorial on the duality diagram framework https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3265363/
+
+
+
+```{r}
+p4<-ade4::dudi.pca(P, scannf = FALSE, nf=2)  # save 2 axis by default,
+head(p4$tab)  # centered/scaled data. 
+head(scale(P))
+```
+
+The values used for centering are stored in `cent`, it is equal to the `colMeans`. `norm` provides the sd of the columns
+```{r}
+p4$cent == colMeans(P)
+sd.n <- function(x) sqrt(var(x) * (length(x) - 1)/length(x))
+identical(p4$norm,apply(P, 2, sd.n))
+```
+The summary printout is equivalent to P3 (`p3$eig`) above. 
+The eigenvales are stored in `p4$eig`.
+
+```{r}
+summary(p4)
+p4$eig
+p4$c1
+p4$co
+```
+
+The cumulative % of variance explained by each component:
+```{r}
+(k <- 100 * p4$eig/sum(p4$eig))
+cumsum(k)
+```
+
+`nf` is an integer giving the number of axes kept. `nf` will always be smaller than the smaller of: the number of rows or number of columns of the matrix; minus 1.
+```{r}
+p4$nf
+```
+
+`c1` gives the variables’ coordinates, normed to 1. It is also called the
+coefficients of the combination or the loadings of variables.  
+
+Equally, the output matrix `l1` gives the individuals’ coordinates, normed to 1. It is also called the
+loadings of individuals.
+```{r}
+p4$c1
+sum(p4$cw * p4$c1$CS1^2)
+```
+
+`co` gives the variables’ coordinates, normed to the square root of the eigenvalues.
+```{r}
+p4$co
+sum(p4$cw * p4$co$Comp1^2)
+```
+
+
+The link between `c1` and `co` is defined by:
+```{r}
+p4$c1$CS1 * sqrt(p4$eig[1])
+```
+
+
+
+
+## Comparision of results of these different PCA methods
+
+There is also a nice package called `factoextra`. This works all of the above classes
+
+```{r}
+library(factoextra)
+
+res<- list(p0,p1,p2,p2b,p3,p4) 
+names(res) = c('svd_scaledData','prcomp', 'princomp','princomp_cov', 'FactoMineR', 'ade4')
+
+e<-sapply(res[-1],get_eig)
+
+# get_eig doesn't work on svd
+svd.e<- eigSum.svd[c(1,3,4)]
+
+colnames(svd.e)<- names(e[[1]])
+
+
+e<- c(list(svd=svd.e),e)
+
+e
+```
+
+
+# Visualization and Exploration of results
+
+The github package [`explor`](https://github.com/juba/explor) is useful for exploring data. It includes plotting functions for many packages including `ade4`, `FactoMineR` and `base` R functions `prcomp` and `princomp`;
+
+For now on, it is usable the following types of analyses :
+
+Analysis | Function  | Package | Notes
+------------- | ------------- | ---------- | --------
+Principal Component Analysis  | PCA  | [FactoMineR](http://factominer.free.fr/) | -
+Correspondance Analysis  | CA  | [FactoMineR](http://factominer.free.fr/) | -
+Multiple Correspondence Analysis  | MCA  | [FactoMineR](http://factominer.free.fr/) | -
+Principal Component Analysis  | dudi.pca  | [ade4](https://cran.r-project.org/package=ade4) | Qualitative supplementary variables are ignored
+Correspondance Analysis  | dudi.coa  | [ade4](https://cran.r-project.org/package=ade4)  | -
+Multiple Correspondence Analysis  | dudi.acm  | [ade4](https://cran.r-project.org/package=ade4) | Quantitative supplementary variables are ignored
+Specific Multiple Correspondance Analysis | speMCA | [GDAtools](https://cran.r-project.org/package=GDAtools) | Supplementary variables are not supported
+Multiple Correspondance Analysis | mca | [MASS](https://cran.r-project.org/package=MASS) | Quantitative supplementary variables are not supported
+Principal Component Analysis  | princomp  | stats | Supplementary variables are ignored
+Principal Component Analysis  | prcomp  | stats | Supplementary variables are ignored
+
+
+
+
+```{r}
+#if(!"explor" %in% rownames(installed.packages()))    #devtools::install_github("juba/explor")
+
+#if(!"scatterD3" %in% rownames(installed.packages())) 
+#devtools::install_github("juba/scatterD3")
+
+```
+
+```{r, eval=FALSE}
+require(explor)
+explor::explor(p4)
+```
+
+
+```{r, eval=FALSE}
+data(children)
+res.ca <- CA(children, row.sup = 15:18, col.sup = 6:8)
+explor(res.ca)
+```
+
+## `factoextra`
+Plotting using `factoextra`
+
+```{r}
+library(factoextra)
+```
+
+```{r}
+fviz_eig(p1)
+```
+
+```{r}
+fviz_pca_var(p1,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+
+```
+
+```{r}
+fviz_pca_biplot(p1, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+
+```
+
+
+
+# Drawing Ellispe
+
+Example using iris dataset
+
+```{r}
+data(iris)
+ir.pca<-prcomp(log(iris[,1:4]), center=TRUE, scale=TRUE)
+```
+
+Easiest approach: 
+```{r}
+library(ggplot2)
+library(ggfortify)
+ggplot2::autoplot(ir.pca, data=iris, colour="Species", frame=TRUE, frame.type="t") 
+```
+
+```{r}
+library(ggplot2)
+ggplot(ir.pca,aes(PC1, PC2))+ 
+  geom_point() + 
+  stat_density_2d(aes(alpha=..level.., fill=iris$Species), bins=4, geom="polygon")
+```
+
+
+
+`stat_ellipse()` and `stat_density_2d()` have a lot of options. See manual pages
+
+multivariate normal distribution.
+```{}
+stat_ellipse(type = "norm", linetype = 2)  
+```
+
+Euclid, is a circle with radius equal to the `level` parameter
+```{}
+stat_ellipse(type = "euclid", level = 3) 
+```
+
+multivariate t-distribution
+```{}
+stat_ellipse(type = "t") 
+```
+
+```{r}
+sessionInfo()
+```
+
+
+
