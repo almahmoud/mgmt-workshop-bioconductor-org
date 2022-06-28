@@ -21,4 +21,4 @@ jobs:
           helm repo update
       - run: git clone https://github.com/galaxyproject/galaxy-helm && cd galaxy-helm/galaxy && helm dep update && cd ../ && git checkout extrafiles-applytosetupjob && cd ..
       - name: helm upgrade
-        run: helm upgrade --install --create-namespace -n gxy-bioc gxy gxy/galaxy --reuse-values -f generated/workshop-toolconf-values.yaml -f generated/workshop-values.yaml
+        run: helm upgrade --install --create-namespace -n gxy-bioc gxy gxy/galaxy --version 4.10.2 --reuse-values -f generated/workshop-toolconf-values.yaml -f generated/workshop-values.yaml
