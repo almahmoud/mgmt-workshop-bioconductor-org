@@ -17,8 +17,7 @@ jobs:
         run: curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl && kubectl version
       - name: Add gxy helm repo
         run: |
-          helm repo add gxy https://github.com/CloudVE/helm-charts/raw/master
+          helm repo add bioc https://github.com/Bioconductor/helm-charts/raw/devel
           helm repo update
-      - run: git clone https://github.com/galaxyproject/galaxy-helm && cd galaxy-helm/galaxy && helm dep update && cd ../ && git checkout extrafiles-applytosetupjob && cd ..
       - name: helm upgrade
-        run: helm upgrade --install --create-namespace -n gxy-bioc gxy gxy/galaxy --version 4.10.2 --reuse-values -f generated/workshop-toolconf-values.yaml -f generated/workshop-values.yaml
+        run: helm upgrade --install --create-namespace -n gxy-bioc gxy bioc/galaxy --version 4.10.2 --reuse-values -f generated/workshop-toolconf-values.yaml -f generated/workshop-values.yaml
